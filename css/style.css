@@ -1,0 +1,3938 @@
+
+:root {
+  /* ---------------- COLORS ---------------- */
+  --app-bg: #f3f5f8;           /* Main background */
+  --card-bg: #f6f8fb;          /* Device card background */
+  --sensor-bg: #eef1f5;        /* Sensor mini screen background */
+  --text-primary: #2f2f2f;
+  --text-secondary: #7f8a99;
+  --text-muted: #9aa3af;
+  --primary-accent: #41c38f;   /* Accent / buttons */
+  --accent-green-soft: #cfeee2;
+  --status-online: #41c38f;
+  --status-offline: #8fa6b8;
+}
+
+/* ============================================================
+   1. GENERAL / LIGHT MODE STYLES (Base Sizes & Shadows)
+   ============================================================ */
+
+/* The Dark Mode Toggle Button Base */
+#darkModeToggle {
+  width: 100px;           /* Standard width for symmetry */
+  height: 48px;          /* Matches Manage Numbers button height */
+  padding: 0;
+  border: none;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: var(--card-bg);
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  box-shadow: 6px 6px 12px rgba(0,0,0,0.08), 
+             -6px -6px 12px rgba(255,255,255,0.9);
+}
+
+#manageNumbersBtn {
+  height: 48px;
+  padding: 0 1.5rem;
+  border: none;
+  border-radius: 14px;
+  background-color: var(--card-bg);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 6px 6px 12px rgba(0,0,0,0.08), 
+             -6px -6px 12px rgba(255,255,255,0.9);
+}
+
+/* Internal Toggle Track */
+.toggle-track {
+  width: 48px;
+  height: 24px;
+  border-radius: 20px;
+  position: relative;
+  background-color: var(--sensor-bg);
+  box-shadow: inset 3px 3px 6px rgba(0,0,0,0.1), 
+              inset -3px -3px 6px rgba(255,255,255,0.8);
+}
+
+/* Internal Toggle Thumb */
+.toggle-thumb {
+  width: 18px;
+  height: 18px;
+  background-color: var(--card-bg);
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+
+/* ============================================================
+   1. FIXED DIMENSIONS (Prevents jumping/shrinking)
+   ============================================================ */
+
+/* Standardize the "Control" height for header elements */
+#manageNumbersBtn, 
+#darkModeToggle {
+  height: 48px !important;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: none;
+  background-color: var(--card-bg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#darkModeToggle {
+  width: 100px; /* Fixed width to match visual weight of other button */
+}
+
+/* ============================================================
+   2. DARK MODE STEALH OVERRIDES (No Glow, No Size Change)
+   ============================================================ */
+
+:root.dark-mode {
+  --app-bg: #161E2F;
+  --card-bg: #223352;
+  --sensor-bg: #1e2a44;
+  --text-primary: #f5f5f5;
+  --text-secondary: #7f8a99;
+  
+  /* Muted shadows */
+  --shadow-light: rgba(255, 255, 255, 0.05); 
+  --shadow-dark: rgba(0, 0, 0, 0.4);
+  --inset-light: rgba(255, 255, 255, 0.03);
+  --inset-dark: rgba(0, 0, 0, 0.5);
+}
+
+/* --- RAISED ELEMENTS (Tiles keep their original size) --- */
+.dark-mode .neo-header, 
+.dark-mode .device-tile, 
+.dark-mode .device-menu {
+  background-color: var(--card-bg);
+  box-shadow: 8px 8px 16px var(--shadow-dark), 
+             -8px -8px 16px var(--shadow-light) !important;
+  border: none;
+  /* NO height rule here so cards stay big */
+}
+
+/* --- RAISED CONTROLS (Buttons/Toggles) --- */
+.dark-mode #manageNumbersBtn, 
+.dark-mode #darkModeToggle,
+.dark-mode .device-menu-btn,
+.dark-mode .add-icon-wrapper,
+.dark-mode .view-details-btn {
+  background-color: var(--card-bg) !important;
+  box-shadow: 6px 6px 12px var(--shadow-dark), 
+             -6px -6px 12px var(--shadow-light) !important;
+  border: none;
+}
+
+/* --- SUNKEN ELEMENTS --- */
+.dark-mode .sensor-box, 
+.dark-mode .add-device-slot,
+.dark-mode .toggle-track,
+.dark-mode #manageNumbersBtn:active,
+.dark-mode #darkModeToggle:active {
+  box-shadow: inset 4px 4px 8px var(--inset-dark), 
+              inset -4px -4px 8px var(--inset-light) !important;
+  background-color: var(--sensor-bg) !important;
+}
+
+/* --- TOGGLE SPECIFICS --- */
+.dark-mode .toggle-thumb {
+  background-color: var(--card-bg) !important;
+  box-shadow: 2px 2px 5px var(--shadow-dark), 
+             -2px -2px 5px var(--shadow-light) !important;
+}
+
+.dark-mode #themeIcon svg {
+  fill: var(--text-primary);
+  opacity: 0.8;
+  filter: none !important; 
+}
+
+/* --- ADD DEVICE CARD FIX --- */
+.dark-mode .add-device-slot {
+  border: 2px dashed rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-mode .add-device-slot p {
+  color: var(--text-secondary);
+  text-shadow: none;
+}
+/* --- SPECIFIC FIX FOR VIEW DETAILS BUTTON GLOW --- */
+.dark-mode .device-tile .view-details-btn,
+.dark-mode .device-tile button:not(.device-menu-btn) {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  /* Use the muted dark-mode highlight, not pure white */
+  box-shadow: 6px 6px 12px var(--shadow-dark), 
+             -5px -5px 10px var(--shadow-light) !important;
+  border: none !important;
+  transition: all 0.2s ease;
+}
+
+/* Ensure the "Press" state also loses the glow */
+.dark-mode .device-tile .view-details-btn:active,
+.dark-mode .device-tile button:not(.device-menu-btn):active {
+  box-shadow: inset 4px 4px 8px var(--inset-dark), 
+              inset -4px -4px 8px var(--inset-light) !important;
+  background-color: var(--sensor-bg) !important;
+  transform: scale(0.98);
+}
+/* ============================================================
+   DEEP STEALH MODAL & HOVER FIX (Zero Size-Shift Version)
+   ============================================================ */
+
+/* 1. MODAL BOXES (Alert Numbers, Rename, Remove) */
+.dark-mode .modal-content, 
+.dark-mode .modal-box,
+.dark-mode .popup-container {
+  /* Only changing colors and shadows */
+  background-color: var(--card-bg) !important;
+  box-shadow: 15px 15px 30px var(--shadow-dark), 
+             -10px -10px 30px var(--shadow-light) !important;
+  
+  /* Force size consistency */
+  border: none !important; 
+  box-sizing: border-box; 
+}
+
+/* 2. ADD NEW DEVICE HOVER (Fixes the "Cheeky" Glow on mouse-over) */
+.dark-mode .add-device-slot:hover {
+  /* Matches the lift of the light mode hover, but with muted colors */
+  box-shadow: 10px 10px 20px var(--shadow-dark), 
+             -8px -8px 20px var(--shadow-light) !important;
+  /* Ensure no height/width jump */
+  transform: none; 
+}
+
+/* 3. MODAL INPUTS (Sunken fields for names/numbers) */
+.dark-mode .modal-content input,
+.dark-mode .modal-content select {
+  background-color: var(--sensor-bg) !important;
+  color: var(--text-primary) !important;
+  box-shadow: inset 4px 4px 8px var(--inset-dark), 
+              inset -4px -4px 8px var(--inset-light) !important;
+  /* Maintain the same border thickness as light mode (likely 0 or 1px) */
+  border: none !important;
+}
+
+/* 4. MODAL BUTTONS (Save, Cancel, Remove) */
+.dark-mode .modal-content button {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 5px 5px 10px var(--shadow-dark), 
+             -5px -5px 10px var(--shadow-light) !important;
+  border: none !important;
+  /* Ensure padding doesn't change from the light mode defaults */
+}
+
+/* Override button colors in dark mode for specific button styles */
+.dark-mode .modal-content .cancel-style {
+  color: #aaa !important;
+}
+
+.dark-mode .modal-content .save-style {
+  color: #41c38f !important;
+}
+
+.dark-mode .modal-content .delete-style {
+  color: #ff4757 !important;
+}
+
+/* Rename Lab Modal - red cancel in dark mode */
+.dark-mode #deviceModal .cancel-style {
+  color: #ff4757 !important;
+}
+
+/* Alert Contacts Modal - light gray for black in dark mode */
+.dark-mode #numbersModal .cancel-style {
+  color: #ccc !important;
+}
+
+/* 5. MODAL BUTTONS ACTIVE (The "Press" in dark mode) */
+.dark-mode .modal-content button:active {
+  box-shadow: inset 3px 3px 6px var(--inset-dark), 
+              inset -3px -3px 6px var(--inset-light) !important;
+}
+/* Specifically target the 'Linked to' area inside the modal */
+.dark-mode .modal-content, 
+.dark-mode .modal-body {
+  /* This forces ALL text inside the modal to a readable light gray/white */
+  color: #CBD5E0 !important; 
+}
+
+/* Specific fix for the "Linked to: ACES" line */
+.dark-mode .modal-content span,
+.dark-mode .modal-content strong,
+.dark-mode .modal-content small {
+  color: #E2E8F0 !important; /* Brighter off-white */
+  opacity: 1 !important;
+}
+
+/* If 'ACES' is a different color or highlighted */
+.dark-mode .modal-content b, 
+.dark-mode .modal-content .aces-highlight {
+  color: #4ade80 !important; /* Mint green so it pops as a brand name */
+}
+
+/* --- DEVICE DETAIL DARK MODE OVERRIDES --- */
+.dark-mode .status-banner {
+  background: #1e293b !important;
+  box-shadow: inset 10px 10px 20px rgba(0, 0, 0, 0.4), 
+              inset -10px -10px 20px rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark-mode .status-banner.banner-safe {
+  box-shadow: inset 10px 10px 20px rgba(0, 0, 0, 0.35), 
+              inset -10px -10px 20px rgba(255, 255, 255, 0.03),
+              inset 0 0 30px rgba(64, 192, 87, 0.08) !important;
+}
+
+.dark-mode #bannerText {
+  color: #40c057;
+  text-shadow: 0 0 15px rgba(64, 192, 87, 0.5);
+}
+
+.dark-mode .log-msg {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .activity-log-container {
+  background: var(--card-bg) !important;
+  box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.4), 
+              inset -6px -6px 12px rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark-mode #deviceLogList div {
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode #deviceLogList {
+  background: var(--card-bg) !important;
+}
+
+.dark-mode .log-date {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .log-time {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .activity-log-icon {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .activity-log-header {
+  background: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode .activity-log-title {
+  color: #e0e6ed;
+}
+
+.dark-mode .tactile-key {
+  background: linear-gradient(145deg, #2d3748, #1a202c) !important;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.6), 
+              -8px -8px 16px rgba(255, 255, 255, 0.06) !important;
+}
+
+.dark-mode .tactile-key:active,
+.dark-mode .tactile-key.is-active {
+  background: #1a202c !important;
+  box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.7), 
+              inset -6px -6px 12px rgba(255, 255, 255, 0.04) !important;
+}
+
+.dark-mode .modal-overlay {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.dark-mode .modal-content {
+  background: #1e293b !important;
+  box-shadow: 12px 12px 20px rgba(0, 0, 0, 0.6), 
+              -6px -6px 12px rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-mode .modal-lcd-well {
+  background: #0f172a !important;
+  box-shadow: inset 8px 8px 16px rgba(0, 0, 0, 0.6), 
+              inset -8px -8px 16px rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark-mode .modal-lcd-well h3 {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .modal-lcd-well p {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .modal-lcd-well p .text-engage,
+.dark-mode .text-engage {
+  color: #ff6b7a !important; /* Brighter red for ENGAGE */
+  font-weight: 900 !important;
+  text-decoration: underline !important;
+}
+
+.dark-mode .modal-lcd-well p .text-deactivate,
+.dark-mode .text-deactivate {
+  color: #4ade80 !important; /* Brighter green for DEACTIVATE */
+  font-weight: 900 !important;
+  text-decoration: underline !important;
+}
+
+.dark-mode .modal-lcd-well input {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-mode .modal-btn-neu {
+  background: #334155 !important;
+  color: #475569 !important;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.8), 
+              -8px -8px 16px rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-mode .modal-btn-neu.confirm-red {
+  color: #ff6b7a !important;
+}
+
+.dark-mode .modal-btn-neu:active {
+  box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.8), 
+              inset -6px -6px 12px rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-mode .confirm-red {
+  color: #ff6b7a !important;
+}
+
+.dark-mode .back-btn {
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3), 
+              -4px -4px 8px rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-mode .back-btn svg {
+  fill: #cbd5e1 !important;
+}
+
+.dark-mode .text-change {
+  color: #94a3b8 !important;
+}
+
+
+/* ---------------- GLOBAL ---------------- */
+body {
+  font-family: "Inter", "Manrope", system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  background-color: var(--app-bg);
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+}
+
+button,
+.device-tile button,
+#manageNumbersBtn,
+.modal-content button {
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  box-shadow: 8px 8px 16px rgba(0,0,0,0.08),
+              -8px -8px 16px rgba(255,255,255,0.95);
+  
+  /* FIX: Only 15px margin on sides, 1rem on top, and 0 on bottom to kill the gap */
+  margin: 1rem 15px 0 15px; 
+}
+/* ---------------- THE MASTER GRID (UPDATED) ---------------- */
+.device-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  
+  /* SURGERY: Remove top margin/padding to sit flush with header */
+  margin: 10px 15px 0 15px !important; 
+  padding: 0 !important; 
+  
+  width: calc(100% - 30px);
+  gap: 20px;
+  align-items: start;
+  box-sizing: border-box;
+}
+/* ---------------- THE SOLID CARD ---------------- */
+.device-card {
+  height: 250px; 
+  min-height: 250px;
+  width: 100%; 
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 25px;
+  background: var(--card-bg);
+  border-radius: 28px;
+  
+  /* Neumorphic Shadow from your original design */
+  box-shadow: 10px 10px 20px rgba(0,0,0,0.2), 
+              -10px -10px 20px rgba(255,255,255,0.05);
+  
+  overflow: hidden; 
+  box-sizing: border-box;
+}
+
+/* ---------------- SENSOR MINI SCREEN (LCD) ---------------- */
+.sensor-box {
+  background: var(--sensor-bg);
+  border-radius: 14px;
+  
+  /* REDUCED padding: 10px 16px -> 8px 4px */
+  /* This gives the font more horizontal space to grow */
+  padding: 8px 4px; 
+  
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  
+  /* CHANGED: center content vertically, label will use margin-top: auto to push to bottom */
+  justify-content: center; 
+  align-items: center;
+  position: relative;
+  
+  box-shadow:
+    inset 3px 3px 6px rgba(0,0,0,0.10),
+    inset -3px -3px 6px rgba(255,255,255,0.9);
+  
+  font-family: 'SevenSegment', monospace;
+  
+  /* INCREASED height: 80px -> 110px */
+  /* This allows the number to be much taller without hitting the edges */
+  min-height: 110px; 
+  overflow: hidden;
+}
+
+/* ---------------- DEVICE TILE ---------------- */
+.device-tile {
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  padding: 1rem 1.5rem;
+  box-shadow:
+    8px 8px 16px rgba(0,0,0,0.08),
+   -8px -8px 16px rgba(255,255,255,0.95);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.device-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: inset 3px 3px 6px rgba(0,0,0,0.08),
+              inset -3px -3px 6px rgba(255,255,255,0.9);
+}
+
+/* ---------------- DEVICE HEADER ---------------- */
+.device-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* pushes name/status left and button right */
+  font-size: 1rem;
+  font-weight: 600;
+  min-height: 42px;
+  padding-right: 0; /* remove old padding */
+  position: relative; /* for absolute positioning */
+}
+
+/* Container for name + status badge (inline flex) */
+.device-name-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Status badge */
+.device-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--sensor-bg);
+  box-shadow: inset 2px 2px 4px rgba(0,0,0,0.06), 
+              inset -2px -2px 4px rgba(255,255,255,0.8);
+}
+
+.device-status::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.device-status.online {
+  color: var(--status-online);
+}
+
+.device-status.online::before {
+  background: var(--status-online);
+  box-shadow: 0 0 8px var(--status-online), 0 0 12px var(--status-online);
+  animation: pulse-online 2s ease-in-out infinite;
+}
+
+.device-status.offline {
+  color: var(--status-offline);
+}
+
+.device-status.offline::before {
+  background: var(--status-offline);
+  opacity: 0.6;
+}
+
+@keyframes pulse-online {
+  0%, 100% {
+    box-shadow: 0 0 4px var(--status-online), 0 0 8px var(--status-online);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 8px var(--status-online), 0 0 16px var(--status-online);
+    opacity: 0.8;
+  }
+}
+
+/* Dark mode status */
+.dark-mode .device-status,
+:root.dark-mode .device-status {
+  background: var(--sensor-bg);
+  box-shadow: inset 2px 2px 4px var(--inset-dark), 
+              inset -2px -2px 4px var(--inset-light);
+}
+
+.dark-mode .device-status.online,
+:root.dark-mode .device-status.online {
+  color: #4ade80;
+}
+
+.dark-mode .device-status.online::before,
+:root.dark-mode .device-status.online::before {
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80, 0 0 12px #4ade80;
+}
+
+.dark-mode .device-status.offline,
+:root.dark-mode .device-status.offline {
+  color: #64748b;
+}
+
+.dark-mode .device-status.offline::before,
+:root.dark-mode .device-status.offline::before {
+  background: #64748b;
+}
+
+/* ---------------- DEVICE TILE ---------------- */
+.device-tile {
+  position: relative; /* allows absolute positioning of 3-dot button inside card */
+}
+
+/* 3-dots button anchored to top-right corner of card */
+.device-menu-btn {
+  position: absolute;   /* relative to header */
+  top: -9px;
+  right: -5px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;     /* prevent flex grow */
+  max-width: 28px;
+  min-height: 28px;
+  max-height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--card-bg);
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  text-align: center;   /* centers the ⋮ */
+  display: inline-flex; /* prevent flex stretching */
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+
+.device-menu-btn:hover {
+  box-shadow:
+    inset 2px 2px 4px rgba(0,0,0,0.12),
+    inset -2px -2px 4px rgba(255,255,255,0.9);
+}
+
+/* ---------------- DEVICE MENU (dropdown) ---------------- */
+.device-menu {
+  position: absolute;       /* relative to button */
+  top: 36px;                /* drops below the button */
+  right: 0;                 /* aligned to button's right edge */
+  display: none;            /* hidden by default */
+  flex-direction: column;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.1),
+              -4px -4px 12px rgba(255,255,255,0.9);
+  min-width: 80px;
+  max-width: 140px;
+  overflow: hidden;
+  z-index: 15;              /* above all card content */
+}
+
+.device-menu button:hover {
+  background-color: var(--sensor-bg);
+}
+
+
+/* ---------------- SENSOR ROW ---------------- */
+.sensor-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.sensor-box {
+  background: var(--sensor-bg);
+  border-radius: 14px;
+  padding: 15px 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;    
+  justify-content: center; /* This centers the "Value Group" vertically */
+  min-height: 110px;       /* Slightly taller for better symmetry */
+  box-shadow:
+    inset 3px 3px 6px rgba(0,0,0,0.10),
+    inset -3px -3px 6px rgba(255,255,255,0.9);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ---------------- BUTTON ---------------- */
+.device-tile button {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 12px;
+  border: none;
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  box-shadow: 6px 6px 12px rgba(0,0,0,0.08),
+              -6px -6px 12px rgba(255,255,255,0.95);
+}
+
+.device-tile button:hover {
+  box-shadow: inset 3px 3px 6px rgba(0,0,0,0.1),
+              inset -3px -3px 6px rgba(255,255,255,0.9);
+}
+
+/* ---------------- ADD DEVICE TILE ---------------- */
+.device-tile.add-device {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--card-bg);
+  border-radius: 20px;
+  border: 2px dashed var(--primary-accent);
+  font-size: 1.2rem;
+  font-weight: bold;
+  height: 160px;
+  max-height: 160px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow:
+    8px 8px 16px rgba(0,0,0,0.08),
+   -8px -8px 16px rgba(255,255,255,0.95);
+}
+
+.device-tile.add-device button {
+  background: transparent;
+  border: none;
+  color: var(--primary-accent);
+  font-size: 1.4rem;
+}
+
+.device-tile.add-device:hover {
+  transform: scale(1.03);
+  box-shadow: inset 3px 3px 6px rgba(0,0,0,0.08),
+              inset -3px -3px 6px rgba(255,255,255,0.9);
+}
+
+/* ---------------- MODAL ---------------- */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  
+  /* iOS Safari fix - forces GPU layer and fixes tap target issues */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-content {
+  background-color: var(--card-bg);
+  
+  /* UPDATED: Padding shrinks from 1.5rem on desktop to 1rem on small phones */
+  padding: clamp(1rem, 4vw, 1.5rem); 
+  
+  border-radius: 24px;
+  
+  /* RESPONSIVE WIDTH LOGIC */
+  width: 92%;         /* Slightly tighter than 95% to ensure shadow visibility */
+  max-width: 400px;
+  max-height: 80vh;   /* Limit height to 80% of viewport */
+  max-height: 80dvh;  /* Dynamic viewport height - better for iOS */
+  overflow-y: auto;   /* Scroll inside modal if content is too tall */
+  box-sizing: border-box;
+  
+  /* iOS Safari fix - forces proper hit testing */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  position: relative; 
+
+  /* LIGHT MODE NEUMORPHISM */
+  box-shadow: 
+    10px 10px 20px rgba(0, 0, 0, 0.1),
+    -5px -5px 15px rgba(255, 255, 255, 0.5);
+    
+  border: none;
+  position: relative;
+  text-shadow: none !important;
+
+  /* ADDED: Ensures internal elements stay vertically centered and tight */
+  display: flex;
+  flex-direction: column;
+  gap: 12px; 
+}
+/* --- DARK MODE MODAL FIX --- */
+/* This removes the white glow when in Dark Mode */
+.dark-mode .modal-content {
+  box-shadow: 
+    8px 8px 16px rgba(0, 0, 0, 0.4), 
+    -4px -4px 12px rgba(255, 255, 255, 0.03) !important;
+}
+
+.modal-content h2 {
+  font-size: clamp(1.1rem, 3vw, 1.3rem); /* Auto-shrinks title on mobile */
+  margin-bottom: 0.5rem;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+/* Helpful for the Pixel 7: ensures inputs don't zoom the screen */
+.modal-content input {
+  font-size: 16px; /* Prevents iOS/Android auto-zoom on focus */
+  width: 100%;
+  box-sizing: border-box;
+}
+/* ---------------- PHONE LIST ---------------- */
+#numbersList {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+#numbersList li {
+  background: var(--sensor-bg);
+  margin-bottom: 0.75rem;
+  padding: 0.8rem 1.2rem; /* Increased side padding */
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-between; /* Pushes number left, button right */
+  align-items: center;
+  box-shadow: 
+    inset 2px 2px 5px rgba(0,0,0,0.05),
+    inset -2px -2px 5px rgba(255,255,255,0.8);
+  font-family: inherit; /* Clean font for better readability */
+  font-size: 1rem;
+}
+
+/* Specific styling for the delete button in the list */
+#numbersList li button {
+  width: auto; /* Overrides full width */
+  background: transparent;
+  box-shadow: none;
+  color: #ff4757; /* Red for deletion */
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin: 0;
+  border-radius: 8px;
+}
+
+#numbersList li button:active {
+  box-shadow: none;
+  transform: scale(0.9);
+}
+
+/* ---------------- MODAL INPUT ---------------- */
+.modal-content input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.8rem 1rem;
+  margin: 1rem 0;
+  border-radius: 14px;
+  border: none;
+  background-color: var(--sensor-bg);
+  color: var(--text-primary);
+  box-shadow: 
+    inset 4px 4px 8px rgba(0,0,0,0.08),
+    inset -4px -4px 8px rgba(255,255,255,0.9);
+  outline: none;
+  font-size: 1rem;
+}
+
+/* ---------------- MODAL BUTTONS (Add Button) ---------------- */
+.modal-content > button {
+  width: 100%; 
+  padding: 0.8rem;
+  border-radius: 14px;
+  border: none;
+  background-color: var(--card-bg);
+  color: var(--primary-accent);
+  font-weight: 700;
+  box-shadow: 
+    6px 6px 12px rgba(0,0,0,0.08),
+    -6px -6px 12px rgba(255,255,255,0.95);
+  cursor: pointer;
+}
+
+.modal-content > button:active {
+  box-shadow: 
+    inset 3px 3px 6px rgba(0,0,0,0.1),
+    inset -3px -3px 6px rgba(255,255,255,0.9);
+  transform: scale(0.98);
+}
+/* ---------------- CLOSE ICON ---------------- */
+.close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  line-height: 1;
+}
+/* ---------------- CLOSE MODAL ---------------- */
+.close {
+  float: right;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+
+
+/* Updated Button Styles for Header */
+#manageNumbersBtn {
+  /* Remove fixed padding, use clamp for a "tight" feel on mobile */
+  padding: 0 clamp(0.5rem, 2vw, 1.2rem) !important;
+  font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+  white-space: nowrap;
+  height: 44px !important; /* Slightly slimmer height */
+}
+
+#darkModeToggle {
+  /* Switch from fixed 100px to a fluid width */
+  width: clamp(70px, 15vw, 90px) !important; 
+  height: 44px !important;
+  flex-shrink: 0;
+}
+/* ---------------- 7-Segment Font ---------------- */
+@font-face {
+  font-family: 'SevenSegment';
+  src: url('../assets/fonts/sevensegment.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* ---------------- SENSOR MINI SCREEN ---------------- */
+.sensor-box {
+  background: var(--sensor-bg);
+  border-radius: 14px;
+  /* Increased padding slightly to prevent values from touching the edges */
+  padding: 12px 6px; 
+  
+  flex: 1 1 0px; 
+  width: 0; 
+  
+  display: flex;
+  flex-direction: column;
+  /* Centering logic */
+  justify-content: center; 
+  align-items: center;
+  position: relative;
+  
+  box-shadow:
+    inset 3px 3px 6px rgba(0,0,0,0.10),
+    inset -3px -3px 6px rgba(255,255,255,0.9);
+  
+  /* Increased the height slightly (0.8 to 0.9) to give room for the centering */
+  aspect-ratio: 1 / 0.9; 
+  min-height: auto; 
+  overflow: hidden;
+}
+/* Top-left icon */
+.sensor-icon {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.sensor-icon {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: 16px;
+  height: 16px;
+}
+/* ---------- THEME TOGGLE ---------- */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.toggle-track {
+  width: 56px;
+  height: 28px;
+  background: #ccc;
+  border-radius: 20px;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.toggle-thumb {
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  color: #222; /* moon visible in light mode */
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.toggle-thumb svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* ---------- DARK MODE STATE ---------- */
+:root.dark-mode .toggle-track {
+  background: #444;
+}
+
+:root.dark-mode .toggle-thumb {
+  transform: translateX(28px);
+  color: #000000; /* sun yellow */
+}
+/* Danger state for the sensor box */
+.sensor-box.danger {
+  background: #ffeded; /* Soft red bg */
+  box-shadow: inset 3px 3px 6px rgba(255, 0, 0, 0.1), 
+              inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+}
+
+.sensor-box.danger .sensor-value {
+  color: #e63946 !important; /* Warning Red */
+  text-shadow: 0 0 8px rgba(230, 57, 70, 0.3);
+}
+
+/* Optional: Flashing animation for critical gas/fire */
+@keyframes pulse-red {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.sensor-box.danger .sensor-icon {
+  color: #e63946;
+  animation: pulse-red 1s infinite;
+}
+/* Pushes the X to the edge and removes the glow */
+#numbersList li {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center;
+  padding: 0.8rem 1.2rem !important; /* Slightly more side padding */
+  text-shadow: none !important;
+}
+/* Forces the font on the number specifically */
+.seven-seg-modal {
+  font-family: 'SevenSegment', monospace !important;
+  text-shadow: none !important;
+}
+
+/* Update the existing delete-btn-modal block */
+.delete-btn-modal {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #ff4757 !important; /* Keep it red for danger */
+  width: auto !important;
+  padding: 5px 10px !important; /* Bigger tap target */
+  margin: 0 !important;
+  border: none !important;
+  font-size: 0.85rem !important;
+  font-weight: bold !important;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.delete-btn-modal:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+/* --- NEW: THE HORIZONTAL BUTTON ROW --- */
+.modal-button-row {
+  display: flex;
+  gap: 15px;      /* Gap between Add and Save */
+  margin-top: 20px;
+}
+
+/* Update your existing button styles to work inside the row */
+#addNumberBtn, #saveNumbersBtn {
+  flex: 1;        /* This is the magic part that makes them side-by-side */
+  padding: 0.8rem;
+  border-radius: 14px;
+  border: none;
+  background-color: var(--card-bg);
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* Standard neumorphic shadow */
+  box-shadow: 
+    5px 5px 10px rgba(0,0,0,0.08), 
+    -5px -5px 10px rgba(255,255,255,0.9);
+}
+
+#addNumberBtn {
+  color: var(--primary-accent); /* Keep Add green */
+}
+
+#saveNumbersBtn {
+  color: var(--text-primary); /* Keep Save standard */
+}
+
+/* Pressed state for both */
+#addNumberBtn:active, #saveNumbersBtn:active {
+  box-shadow: 
+    inset 3px 3px 6px rgba(0,0,0,0.1), 
+    inset -3px -3px 6px rgba(255,255,255,0.9);
+  transform: scale(0.98);
+}
+/* The 'Empty Slot' look */
+.add-device-slot {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px dashed rgba(0, 0, 0, 0.05); /* Subtle hint of a border */
+  background: var(--card-bg);
+  /* Inset shadow makes it look sunken */
+  box-shadow: 
+    inset 6px 6px 12px rgba(0, 0, 0, 0.05), 
+    inset -6px -6px 12px rgba(255, 255, 255, 0.8) !important;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  min-height: 180px; /* Match your other cards */
+}
+
+/* Hover state: It 'pops out' to meet your cursor */
+.add-device-slot:hover {
+  border-color: var(--primary-accent);
+  transform: translateY(-5px);
+  /* Changes from sunken to popping out */
+  box-shadow: 
+    10px 10px 20px rgba(0, 0, 0, 0.1), 
+    -10px -10px 20px rgba(255, 255, 255, 1) !important;
+}
+
+/* The Plus Icon styling */
+.add-icon-wrapper {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+  background: var(--card-bg);
+  box-shadow: 4px 4px 8px rgba(0,0,0,0.1), -4px -4px 8px rgba(255,255,255,0.9);
+  color: var(--primary-accent);
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.add-device-slot p {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+/* --- MODAL BUTTONS (HORIZONTAL) --- */
+.modal-button-row {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+#addNumberBtn, #saveNumbersBtn {
+  flex: 1;
+  padding: 0.8rem;
+  border-radius: 14px;
+  border: none;
+  background-color: var(--card-bg);
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 5px 5px 10px rgba(0,0,0,0.08), -5px -5px 10px rgba(255,255,255,0.9);
+  transition: all 0.2s ease;
+}
+
+#addNumberBtn { color: var(--primary-accent); }
+#saveNumbersBtn { color: var(--text-primary); }
+
+#addNumberBtn:active, #saveNumbersBtn:active {
+  box-shadow: inset 3px 3px 6px rgba(0,0,0,0.1), inset -3px -3px 6px rgba(255,255,255,0.9);
+  transform: scale(0.98);
+}
+
+/* --- DELETE BUTTON (TEXT STYLE) --- */
+.delete-btn-modal {
+  background: transparent !important;
+  color: #ff4757 !important;
+  border: none !important;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+/* --- ADD DEVICE SLOT (SUNKEN LOOK) --- */
+.add-device-slot {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--card-bg);
+  box-shadow: inset 6px 6px 12px rgba(0,0,0,0.05), inset -6px -6px 12px rgba(255,255,255,0.8) !important;
+  border: 2px dashed rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-device-slot:hover {
+  transform: translateY(-5px);
+  box-shadow: 10px 10px 20px rgba(0,0,0,0.1), -10px -10px 20px rgba(255,255,255,1) !important;
+}
+
+.add-icon-wrapper {
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  display: flex; justify-content: center; align-items: center;
+  background: var(--card-bg);
+  box-shadow: 4px 4px 8px rgba(0,0,0,0.1), -4px -4px 8px rgba(255,255,255,0.9);
+  color: var(--primary-accent);
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+.input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  margin: 15px 0;
+}
+
+.input-group label {
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: var(--text-primary);
+  opacity: 0.7;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: var(--card-bg);
+  box-shadow: inset 4px 4px 8px rgba(0,0,0,0.05), inset -4px -4px 8px rgba(255,255,255,0.8);
+  color: var(--text-primary);
+}
+
+/* Ensure the row spans full width and buttons share space 50/50 */
+/* This targets all buttons inside any modal button row */
+.modal-button-row button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  
+  /* THE NEUMORPHIC LOOK */
+  background-color: var(--card-bg); /* This must match the modal background */
+  box-shadow: 5px 5px 10px rgba(0,0,0,0.08), 
+             -5px -5px 10px rgba(255,255,255,0.9);
+  
+  transition: all 0.2s ease;
+}
+
+/* Hover/Click effect to make them feel like real buttons */
+.modal-button-row button:active {
+  box-shadow: inset 3px 3px 6px rgba(0,0,0,0.1), 
+              inset -3px -3px 6px rgba(255,255,255,0.8);
+  transform: scale(0.98);
+}
+
+/* Apply the specific colors */
+#confirmDeleteBtn {
+  color: #ff4757; /* The red color for "Remove" */
+}
+
+#cancelDeleteBtn, #cancelDeviceBtn {
+  color: #888; /* The neutral color for "Cancel" */
+}
+
+#confirmDeviceBtn {
+  color: var(--primary-accent); /* The blue/green color for "Save" */
+}
+#cancelDeviceBtn, #confirmDeviceBtn {
+  flex: 1; /* This makes both buttons stretch to fill the row equally */
+  padding: 0.8rem;
+  border-radius: 14px;
+  border: none;
+  background-color: var(--card-bg);
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 5px 5px 10px rgba(0,0,0,0.08), -5px -5px 10px rgba(255,255,255,0.9);
+  transition: all 0.2s ease;
+}
+
+/* Specific colors for clarity */
+#cancelDeviceBtn { color: #ff4757; } 
+#confirmDeviceBtn { color: var(--primary-accent); }
+
+/* Active (Pressed) state for that tactile feel */
+#cancelDeviceBtn:active, #confirmDeviceBtn:active {
+  box-shadow: inset 3px 3px 6px rgba(0,0,0,0.1), inset -3px -3px 6px rgba(255,255,255,0.9);
+  transform: scale(0.98);
+}
+
+/* Container for side-by-side buttons */
+.modal-button-row {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+/* Base Neumorphic Button Style */
+.modal-btn {
+  flex: 1; /* This makes them stretch equally */
+  padding: 15px;
+  border: none;
+  border-radius: 14px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  
+  /* NEUMORPHIC RAISED EFFECT */
+  background: var(--card-bg);
+  box-shadow: 6px 6px 12px rgba(0,0,0,0.08), 
+             -6px -6px 12px rgba(255,255,255,0.9);
+             
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Tactile "Pressed" Effect */
+.modal-btn:active {
+  box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1), 
+              inset -4px -4px 8px rgba(255,255,255,0.9);
+  transform: scale(0.98);
+}
+
+/* Color Styles */
+.cancel-style {
+  color: #888 !important; /* Default gray for cancel/close */
+}
+
+.delete-style {
+  color: #ff4757 !important; /* Danger red */
+}
+
+.save-style {
+  color: #41c38f !important; /* Green for save/add */
+}
+
+/* Rename Lab Modal - red cancel + green save */
+#deviceModal .cancel-style {
+  color: #ff4757 !important; /* Red for rename cancel */
+}
+
+/* Alert Contacts Modal - black close + green add */
+#numbersModal .cancel-style {
+  color: #000 !important; /* Black for close */
+}
+.hardware-status {
+  background: rgba(0, 0, 0, 0.03);
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #555;
+  border-left: 4px solid var(--primary-accent); /* Blue/Green strip */
+}
+
+.hardware-status .dot {
+  height: 8px;
+  width: 8px;
+  background-color: #2ecc71; /* Green dot */
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px #2ecc71;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+/* --- EMERGENCY ALERT SYSTEM --- */
+
+/* 1. The Animation Keyframes */
+@keyframes pulse-red-glow {
+  0% { box-shadow: 0 0 5px rgba(230, 57, 70, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(230, 57, 70, 0.6); }
+  100% { box-shadow: 0 0 5px rgba(230, 57, 70, 0.2); }
+}
+
+/* 2. The Active State for the Card */
+.device-tile.emergency-active {
+  border: 2px solid #e63946 !important; /* Forces a red border */
+  animation: pulse-red-glow 1.5s infinite ease-in-out;
+  background-color: #fff9f9 !important; /* Very subtle warm tint */
+}
+
+/* 3. Dark Mode adjustment for Emergency */
+.dark-mode .device-tile.emergency-active {
+  background-color: #2d1b1e !important;
+  border: 2px solid #ff4d4d !important;
+}
+
+/* --- SAMSUNG GALAXY S8+ FIX (360px) --- */
+@media (max-width: 380px) {
+  /* Align header with device grid - same margins */
+  .neo-header,
+  header {
+    margin-left: 8px !important;
+    margin-right: 12px !important;
+    width: calc(100% - 20px) !important;
+    padding: 12px 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Reduce grid card minimum width for narrow phones */
+  .device-grid {
+    grid-template-columns: 1fr !important;
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+    width: calc(100% - 20px) !important;
+    gap: 15px;
+    box-sizing: border-box !important;
+  }
+
+  .header-left {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  .header-inner {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  /* Match device card internal padding */
+  .device-card {
+    padding: 15px !important;
+  }
+
+  /* Fix header text wrapping - keep ACES IOT on one line */
+  .header-left h1 {
+    font-size: 0.9rem !important;
+    white-space: nowrap;
+  }
+
+  .mobile-subtitle {
+    font-size: 0.65rem !important;
+  }
+
+  .sensor-value {
+    font-size: 15px !important;
+  }
+  /* Adjust card height for smaller screens */
+  .device-card {
+    height: 220px !important;
+  }
+
+  /* Tighten header spacing - align with device grid margins */
+  .header-container {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+    margin: 10px 10px 0 10px !important;
+    width: calc(100% - 20px) !important;
+  }
+
+  .header-nav {
+    gap: 12px !important;
+  }
+
+  .header-controls-group {
+    gap: 8px !important;
+  }
+
+  /* Adjust nav button sizes */
+  .nav-btn {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.7rem !important;
+  }
+
+  /* Tighten sensor spacing on detail page */
+  .sensor-row {
+    gap: 10px !important;
+  }
+
+  .sensor-box {
+    padding: 8px !important;
+  }
+}
+
+/* --- MOBILE SENSOR FIX --- */
+@media (max-width: 480px) {
+  .device-detail-page .sensor-row > .sensor-box {
+    /* Reduced height to compress content and center value better */
+    height: auto !important;
+    min-height: 70px !important; 
+    padding: 6px 2px !important;
+    justify-content: center !important;
+  }
+
+  /* Move the icon slightly so it doesn't collide with the big number */
+  .sensor-icon {
+    top: 5px;
+    left: 5px;
+    transform: scale(0.9); 
+    opacity: 1;
+    margin-bottom: -8px;
+  }
+
+  .sensor-icon svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  .sensor-value {
+    margin-top: -12px !important;
+    margin-bottom: -8px !important;
+  }
+
+  .sensor-label {
+    font-size: 0.8rem !important;
+    padding-bottom: 4px;
+    padding-top: 2px !important;
+    margin-top: auto !important;
+  }
+
+}
+/* Makes the logo feel interactive without changing layout */
+.header-left a {
+  display: inline-block;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.header-left a:hover {
+  opacity: 0.8;
+  transform: scale(1.01); /* Very subtle growth on hover */
+}
+
+.header-left a:active {
+  transform: scale(0.98); /* Slight shrink when clicked */
+}
+/* This controls the parent container */
+.header-inner {
+  display: flex !important;
+  justify-content: flex-start !important; /* Forces items to stack from left */
+  width: 100%;
+}
+
+/* This pushes the whole group to the right */
+.header-controls-group {
+  margin-left: auto; 
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between the Nav and the Dark Mode Toggle */
+}
+
+/* Ensure the old nav styles aren't fighting us */
+.header-nav {
+  position: static !important;
+  transform: none !important;
+  margin: 0 !important;
+  display: flex;
+  gap: 15px; /* Space between Alerts and Logs */
+}
+
+.header-right {
+  margin: 0 !important;
+}
+
+/* --- NEW MASTER UNIT CONTROL --- */
+.sensor-unit {
+  position: absolute !important;
+  /* ADJUST THESE: Higher numbers move it away from the edge */
+  top: 10px !important;  
+  right: 12px !important; 
+  
+  /* Styling from your favorites */
+  font-size: 14px !important; 
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: inherit; /* Standard font looks cleaner for units than SevenSegment */
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* --- MOBILE SPECIFIC (Pixel 7 / Phone) --- */
+@media (max-width: 480px) {
+  .sensor-unit {
+    /* Nudge these to match your icon's breathing room on mobile */
+    top: 8px !important; 
+    right: 10px !important;
+    font-size: 13px !important;
+  }
+}
+/* --- THE MASTER LABEL CONTROL --- */
+.sensor-label {
+  /* 1. POSITIONING: margin-top auto is the secret to the bottom alignment */
+  margin-top: auto !important; 
+  padding-bottom: 8px;
+  margin-bottom: 0 !important;
+  padding-top: 4px !important;
+  
+  /* 2. TYPOGRAPHY: standard font is much easier to read than SevenSegment for text */
+  font-size: 13px !important; 
+  font-family: inherit; 
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  
+  /* 3. VISUALS */
+  color: var(--text-secondary);
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+/* --- MOBILE SPECIFIC (Pixel 7) --- */
+@media (max-width: 480px) {
+  .sensor-label {
+    font-size: 12px !important; /* Slightly smaller to fit tighter mobile cards */
+    letter-spacing: 0.5px;
+  }
+}
+
+/* --- THE MASTER DATA GROUP (Number Positioning) --- */
+.sensor-data-group {
+  flex: 1; 
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+  width: 100%;
+  
+  /* ADJUST THIS: Nudge the number up or down globally */
+  /* Negative = Up, Positive = Down */
+  transform: translateY(0px); 
+}
+
+/* --- MOBILE DATA GROUP (Pixel 7 Nudge) --- */
+@media (max-width: 480px) {
+  .sensor-data-group {
+    /* If the number looks too low on your phone, try -3px or -5px */
+    transform: translateY(6px) !important; 
+    
+    /* You can also adjust the font size here if the number is too big for the box */
+    /* .sensor-value { font-size: 30px !important; } */
+  }
+}
+
+/* --- THE MASTER VALUE CONTROL --- */
+.sensor-value {
+  /* 1. TYPOGRAPHY: Big, Bold, and Digital */
+  font-family: 'SevenSegment', monospace;
+  font-size: 48px !important; /* The 'Sweet Spot' size */
+  font-weight: 900;
+  line-height: 1;
+  color: var(--text-primary);
+  -webkit-text-stroke: 0.5px var(--text-primary);
+  
+  /* 2. STABILITY: Stops the numbers from 'shivering' */
+  font-variant-numeric: tabular-nums;
+  display: inline-block;
+  text-align: center;
+  white-space: nowrap;
+  
+  /* 3. CENTERING: Ensure vertical centering in flex container */
+  margin: auto 0 !important;
+}
+/* --- MOBILE VALUE TWEAK (Pixel 7) --- */
+@media (max-width: 480px) {
+  .sensor-value {
+    /* 32px or 36px usually fits best on mobile without overlapping the unit */
+    font-size: 36px !important; 
+    letter-spacing: -1px;
+  }
+}
+
+/* --- SMALLER PHONES (Galaxy S8+ / 360px) --- */
+@media (max-width: 380px) {
+  .sensor-value {
+    font-size: 23px !important;
+    letter-spacing: -1px;
+  }
+}
+
+/* ============================================================
+   MASTER HEADER: CONSOLIDATED & ALIGNED
+   ============================================================ */
+
+.neo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1.2rem;
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  box-shadow: 8px 8px 16px rgba(0,0,0,0.08), -8px -8px 16px rgba(255,255,255,0.95);
+  margin: 1rem 15px 0 15px !important; 
+  width: calc(100% - 30px);
+  box-sizing: border-box;
+  position: sticky;
+  top: 10px;
+  z-index: 1000;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* --- TITLE AREA (DESKTOP & MASTER) --- */
+.header-left { 
+  margin-right: auto;
+  display: flex;
+  flex-direction: column; /* Forces vertical stacking everywhere */
+  align-items: flex-start; /* Aligns both lines to the absolute left */
+}
+
+.header-left h1 {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: clamp(1.1rem, 4vw, 1.4rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  line-height: 1; /* Keeps the gap between lines tight */
+}
+
+/* Desktop version: Visible by default, hidden on mobile */
+.desktop-title-part {
+  display: inline !important; 
+  color: #666;
+  margin-left: 6px;
+}
+
+/* Mobile version: Hidden by default, shown on mobile */
+.mobile-subtitle {
+  display: none !important; 
+  color: #666;
+}
+/* --- NAV & CONTROLS --- */
+.header-controls-group {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 3vw, 20px);
+}
+
+.header-nav { display: flex; gap: 12px; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.nav-item:hover {
+  color: #3b82f6;
+  background-color: var(--card-bg);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.05), -4px -4px 10px rgba(255, 255, 255, 0.8);
+}
+
+.nav-item.active {
+  color: #3b82f6;
+  background-color: var(--card-bg);
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.08), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+}
+
+.nav-item.active .nav-svg {
+  fill: #3b82f6;
+}
+
+.nav-item:active {
+  transform: scale(0.95);
+  box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.08), inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+}
+
+.nav-svg { width: 22px; height: 22px; fill: currentColor; transition: all 0.3s ease; }
+
+/* ============================================================
+   ALERTS MODAL: UNIVERSAL LAYOUT (Syncs Light & Dark)
+   ============================================================ */
+
+/* --- BASE STYLES (Applies to both Light & Dark Mode) --- */
+#numbersList {
+    padding: 15px 12px !important;
+    overflow-y: auto !important;
+    max-height: 140px;  /* Fits ~2 numbers, scrolls after that */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    border-radius: 16px;
+    
+    /* Neumorphic inset well - looks like a scrollable box */
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.1),
+                inset -6px -6px 12px rgba(255, 255, 255, 0.7);
+}
+
+#numbersList li {
+    padding: 12px 16px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* This ensures the box layout is identical in both modes */
+    width: calc(100% - 24px) !important; 
+    margin: 0 auto 20px auto; 
+    box-sizing: border-box;
+}
+
+/* --- DARK MODE OVERRIDES --- */
+.dark-mode .desktop-title-part,
+.dark-mode .mobile-subtitle { color: #bbb; }
+
+.dark-mode .nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #60a5fa;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    text-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+.dark-mode .nav-item.active {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.4), inset -4px -4px 8px rgba(255, 255, 255, 0.02);
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.dark-mode .nav-item.active .nav-svg {
+    fill: #60a5fa;
+    filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.6));
+}
+
+/* --- DARK MODE: ADDED NUMBER BOX FIX --- */
+
+/* Dark mode list container - sunken well effect */
+.dark-mode #numbersList {
+    background-color: rgba(0, 0, 0, 0.3);
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.4),
+                inset -6px -6px 12px rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode #numbersList li {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    /* REFINED SHADOW: No white glow, prevents right-side clipping */
+    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), 
+                -4px -4px 8px rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .delete-num-btn {
+    background: var(--card-bg);
+    color: #ef4444;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    /* Soft shadows for the button in the dark */
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3), 
+                -2px -2px 5px rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+.dark-mode .delete-num-btn:hover {
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
+    color: #ff6b6b;
+}
+.dark-mode .nav-item:nth-child(1):hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+.dark-mode .nav-item:nth-child(2):hover { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+
+/* --- MOBILE (PIXEL 7) OVERRIDE --- */
+@media (max-width: 480px) {
+  /* Hides the 'DASHBOARD' that sits next to ACES IOT */
+  .desktop-title-part { 
+    display: none !important; 
+  }
+  
+  /* Shows the 'DASHBOARD' that sits UNDER ACES IOT */
+  .mobile-subtitle {
+    display: block !important; 
+    text-align: left !important;
+    margin: 2px 0 0 0 !important; /* Adjust this to move it up or down */
+    padding: 0 !important;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    width: 100%;
+  }
+
+  .header-left h1 {
+    font-size: 1.1rem;
+    display: block !important; /* Ensure the H1 doesn't try to flex anymore */
+  }
+
+  /* Stacked Nav Fix */
+  .nav-item { flex-direction: column; padding: 6px 8px; min-width: 50px; gap: 0; }
+  .nav-text { display: block !important; font-size: 10px; margin-top: 2px; }
+  .nav-svg { width: 20px; height: 20px; margin-right: 0; }
+}
+
+/* ============================================================
+   DEVICE DETAIL PAGE: NEUMORPHIC LCD & TACTILE CONTROLS
+   ============================================================ */
+
+body {
+    background-color: var(--app-bg);
+    color: var(--text-primary);
+}
+
+/* --- 1. FINAL SUNKEN PHYSICAL WELL --- */
+.status-banner {
+    /* Tighten size to match sensor proportions */
+    padding: 40px 20px; 
+    width: 90%;
+    max-width: 450px; 
+    margin: 0 auto 30px auto; 
+    border-radius: 40px; 
+    
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; 
+    position: relative;
+    transition: all 0.5s ease;
+
+    /* THE FIX: We use a slightly darker background than the body 
+       to make the "hole" look deeper + much sharper inset shadows */
+    background: #f8fafc; 
+    box-shadow: 
+        inset 10px 10px 20px rgba(0, 0, 0, 0.1),   /* Top-left dark sink */
+        inset -10px -10px 20px rgba(255, 255, 255, 0.8); /* Bottom-right light edge */
+    
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Subtle rim */
+}
+
+/* --- THE 7-SEGMENT DISPLAY --- */
+#bannerText {
+    font-family: 'Seven Segment', 'Courier New', Courier, monospace; 
+    font-weight: 900;
+    font-size: 2rem; 
+    margin-top: 15px;
+    text-transform: uppercase;
+    letter-spacing: 5px; 
+    
+    /* Ensure text looks like it is "inside" the hole */
+    background: transparent;
+    padding: 0;
+    transition: all 0.4s ease;
+}
+
+/* SAFE STATE: Deep Green "Under-Glass" Glow */
+.status-banner.banner-safe {
+    box-shadow: 
+        inset 10px 10px 20px rgba(0, 0, 0, 0.08), 
+        inset -10px -10px 20px rgba(255, 255, 255, 0.8),
+        inset 0 0 30px rgba(64, 192, 87, 0.05); /* Internal green ambient light */
+}
+
+.status-banner.banner-safe #bannerText {
+    color: #40c057; 
+    text-shadow: 0 0 15px rgba(64, 192, 87, 0.5);
+}
+
+/* DANGER STATE: Intense Pulsing Light from the Well */
+.status-banner.banner-danger {
+    animation: deep-sunken-pulse 1.5s infinite ease-in-out;
+}
+
+.status-banner.banner-danger #bannerText {
+    color: #ff4757;
+    text-shadow: 0 0 25px rgba(255, 71, 87, 0.7);
+}
+
+/* Deep Pulse Animation */
+@keyframes deep-sunken-pulse {
+    0%, 100% { 
+        box-shadow: 
+            inset 10px 10px 20px rgba(0, 0, 0, 0.1), 
+            inset -10px -10px 20px rgba(255, 255, 255, 0.8);
+    }
+    50% { 
+        box-shadow: 
+            inset 10px 10px 25px rgba(0, 0, 0, 0.12), 
+            inset -10px -10px 25px rgba(255, 255, 255, 0.8),
+            inset 0 0 40px rgba(255, 71, 87, 0.15); /* Red glow fills the hole */
+    }
+}
+@keyframes neumorphic-danger-pulse {
+    0% { 
+        box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light);
+        transform: translateY(0);
+    }
+    50% { 
+        box-shadow: 0 0 50px rgba(255, 71, 87, 0.25), 15px 15px 30px var(--shadow-dark);
+        transform: translateY(-5px); 
+    }
+    100% { 
+        box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light);
+        transform: translateY(0);
+    }
+}
+/* --- 2. THE SENSOR GRID & CARDS --- */
+.device-stats-grid {
+    display: grid !important;
+    /* Uses clamp for the gap: min 15px, preferred 2.5vw, max 30px */
+    gap: clamp(15px, 2.5vw, 30px);
+    margin: 30px auto;
+    max-width: 1200px; /* Increased slightly for better desktop spacing */
+    padding: 0 15px;
+    width: 95%;
+    /* Default for tablets/mobile */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+
+/* ============================================================
+   DEVICE DETAIL: SENSOR GRID & LCD ISOLATION
+   ============================================================ */
+
+ 
+/* Mobile: Single column for phones - Locked to Detail Page */
+@media (max-width: 600px) {
+    .device-detail-page .device-stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .device-detail-page .gas-card { 
+        grid-column: span 1 !important; 
+    }
+
+    /* DEVICE DETAIL SENSOR BOX FIX - Mobile */
+    .device-detail-page .sensor-box {
+        min-height: 70px !important;
+        padding: 6px 2px !important;
+    }
+
+    .device-detail-page .sensor-icon svg {
+        width: 24px !important;
+        height: 24px !important;
+    }
+
+    .device-detail-page .sensor-unit {
+        font-size: 18px !important;
+    }
+
+    .device-detail-page .sensor-value {
+        margin-top: 30px !important;
+        margin-bottom: -8px !important;
+    }
+
+    .device-detail-page .sensor-label {
+        padding-top: 2px !important;
+        padding-bottom: 4px !important;
+        margin-bottom: 0 !important;
+    }
+}
+
+/* The Card Housing */
+.device-detail-page .gauge-card {
+    background: var(--card-bg);
+    padding: clamp(25px, 4vw, 40px) clamp(15px, 2vw, 25px);
+    border-radius: clamp(30px, 4vw, 45px); 
+    text-align: center;
+    box-shadow: 12px 12px 25px rgba(163, 177, 198, 0.6), 
+                -10px -10px 20px #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.device-detail-page .gauge-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Fluid Icon Scaling */
+.device-detail-page .gauge-card i, 
+.device-detail-page .gauge-card svg {
+    font-size: clamp(1.2rem, 2vw, 1.8rem) !important;
+    margin-bottom: clamp(10px, 1.5vw, 15px);
+    color: var(--text-secondary);
+}
+
+/* Fluid Label Scaling */
+.device-detail-page .gauge-card .label {
+    font-size: clamp(0.65rem, 1vw, 0.8rem);
+    font-weight: 800;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-bottom: clamp(10px, 1.5vw, 15px);
+    letter-spacing: 1.5px;
+}
+
+/* --- THE LCD "SCREEN" --- */
+.device-detail-page .value-container {
+    background: #d1d9e6; 
+    padding: clamp(15px, 3vw, 25px) 10px;
+    border-radius: 20px;
+    width: 90%;
+    box-shadow: inset 7px 7px 14px rgba(0,0,0,0.15), 
+                inset -7px -7px 14px rgba(255,255,255,0.8);
+    transition: background 0.5s ease, box-shadow 0.5s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Fluid Value Scaling (Seven Segment) */
+.device-detail-page .gauge-card .value {
+    font-family: 'Seven Segment', monospace !important;
+    font-size: clamp(2.5rem, 5vw, 3.8rem) !important;
+    margin: 0;
+    color: #1a1a1a;
+    line-height: 1;
+    text-shadow: 0px 0px 1px rgba(0,0,0,0.2);
+}
+
+/* Unit Styling */
+.device-detail-page .gauge-card .unit {
+    font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+    margin-left: 5px;
+    opacity: 0.6;
+}
+
+/* LCD Color Changes (Danger States) */
+.device-detail-page .temp-card.high-danger .value-container,
+.device-detail-page .gas-card.high-danger .value-container {
+    background: #ff6b6b; 
+    box-shadow: inset 4px 4px 10px rgba(0,0,0,0.2);
+}
+
+.device-detail-page .temp-card.medium-danger .value-container,
+.device-detail-page .gas-card.medium-danger .value-container {
+    background: #ffab00;
+    box-shadow: inset 4px 4px 10px rgba(0,0,0,0.2);
+}
+
+/* --- 4. UPDATED: TACTILE HARDWARE KEYS (Rounded Rectangles) --- */
+.modal-button-row {
+    display: flex; 
+    gap: 25px; 
+    margin-bottom: 25px; 
+    justify-content: center;
+    width: 100%;
+}
+
+.tactile-key {
+    /* 1. LOCK THE SIZE: Wider than a circle, but not stretching to full width */
+    width: 120px !important;
+    height: 80px !important;
+    flex: none !important; /* Prevents the 'Oval' stretch */
+    
+    /* 2. ROUNDED EDGES: Matches your sensor card corners */
+    border-radius: 20px !important; 
+    
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+
+    /* 3. PREMIUM GRADIENT & SHADOW: Deep tactile look */
+    background: linear-gradient(145deg, #f8f9fa, #e2e8f0); 
+    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.15), 
+               -8px -8px 16px rgba(255, 255, 255, 0.9);
+}
+
+/* THE SUNKEN STATE: Deep physical press */
+#manualAlarmBtn.is-active .power-icon {
+    color: #ff4757;
+    text-shadow: 0 0 10px rgba(255, 71, 87, 0.6);
+    transition: all 0.3s ease;
+}
+.tactile-key:active, 
+.tactile-key.is-active {
+    background: #e2e8f0 !important;
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.2), 
+                inset -6px -6px 12px rgba(255, 255, 255, 0.8) !important;
+    transform: scale(0.96);
+    color: #ff4757; /* Optional: Makes the icon glow red while active */
+}
+
+/* Icon scaling for the rectangular buttons */
+.tactile-key i, 
+.tactile-key span {
+    font-size: 1.8rem;
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1));
+}
+
+/* Color accents */
+.btn-alarm { color: var(--text-primary); }
+.btn-bfp { color: #ff4757; }
+/* Icons inside the circles */
+.tactile-circle i, 
+.tactile-circle span,
+.tactile-circle svg {
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1));
+}
+
+/* SUNKEN STATE: Used for :active and when Validation is open */
+.tactile-circle:active, 
+.tactile-circle.is-active {
+    background: #e2e8f0 !important;
+    /* Deep 'Dark' inset shadows for physical depth */
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.2), 
+                inset -6px -6px 12px rgba(255, 255, 255, 0.8) !important;
+    transform: scale(0.96);
+}
+
+/* Specific Colors for Icons */
+#manualAlarmBtn { color: var(--text-primary); }
+.delete-style { color: #ff4757; } /* Red for BFP */
+
+/* --- 5. MODAL LCD STYLE (For Validation) --- */
+.modal-overlay {
+    /* ... keep your overlay styles ... */
+    backdrop-filter: blur(5px);
+}
+
+.modal-well {
+    background: var(--bg-color);
+    padding: 15px;
+    border-radius: 20px;
+    /* Matches your sensor well depth */
+    box-shadow: inset 6px 6px 12px var(--shadow-dark), 
+                inset -6px -6px 12px var(--shadow-light);
+    margin-bottom: 20px;
+}
+/* --- COMPACT SYMMETRICAL LOG (MOBILE FIRST) --- */
+.activity-log-container {
+    box-sizing: border-box;
+    width: 100%;
+    border-radius: 25px;
+    overflow: hidden; 
+}
+
+.activity-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 16px 28px;
+    background: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    gap: 8px;
+}
+
+.activity-log-title-group {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.activity-log-icon {
+    width: 18px;
+    height: 18px;
+    color: #000;
+    opacity: 1;
+}
+
+.activity-log-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.activity-log-action-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.65rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.activity-log-action-btn:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.activity-log-action-btn:active {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transform: translateY(1px);
+}
+
+#deviceLogList {
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-family: 'Courier New', monospace;
+}
+
+/* Base row styling */
+#deviceLogList div {
+    display: flex;
+    align-items: center;
+    gap: 12px;           /* Precise spacing */
+    padding: 5px 0;      /* Balanced vertical spacing */
+    font-size: 0.65rem;
+    color: var(--text-primary);
+}
+
+/* Column 1: Time */
+.log-time-wrapper {
+    min-width: 70px;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.log-date {
+    color: #000;
+    font-weight: 800;
+    font-family: 'Courier New', monospace;
+    font-size: 0.6rem;
+    margin: 0;
+    padding: 0;
+}
+
+.log-time {
+    color: #000;
+    font-weight: 800;
+    font-family: 'Courier New', monospace;
+    font-size: 0.6rem;
+    margin: 0;
+    padding: 0;
+    margin-top: -2px;
+}
+
+/* Column 2: Small Circular Indicator */
+.status-dot {
+    width: 8px !important;
+    height: 8px !important;
+    min-width: 8px !important;
+    min-height: 8px !important;
+    border-radius: 50% !important;
+    flex-shrink: 0;
+    display: block;
+    margin: 0 5px;            
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+/* Column 3: The Message */
+.log-msg {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+/* --- SCROLLBAR --- */
+#deviceLogList::-webkit-scrollbar {
+    width: 4px;
+}
+#deviceLogList::-webkit-scrollbar-track {
+    background: transparent;
+}
+#deviceLogList::-webkit-scrollbar-thumb {
+    background: var(--shadow-dark);
+    border-radius: 10px;
+}
+
+
+/* --- 6. MODAL SYSTEM (REFINED NEUMORPHIC) --- */
+
+/* --- MODAL OVERLAY --- */
+.modal-overlay {
+    display: none; /* Controlled by JS */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.25); /* Slightly darker for better contrast */
+    backdrop-filter: blur(12px);    /* Strong blur for focus */
+    z-index: 10000;                 
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- THE MODAL CARD (The Box) --- */
+.modal-content {
+    background: #e6ebf0; 
+    padding: 35px;
+    border-radius: 40px;
+    width: 90%;
+    max-width: 380px;
+    text-align: center;
+    
+    /* FIX: We reduced the white shadow offset and blur. 
+       By using rgba(255, 255, 255, 0.6), the light looks like a clean reflection
+       rather than a glowing white cloud.
+    */
+    box-shadow: 12px 12px 20px #c8d0d9, 
+                -6px -6px 12px rgba(255, 255, 255, 0.6);
+    
+    /* This adds a very fine 'physical' edge to stop the glow from bleeding */
+    border: 1px solid rgba(255, 255, 255, 0.8); 
+}
+
+/* --- LCD WELL (The Sunken Text Area) --- */
+.modal-lcd-well {
+    background: #e6ebf0;
+    padding: 25px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    
+    /* Deepened Inset Shadow for industrial "carved" look */
+    box-shadow: inset 8px 8px 16px #c8d0d9, 
+                inset -8px -8px 16px #ffffff;
+}
+
+.modal-lcd-well h3 {
+    font-family: 'Seven Segment', monospace;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    color: #4a5568; 
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+.modal-lcd-well p {
+    font-size: 0.85rem;
+    color: #718096;
+    font-weight: 800;
+    line-height: 1.5;
+    text-transform: uppercase; 
+}
+
+/* --- MODAL BUTTONS (Tactile Keys) --- */
+.modal-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.modal-btn-neu {
+    padding: 15px 30px;
+    border-radius: 15px;
+    border: none;
+    background: #e6ebf0;
+    font-weight: 900;
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: #718096;
+    
+    /* Physical Raised state */
+    box-shadow: 6px 6px 12px #c8d0d9, 
+                -10px -10px 20px #ffffff; /* Slightly larger light source */
+    
+    /* Snappy physical response timing */
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    letter-spacing: 1px;
+}
+
+/* Physical "Click" effect */
+.modal-btn-neu:active {
+    box-shadow: inset 4px 4px 8px #c8d0d9, 
+                inset -4px -4px 8px #ffffff;
+    transform: scale(0.96);
+}
+
+/* Critical Action Highlight */
+.confirm-red { 
+    color: #ff4757 !important; 
+}
+/* Color accents for modal messages */
+.text-engage {
+    color: #ff4757; /* Safety Red */
+    font-weight: 900;
+    text-decoration: underline;
+}
+
+.text-deactivate {
+    color: #2ed573; /* Success Green */
+    font-weight: 900;
+    text-decoration: underline;
+}
+
+/* Ensure the modal can render the HTML spans */
+#modalMessage {
+    display: inline-block;
+    width: 100%;
+}
+.text-change {
+    color: #718096; /* Slate grey to match the well text */
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-decoration: none; /* REMOVED UNDERLINE */
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 12px;
+    padding: 5px 10px;
+    transition: all 0.2s ease;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.text-change:hover {
+    color: #2e86de; /* Soft Blue highlight */
+    text-shadow: 0 0 8px rgba(46, 134, 222, 0.4); /* Subtle "LCD" glow */
+}
+
+/* ============================================================
+   MASTER DESKTOP OVERRIDE: SENSORS + MODALS + LOGS
+   ============================================================ */
+
+@media (min-width: 1024px) {
+
+    /* 1. THE ROW: Only controls the top dashboard area */
+    .device-detail-page .sensor-row {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        max-width: 1000px !important;
+        margin: 15px auto !important;
+        padding: 0 30px !important;
+        gap: 25px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 2. THE SENSOR BOX: Targeted strictly as a child of the row */
+    /* This prevents these styles from leaking into the Activity Log */
+    .device-detail-page .sensor-row > .sensor-box {
+        flex: 1 !important; 
+        min-width: 280px !important;
+        max-width: none !important;
+        height: clamp(120px, 15vh, 150px) !important;
+        
+        padding: 20px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-radius: 35px !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        border: none !important;
+    }
+
+    /* 3. THE LCD VALUE: Fluid font size remains specifically for sensors */
+    .device-detail-page .sensor-row .sensor-value {
+        font-size: clamp(4rem, 4vw, 4rem) !important;
+        width: 100% !important;
+        text-align: center !important;
+        line-height: 1 !important;
+        margin: auto 0 !important;
+        letter-spacing: 2px !important;
+    }
+
+    /* 4. THE LOG CONTAINER: Forced Reset */
+    /* We explicitly tell the log to be a full-width block again */
+    .device-detail-page .activity-log-container {
+        width: 100% !important;
+        max-width: 1000px !important;
+        height: 280px !important; /* Compact height for viewport fit */
+        margin: 15px auto !important;
+        padding: 0 30px !important;
+        display: block !important; 
+        flex: none !important; /* Breaks the flex-box shrink from the sensors */
+        box-sizing: border-box !important;
+    }
+
+    /* 5. ICON & LABEL SCALING (Sensor row only) - CONSISTENT PROPORTIONS */
+    .device-detail-page .sensor-row .sensor-icon svg {
+        width: clamp(40px, 4.5vw, 40px) !important;
+        height: auto !important;
+    }
+
+    .device-detail-page .sensor-row .sensor-box .sensor-label {
+        font-size: clamp(1rem, 1.8vw, 1rem) !important;
+        font-weight: 800 !important;
+        margin-top: 5px !important;
+    }
+
+    .device-detail-page .sensor-row .sensor-box .sensor-unit {
+        font-size: clamp(1.1rem, 1.6vw, 1.9rem) !important;
+        font-weight: 600 !important;
+    }
+    /* --- 2. MODAL: Tactical Spacing (Your Original Design) --- */
+    .modal-content {
+        max-width: 420px; 
+        box-shadow: 20px 20px 40px #c8d0d9, 
+                    -12px -12px 25px rgba(255, 255, 255, 0.8);
+        padding: 50px 40px;
+    }
+
+    .modal-lcd-well {
+        margin-bottom: 35px;
+        box-shadow: inset 8px 8px 15px #c8d0d9, 
+                    inset -8px -8px 15px #ffffff;
+    }
+
+    .modal-actions {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 25px;
+    }
+
+    .modal-btn-neu {
+        flex: 1; 
+    }
+
+    /* --- 3. ACTIVITY LOGS: Flow & Grid Column Fix --- */
+    .activity-log-container {
+        grid-column: 1 / -1 !important; /* Makes logs span full width below sensors */
+        height: 280px !important; 
+        padding: 20px !important;
+        background: #ffffff !important;
+        border-radius: 25px !important;
+        display: block !important; 
+        overflow-y: auto !important;
+        position: relative !important;
+    }
+
+    #deviceLogList {
+        display: block !important; 
+        width: 100% !important;
+        margin-top: 15px !important;
+    }
+
+    #deviceLogList > * {
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        padding: 8px 0 !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+        gap: 12px !important;
+        background: #ffffff !important;
+    }
+
+    .log-time {
+        min-width: 85px !important;
+        font-size: 0.65rem !important;
+        color: #000 !important;
+        font-weight: 800;
+        flex-shrink: 0 !important;
+    }
+    /* --- 6. BANNER: Wide Dashboard "Physical Well" (Aligned) --- */
+.device-detail-page #statusBanner {
+    /* Scale and Placement */
+    width: 100% !important;
+    max-width: 1000px !important; 
+    margin: 0 auto 40px auto !important;
+    padding: 0 30px !important;
+    
+    /* Layout: Forces perfect horizontal and vertical centering */
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important; 
+    justify-content: center !important;
+    
+    /* Dimensions */
+    height: 200px !important; 
+    gap: 25px !important; 
+    
+    /* Physical Well Aesthetics */
+    background: #f8fafc !important; 
+    border-radius: 30px !important;
+    box-shadow: 
+        inset 12px 12px 25px rgba(0, 0, 0, 0.1),   
+        inset -12px -12px 25px rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.5s ease;
+    box-sizing: border-box !important;
+}
+
+/* Aligning the Icon Container */
+.device-detail-page #bannerIcon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important; /* Clears any mobile top-offset */
+}
+
+/* Desktop Icon Scale */
+.device-detail-page #bannerIcon svg {
+    width: 72px !important;
+    height: 72px !important;
+    display: block !important;
+}
+
+/* Scaling the 7-Segment Display */
+.device-detail-page #bannerText {
+    font-size: 4.2rem !important; 
+    letter-spacing: 12px !important; 
+    line-height: 1 !important;
+    margin: 0 !important; /* CRITICAL: Removes the 15px top margin from your original design */
+    display: inline-block !important;
+    text-transform: uppercase;
+}
+
+/* Green Glow logic for Safe State */
+.device-detail-page #statusBanner.banner-safe {
+    box-shadow: 
+        inset 12px 12px 25px rgba(0, 0, 0, 0.08), 
+        inset -12px -12px 25px rgba(255, 255, 255, 0.8),
+        inset 0 0 50px rgba(64, 192, 87, 0.1) !important;
+}
+
+/* Dark Mode for Banner in Web */
+.dark-mode .device-detail-page #statusBanner {
+    background: #1e293b !important;
+    box-shadow: inset 10px 10px 20px rgba(0, 0, 0, 0.4), 
+                inset -10px -10px 20px rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark-mode .device-detail-page #statusBanner.banner-safe {
+    box-shadow: inset 10px 10px 20px rgba(0, 0, 0, 0.35), 
+                inset -10px -10px 20px rgba(255, 255, 255, 0.03),
+                inset 0 0 30px rgba(64, 192, 87, 0.08) !important;
+}
+}
+
+/* ========================
+   LOGS PAGE STYLES
+   ======================== */
+
+.logs-page {
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.page-header {
+    margin-bottom: 25px;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.page-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* Logs Filter Row */
+.logs-filter-row {
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.06), -4px -4px 8px rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* Logs Controls */
+.logs-controls {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px 20px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.06), -4px -4px 8px rgba(255, 255, 255, 0.8);
+}
+
+.logs-controls .toggle-label {
+    flex-shrink: 0;
+}
+
+.logs-controls-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.logs-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.filter-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.filter-icon {
+    width: 16px;
+    height: 16px;
+    fill: var(--text-secondary);
+}
+
+.filter-select {
+    padding: 8px 12px;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    background: var(--app-bg);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+/* Toggle Switch */
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.toggle-checkbox {
+    display: none;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 50px;
+    height: 26px;
+    background: var(--app-bg);
+    border-radius: 26px;
+    box-shadow: 
+        inset 4px 4px 8px rgba(0, 0, 0, 0.08),
+        inset -4px -4px 8px rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+}
+
+.toggle-slider::before {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+    box-shadow: 
+        2px 2px 5px rgba(0, 0, 0, 0.1),
+        -2px -2px 5px rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+}
+
+.toggle-checkbox:checked + .toggle-slider {
+    box-shadow: 
+        inset 4px 4px 8px rgba(220, 38, 38, 0.2),
+        inset -4px -4px 8px rgba(255, 255, 255, 0.5);
+}
+
+.toggle-checkbox:checked + .toggle-slider::before {
+    transform: translateX(24px);
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 
+        2px 2px 5px rgba(220, 38, 38, 0.3),
+        -2px -2px 5px rgba(255, 255, 255, 0.5);
+}
+
+.toggle-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Clear Logs Button */
+.clear-logs-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #ef4444;
+    background: transparent;
+    border: 1px solid #ef4444;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 44px;
+    align-items: center;
+}
+
+.clear-logs-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.clear-logs-btn:hover {
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.clear-logs-btn:active {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Timeline Container */
+.timeline-container {
+    position: relative;
+    padding: 10px 0;
+}
+
+.timeline-line {
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* Log Entry */
+.log-entry {
+    position: relative;
+    padding-left: 45px;
+    padding-right: 20px;
+    margin-bottom: 20px;
+}
+
+.log-marker {
+    position: absolute;
+    left: 9px;
+    top: 18px;
+    width: 14px;
+    height: 14px;
+    background: var(--card-bg);
+    border: 3px solid;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.log-entry[data-status="safe"] .log-marker {
+    border-color: #22c55e;
+}
+
+.log-entry[data-status="warning"] .log-marker {
+    border-color: #f59e0b;
+}
+
+.log-entry[data-status="critical"] .log-marker {
+    border-color: #ef4444;
+}
+
+/* Log Card */
+.log-card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.06);
+    border-left: 3px solid;
+}
+
+.log-entry[data-status="safe"] .log-card {
+    border-left-color: #22c55e;
+}
+
+.log-entry[data-status="warning"] .log-card {
+    border-left-color: #f59e0b;
+}
+
+.log-entry[data-status="critical"] .log-card {
+    border-left-color: #ef4444;
+}
+
+/* Log Header */
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.log-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.log-lab-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.log-device-id {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.log-timestamp {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
+}
+
+/* Log Body */
+.log-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.log-message {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+}
+
+/* Log Status */
+.log-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 6px;
+    width: fit-content;
+}
+
+.log-status svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+
+.status-safe {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.08);
+}
+
+.status-warning {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.08);
+}
+
+.status-critical {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+}
+
+/* Log Sensors */
+.log-sensors {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.log-sensor {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.sensor-icon {
+    font-size: 1rem;
+}
+
+.sensor-reading {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-family: 'Courier New', monospace;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-state svg {
+    width: 80px;
+    height: 80px;
+    fill: var(--text-secondary);
+    opacity: 0.5;
+    margin-bottom: 20px;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Logs Footer */
+.logs-footer {
+    text-align: center;
+    margin-top: 25px;
+    padding: 12px;
+}
+
+.logs-count {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.logs-count span {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Dark Mode Overrides for Logs Page */
+.dark-mode .logs-filter-row,
+.dark-mode .logs-controls {
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5), -4px -4px 8px rgba(255, 255, 255, 0.02);
+}
+
+.dark-mode .toggle-slider {
+    box-shadow: 
+        inset 4px 4px 8px rgba(0, 0, 0, 0.3),
+        inset -4px -4px 8px rgba(255, 255, 255, 0.02);
+}
+
+.dark-mode .toggle-slider::before {
+    background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+    box-shadow: 
+        2px 2px 5px rgba(0, 0, 0, 0.3),
+        -2px -2px 5px rgba(255, 255, 255, 0.03);
+}
+
+.dark-mode .toggle-checkbox:checked + .toggle-slider {
+    box-shadow: 
+        inset 4px 4px 8px rgba(220, 38, 38, 0.3),
+        inset -4px -4px 8px rgba(255, 255, 255, 0.02);
+}
+
+.dark-mode .toggle-checkbox:checked + .toggle-slider::before {
+    box-shadow: 
+        2px 2px 5px rgba(220, 38, 38, 0.4),
+        -2px -2px 5px rgba(255, 255, 255, 0.02);
+}
+
+.dark-mode .filter-select {
+    background: var(--app-bg);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .filter-select:focus {
+    border-color: #60a5fa;
+}
+
+.dark-mode .timeline-line {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode .clear-logs-btn {
+    border-color: #ef4444;
+}
+
+.dark-mode .clear-logs-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.dark-mode .log-sensor {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .log-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode .log-card {
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive Design for Logs Page */
+
+/* Tablet and below (768px) */
+@media (max-width: 768px) {
+    .logs-page {
+        padding: 15px;
+    }
+
+    .page-header {
+        margin-bottom: 20px;
+    }
+
+    .logs-filter-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px 15px;
+        margin-bottom: 15px;
+    }
+
+    .logs-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px 15px;
+    }
+
+    .logs-controls-left {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .logs-controls-right {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .filter-label {
+        font-size: 0.8rem;
+    }
+
+    .filter-select {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+    .clear-logs-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .timeline-line {
+        left: 8px;
+    }
+
+    .log-entry {
+        padding-left: 35px;
+        margin-bottom: 18px;
+    }
+
+    .log-marker {
+        left: 2px;
+        width: 12px;
+        height: 12px;
+        top: 16px;
+    }
+
+    .log-card {
+        padding: 14px;
+    }
+
+    .log-lab-name {
+        font-size: 0.9rem;
+    }
+
+    .log-device-id {
+        font-size: 0.8rem;
+    }
+
+    .log-message {
+        font-size: 0.85rem;
+    }
+
+    .log-sensors {
+        gap: 8px;
+    }
+
+    .log-sensor {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .logs-footer {
+        padding: 10px;
+        margin-top: 20px;
+    }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+    .logs-page {
+        padding: 12px;
+    }
+
+    .page-title {
+        font-size: 1.2rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.75rem;
+    }
+
+    .logs-controls {
+        padding: 10px 12px;
+    }
+
+    .filter-label {
+        font-size: 0.75rem;
+    }
+
+    .filter-icon {
+        width: 14px;
+        height: 14px;
+    }
+
+    .filter-select {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+
+    .clear-logs-btn {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+
+    .clear-logs-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .timeline-line {
+        left: 6px;
+    }
+
+    .log-entry {
+        padding-left: 30px;
+        margin-bottom: 16px;
+    }
+
+    .log-marker {
+        left: 0px;
+        width: 10px;
+        height: 10px;
+        border-width: 2px;
+        top: 14px;
+    }
+
+    .log-card {
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .log-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        margin-bottom: 10px;
+    }
+
+    .log-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    .log-lab-name {
+        font-size: 0.85rem;
+    }
+
+    .log-device-id {
+        font-size: 0.75rem;
+    }
+
+    .log-timestamp {
+        font-size: 0.7rem;
+    }
+
+    .log-status {
+        padding: 3px 8px;
+        font-size: 0.7rem;
+        gap: 4px;
+    }
+
+    .log-status svg {
+        width: 12px;
+        height: 12px;
+    }
+
+    .log-message {
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+
+    .log-sensors {
+        gap: 6px;
+    }
+
+    .log-sensor {
+        flex: 1;
+        min-width: 0;
+        padding: 5px 6px;
+    }
+
+    .sensor-icon {
+        font-size: 0.9rem;
+    }
+
+    .sensor-reading {
+        font-size: 0.8rem;
+    }
+
+    .logs-footer {
+        margin-top: 15px;
+    }
+
+    .logs-count {
+        font-size: 0.8rem;
+    }
+}
+
+/* Desktop (1024px+) - Ensure proper scaling */
+@media (min-width: 1024px) {
+    .logs-page {
+        padding: 30px;
+        max-width: 1000px;
+    }
+
+    .page-header {
+        margin-bottom: 30px;
+    }
+
+    .logs-filter-row {
+        padding: 18px 24px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .logs-controls {
+        padding: 18px 24px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .log-entry {
+        margin-bottom: 25px;
+    }
+
+    .log-card {
+        padding: 18px;
+    }
+}
+
+/* ============================================================
+   REPORT GENERATION STYLES
+   ============================================================ */
+
+.report-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.generate-report-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  border: 2px solid var(--card-bg);
+  border-radius: 10px;
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.08), -2px -2px 8px rgba(255,255,255,0.5);
+}
+
+.generate-report-btn:hover {
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.12), -2px -2px 8px rgba(255,255,255,0.6);
+  transform: translateY(-1px);
+}
+
+.generate-report-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.dropdown-arrow {
+  transition: transform 0.2s ease;
+}
+
+/* Override generate report button styling for device activity log */
+.activity-log-container .report-dropdown .generate-report-btn {
+  height: auto;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  color: var(--text-muted);
+  font-weight: bold;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  opacity: 0.7;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.activity-log-container .report-dropdown .generate-report-btn:hover {
+  box-shadow: none;
+  transform: none;
+  opacity: 1;
+}
+
+.report-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.1), -4px -4px 12px rgba(255,255,255,0.8);
+  z-index: 100;
+  min-width: 140px;
+  overflow: hidden;
+}
+
+.report-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.report-option:hover {
+  background-color: var(--sensor-bg);
+  padding-left: 18px;
+}
+
+.report-option svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.report-option:first-child {
+  border-top: none;
+}
+
+/* Dark Mode - Report Styles */
+.dark-mode .generate-report-btn {
+  background-color: #2a3f5f;
+  border-color: #2a3f5f;
+  color: #e0e6ed;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.3), -2px -2px 8px rgba(255,255,255,0.05);
+}
+
+.dark-mode .generate-report-btn:hover {
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.4), -2px -2px 8px rgba(255,255,255,0.08);
+}
+
+.dark-mode .report-menu {
+  background-color: #2a3f5f;
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.4), -4px -4px 12px rgba(255,255,255,0.03);
+}
+
+.dark-mode .report-option {
+  color: #e0e6ed;
+}
+
+.dark-mode .report-option:hover {
+  background-color: #3a4f6f;
+}
+
+/* Responsive - Report Button */
+@media (max-width: 768px) {
+  .generate-report-btn {
+    padding: 0 12px;
+    font-size: 0.8rem;
+  }
+
+  .generate-report-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .report-menu {
+    min-width: 130px;
+  }
+
+  .report-option {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Mobile - Icon Only with Tooltips */
+@media (max-width: 480px) {
+  .logs-controls {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    box-sizing: border-box;
+  }
+
+  .logs-controls-right {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+    width: auto;
+    justify-content: flex-end;
+    flex-shrink: 0;
+  }
+
+  .toggle-label {
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .toggle-text {
+    font-size: 0.8rem;
+  }
+
+  .toggle-slider {
+    width: 42px;
+    height: 22px;
+    border-radius: 22px;
+  }
+
+  .toggle-slider::before {
+    width: 16px;
+    height: 16px;
+    top: 3px;
+    left: 3px;
+  }
+
+  .clear-logs-btn .btn-text,
+  .generate-report-btn .btn-text {
+    display: none;
+  }
+
+  .clear-logs-btn,
+  .generate-report-btn {
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    justify-content: center;
+  }
+
+  .clear-logs-btn svg,
+  .generate-report-btn svg:first-child {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+  }
+
+  .dropdown-arrow {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  .report-menu {
+    right: 0;
+    min-width: 120px;
+  }
+
+  .report-option {
+    padding: 10px;
+    font-size: 0.8rem;
+    gap: 8px;
+  }
+
+  .report-option svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* ============================================================
+   CUSTOM TOAST NOTIFICATION (Mobile-Friendly)
+   ============================================================ */
+
+.toast-container {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 90%;
+  width: 350px;
+}
+
+.toast {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  padding: 14px 20px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+  box-shadow: 8px 8px 20px rgba(0,0,0,0.15), 
+             -8px -8px 20px rgba(255,255,255,0.9);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.success {
+  border-left: 4px solid #41c38f;
+}
+
+.toast.error {
+  border-left: 4px solid #ff4757;
+}
+
+.toast.warning {
+  border-left: 4px solid #ffa502;
+}
+
+.toast.info {
+  border-left: 4px solid #3498db;
+}
+
+/* Dark mode toast */
+.dark-mode .toast,
+:root.dark-mode .toast {
+  background: var(--card-bg);
+  box-shadow: 8px 8px 20px var(--shadow-dark), 
+             -8px -8px 20px var(--shadow-light);
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .toast-container {
+    bottom: 20px;
+    width: calc(100% - 40px);
+    max-width: none;
+  }
+  
+  .toast {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    border-radius: 12px;
+  }
+}
+
+/* --- FINAL SAMSUNG GALAXY HEADER FIX (360px) - OVERRIDE AT END --- */
+@media (max-width: 380px) {
+  .neo-header {
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+    margin-top: 10px !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Fix banner centering on detail page */
+  .status-banner {
+    width: 85% !important;
+    max-width: none !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}

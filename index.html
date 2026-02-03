@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACES IoT Dashboard</title>
+  <script>
+    // Apply dark mode immediately to prevent flash
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script>
+  // Immediately apply dark mode to body
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+  }
+</script>
+</div>
+
+<header class="neo-header">
+  <div class="header-inner">
+    
+    <div class="header-left">
+  <a href="index.html" style="text-decoration: none; color: inherit;">
+    <h1>ACES IOT<span class="desktop-title-part"> DASHBOARD</span></h1>
+  </a>
+  <span class="mobile-subtitle">DASHBOARD</span>
+</div>
+
+    <div class="header-controls-group">
+      <nav class="header-nav">
+  <a href="#" class="nav-item" onclick="openAlertSettings(); return false;">
+    <svg class="nav-svg" viewBox="0 -960 960 960" fill="currentColor">
+      <path d="M200-246q54-53 125.5-83.5T480-360q83 0 154.5 30.5T760-246v-514H200v514Zm280-194q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm69-80h422q-44-39-99.5-59.5T480-280q-56 0-112.5 20.5T269-200Zm211-320q-25 0-42.5-17.5T420-580q0-25 17.5-42.5T480-640q25 0 42.5 17.5T540-580q0 25-17.5 42.5T480-520Zm0 17Z"/>
+    </svg>
+    <span class="nav-text">Alerts</span>
+  </a>
+
+  <a href="logs.html" class="nav-item">
+    <svg class="nav-svg" viewBox="0 -960 960 960" fill="currentColor">
+      <path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/>
+    </svg>
+    <span class="nav-text">Logs</span>
+  </a>
+</nav>
+
+      <div class="header-right">
+        <button id="darkModeToggle" class="theme-toggle">
+          <div class="toggle-track">
+            <div class="toggle-thumb" id="themeIcon"></div>
+          </div>
+        </button>
+      </div>
+    </div> 
+    </div>
+</header>
+
+  <main class="device-grid" id="deviceGrid">
+    
+    </main>
+
+  <div id="numbersModal" class="modal">
+    <div class="modal-content">
+      <h2>Alert Contacts</h2>
+      <ul id="numbersList"></ul>
+      <div class="input-group" style="margin-top: 20px;">
+        <input type="tel" id="newNumber" placeholder="Enter phone number" maxlength="11">
+      </div>
+      <div class="modal-button-row">
+        <button id="saveNumbersBtn" class="modal-btn cancel-style">Close</button>
+        <button id="addNumberBtn" class="modal-btn save-style">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="deviceModal" class="modal">
+    <div class="modal-content">
+      <h2 id="deviceModalTitle">New Connection</h2>
+      <div id="hardwareIndicator" class="hardware-status">
+         <span class="dot"></span> 
+         <span id="hardwareStatusText">Connected to ACES-1</span>
+      </div>
+      <div class="input-group">
+        <input type="text" id="deviceNameInput" placeholder="Enter Lab Name" autocomplete="off">
+      </div>
+      <div class="modal-button-row">
+        <button id="cancelDeviceBtn" class="modal-btn cancel-style">Cancel</button>
+        <button id="confirmDeviceBtn" class="modal-btn save-style">Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <h2 id="deleteModalTitle">Remove Device?</h2>
+      <p id="deleteWarningText" style="margin: 25px 0; font-size: 1rem; opacity: 0.8; text-align: center;">
+        Are you sure you want to remove this device?
+      </p>
+      <div class="modal-button-row">
+        <button id="cancelDeleteBtn" class="modal-btn cancel-style">Cancel</button>
+        <button id="confirmDeleteBtn" class="modal-btn delete-style">Remove</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/websocket-client.js"></script>
+  <script src="js/device.js"></script> 
+</body>
+</html>

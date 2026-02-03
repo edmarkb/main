@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Device Logs | ACES IoT</title>
+  <script>
+    // Apply dark mode immediately to prevent flash
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script>
+  // Immediately apply dark mode to body
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+  }
+</script>
+
+<header class="main-header" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--bg-color); border-radius: 0 0 20px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <button onclick="window.location.href='index.html'" class="back-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
+        <path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/>
+      </svg>
+    </button>
+    <h1 style="margin: 0; font-size: 1rem; font-weight: 800; white-space: nowrap; letter-spacing: -0.2px;">SYSTEM EVENT LOGS</h1>
+  </div>
+</header>
+
+  <main class="main-content logs-page">
+    <div class="logs-filter-row">
+      <div class="filter-group">
+        <label for="deviceFilter" class="filter-label">
+          <svg class="filter-icon" viewBox="0 -960 960 960" fill="currentColor">
+            <path d="M320-280q17 0 28.5-11.5T360-320q0-17-11.5-28.5T320-360q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160q17 0 28.5-11.5T360-480q0-17-11.5-28.5T320-520q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160q17 0 28.5-11.5T360-640q0-17-11.5-28.5T320-680q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Zm120 320h240v-80H440v80Zm0-160h240v-80H440v80Zm0-160h240v-80H440v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/>
+          </svg>
+          Filter by Device
+        </label>
+        <select id="deviceFilter" class="filter-select">
+          <option value="all">All Devices</option>
+          <option value="aces1">ACES-1</option>
+          <option value="aces2">ACES-2</option>
+          <option value="aces3">ACES-3</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="logs-controls">
+      <label for="criticalToggle" class="toggle-label">
+        <input type="checkbox" id="criticalToggle" class="toggle-checkbox">
+        <span class="toggle-slider"></span>
+        <span class="toggle-text">Critical Only</span>
+      </label>
+
+      <div class="logs-controls-right">
+        <button id="clearLogsBtn" class="clear-logs-btn" title="Clear Logs">
+          <svg viewBox="0 -960 960 960" fill="currentColor">
+            <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+          </svg>
+          <span class="btn-text">Clear Logs</span>
+        </button>
+
+        <div class="report-dropdown">
+          <button id="generateReportBtn" class="generate-report-btn" title="Generate Report">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
+              <path d="M202-65l-56-57 118-118h-90v-80h226v226h-80v-89L202-65Zm278-15v-80h240v-440H520v-200H240v400h-80v-400q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H480Z"/>
+            </svg>
+            <span class="btn-text">Generate Report</span>
+            <svg class="dropdown-arrow" viewBox="0 -960 960 960" fill="currentColor">
+              <path d="M480-360 280-560h400L480-360Z"/>
+            </svg>
+          </button>
+          <div class="report-menu" id="reportMenu" style="display: none;">
+            <button class="report-option" onclick="generateReport('pdf')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="m720-120 160-160-56-56-64 64v-167h-80v167l-64-64-56 56 160 160ZM560 0v-80h320V0H560ZM240-160q-33 0-56.5-23.5T160-240v-560q0-33 23.5-56.5T240-880h280l240 240v121h-80v-81H480v-200H240v560h240v80H240Zm0-80v-560 560Z"/>
+              </svg>
+              PDF
+            </button>
+            <button class="report-option" onclick="generateReport('txt')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="m720-120 160-160-56-56-64 64v-167h-80v167l-64-64-56 56 160 160ZM560 0v-80h320V0H560ZM240-160q-33 0-56.5-23.5T160-240v-560q0-33 23.5-56.5T240-880h280l240 240v121h-80v-81H480v-200H240v560h240v80H240Zm0-80v-560 560Z"/>
+              </svg>
+              TXT
+            </button>
+            <button class="report-option" onclick="generateReport('csv')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="m720-120 160-160-56-56-64 64v-167h-80v167l-64-64-56 56 160 160ZM560 0v-80h320V0H560ZM240-160q-33 0-56.5-23.5T160-240v-560q0-33 23.5-56.5T240-880h280l240 240v121h-80v-81H480v-200H240v560h240v80H240Zm0-80v-560 560Z"/>
+              </svg>
+              CSV
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-container">
+      <div class="timeline-line"></div>
+      <!-- Log entries will be inserted here dynamically by logs.js -->
+    </div>
+
+    <div class="logs-footer">
+      <p class="logs-count">Showing <span id="visibleLogs">0</span> of <span id="totalLogs">0</span> logs</p>
+    </div>
+  </main>
+
+  <div id="clearLogsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content modal-card">
+      <div class="modal-lcd-well">
+        <h3 id="clearLogsTitle">CLEAR LOGS</h3>
+        <p id="clearLogsMessage">ARE YOU SURE YOU WANT TO CLEAR ALL LOGS? THIS ACTION CANNOT BE UNDONE.</p>
+      </div>
+      <div class="modal-actions">
+        <button id="clearLogsCancel" class="modal-btn-neu">CANCEL</button>
+        <button id="clearLogsConfirm" class="modal-btn-neu confirm-red">CLEAR</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/report.js"></script>
+  <script src="js/logs.js"></script>
+  <script src="js/websocket-client.js"></script>
+</body>
+</html>

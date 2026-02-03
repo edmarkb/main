@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Detail - ACES IOT</title>
+    <script>
+      // Apply dark mode immediately to prevent flash
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.documentElement.classList.add('dark-mode');
+      }
+    </script>
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="device-detail-page">
+<script>
+  // Immediately apply dark mode to body
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+  }
+</script>
+
+    <style>
+        .sensor-value {
+            font-family: 'SevenSegment', monospace !important;
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
+            line-height: 1;
+        }
+
+        /* Smooth scroll for the log console */
+        #deviceLogList {
+            scrollbar-width: thin;
+            scrollbar-color: var(--text-muted) transparent;
+        }
+        #deviceLogList::-webkit-scrollbar {
+            width: 4px;
+        }
+        #deviceLogList::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: 10px;
+        }
+
+        /* Ensure SVGs inside buttons align with text */
+        .modal-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        #bannerIcon svg {
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.1));
+        }
+
+        /* Device header info layout */
+        .device-header-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        /* Device ID badge */
+        .device-id-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--primary-accent);
+            background: rgba(65, 195, 143, 0.15);
+            padding: 2px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            width: fit-content;
+        }
+
+        .dark-mode .device-id-badge {
+            background: rgba(65, 195, 143, 0.2);
+        }
+    </style>
+</head>
+
+<body class="device-detail-page">
+<script>
+  // Immediately apply dark mode to body
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+  }
+</script>
+    <div class="dashboard-container">
+        
+        <header class="main-header" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--bg-color); border-radius: 0 0 20px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+    
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <button onclick="window.location.href='index.html'" class="back-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
+                <path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/>
+            </svg>
+        </button>
+
+        <div class="device-header-info">
+            <h1 id="detDeviceName" style="margin: 0; font-size: 1rem; font-weight: 800; white-space: nowrap; letter-spacing: -0.2px;">
+                COMPUTER LABORATORY 1
+            </h1>
+            <span id="detDeviceId" class="device-id-badge">ACES-1</span>
+        </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <div id="detStatus" class="device-status online">
+            ONLINE
+        </div>
+    </div>
+</header>
+
+        <main class="content-area" style="padding: 20px 15px;">
+            
+            <div id="statusBanner" class="status-banner banner-safe">
+    <div id="bannerIcon">
+        </div>
+    <h2 id="bannerText">SYSTEM SAFE</h2>
+</div>
+
+            <div class="sensor-row" style="margin-bottom: 30px;">
+                <div class="sensor-box" id="tempBox">
+                    <div class="sensor-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-120q-83 0-141.5-58.5T280-320q0-48 21-89.5t59-70.5v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q38 29 59 70.5t21 89.5q0 83-58.5 141.5T480-120Zm0-80q50 0 85-35t35-85q0-29-12.5-54T552-416l-32-24v-280q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720v280l-32 24q-23 17-35.5 42T360-320q0 50 35 85t85 35Zm0-120Z"/></svg>
+                    </div>
+                    <div class="sensor-unit">°C</div>
+                    <span class="sensor-value" id="detTemp">--.-</span>
+                    <div class="sensor-label">Temperature</div>
+                </div>
+
+                <div class="sensor-box" id="humBox">
+                    <div class="sensor-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M460-160q-50 0-85-35t-35-85h80q0 17 11.5 28.5T460-240q17 0 28.5-11.5T500-280q0-17-11.5-28.5T460-320H80v-80h380q50 0 85 35t35 85q0 50-35 85t-85 35ZM80-560v-80h540q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43h-80q0-59 40.5-99.5T620-840q59 0 99.5 40.5T760-700q0 59-40.5 99.5T620-560H80Zm660 320v-80q26 0 43-17t17-43q0-26-17-43t-43-17H80v-80h660q59 0 99.5 40.5T880-380q0 59-40.5 99.5T740-240Z"/></svg>
+                    </div>
+                    <div class="sensor-unit">%</div>
+                    <span class="sensor-value" id="detHum">--.-</span>
+                    <div class="sensor-label">Humidity</div>
+                </div>
+
+                <div class="sensor-box" id="gasBox">
+                    <div class="sensor-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M320-80q-66 0-113-47t-47-113v-400q0-66 47-113t113-47h40v-80h80v80h80v-80h80v80h40q66 0 113 47t47 113v400q0 66-47 113T640-80H320Zm0-80h320q33 0 56.5-23.5T720-240v-400q0-33-23.5-56.5T640-720H320q-33 0-56.5 23.5T240-640v400q0 33 23.5 56.5T320-160Zm0-400h320v-80H320v80Zm160 320q42 0 71-28.5t29-69.5q0-33-19-56.5T480-490q-63 72-81.5 96T380-338q0 41 29 69.5t71 28.5ZM240-720v560-560Z"/></svg>
+                    </div>
+                    <div class="sensor-unit">PPM</div>
+                    <span class="sensor-value" id="detGas">---</span>
+                    <div class="sensor-label">Gas/Smoke</div>
+                </div>
+            </div>
+
+           <div class="modal-button-row" style="display: flex; gap: 25px; margin-bottom: 25px; justify-content: center; width: 100%;">
+    
+    <button onclick="triggerValidation('alarm')" id="manualAlarmBtn" class="modal-btn tactile-key">
+        <span id="alarmBtnIcon" class="power-icon">
+            </span>
+    </button>
+
+    <button onclick="triggerValidation('bfp')" id="bfpBtn" class="modal-btn delete-style tactile-key">
+        <span class="bfp-icon-wrap">
+            </span>
+    </button>
+    
+</div>
+
+<div class="sensor-box activity-log-container" style="height: 220px; padding: 0; display: flex; flex-direction: column; margin-top: 10px;">
+    
+    <div class="activity-log-header">
+        <div class="activity-log-title-group">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" class="activity-log-icon">
+                <path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/>
+            </svg>
+            <h3 class="activity-log-title">DEVICE ACTIVITY LOG</h3>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="report-dropdown">
+                <button id="deviceReportBtn" class="activity-log-action-btn">
+                    GENERATE REPORT
+                </button>
+                <div class="report-menu" id="deviceReportMenu" style="display: none;">
+                    <button class="report-option" onclick="generateDeviceReport('pdf')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
+                            <path d="m720-120 160-160-56-56-64 64v-167h-80v167l-64-64-56 56 160 160ZM560 0v-80h320V0H560ZM240-160q-33 0-56.5-23.5T160-240v-560q0-33 23.5-56.5T240-880h280l240 240v121h-80v-81H480v-200H240v560h240v80H240Zm0-80v-560 560Z"/>
+                        </svg>
+                        PDF
+                    </button>
+                    <button class="report-option" onclick="generateDeviceReport('txt')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
+                            <path d="m720-120 160-160-56-56-64 64v-167h-80v167l-64-64-56 56 160 160ZM560 0v-80h320V0H560ZM240-160q-33 0-56.5-23.5T160-240v-560q0-33 23.5-56.5T240-880h280l240 240v121h-80v-81H480v-200H240v560h240v80H240Zm0-80v-560 560Z"/>
+                        </svg>
+                        TXT
+                    </button>
+                    <button class="report-option" onclick="generateDeviceReport('csv')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
+                            <path d="m720-120 160-160-56-56-64 64v-167h-80v167l-64-64-56 56 160 160ZM560 0v-80h320V0H560ZM240-160q-33 0-56.5-23.5T160-240v-560q0-33 23.5-56.5T240-880h280l240 240v121h-80v-81H480v-200H240v560h240v80H240Zm0-80v-560 560Z"/>
+                        </svg>
+                        CSV
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="clearDeviceLogs()" class="activity-log-action-btn">
+                CLEAR CONSOLE
+            </button>
+        </div>
+    </div>
+
+    <div id="deviceLogList" style="width: 100%; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 0 28px 20px 28px;">
+        </div>
+
+</div>
+        </main>
+    </div>
+
+    <div id="customModal" class="modal-overlay">
+    <div class="modal-content modal-card">
+        <div class="modal-lcd-well">
+            <h3 id="modalTitle">SYSTEM CONFIRMATION</h3>
+            
+            <p id="modalMessage">ARE YOU SURE YOU WANT TO PROCEED?</p>
+            
+            <input type="text" id="bfpNumberInput" placeholder="ENTER BFP NUMBER..." autocomplete="off" inputmode="numeric">
+        </div>
+        
+        <div class="modal-actions">
+            <button id="modalCancel" class="modal-btn-neu">CANCEL</button>
+            <button id="modalConfirm" class="modal-btn-neu confirm-red">PROCEED</button>
+        </div>
+    </div>
+</div>
+
+    <div id="clearDeviceLogsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content modal-card">
+        <div class="modal-lcd-well">
+            <h3 id="clearDeviceLogsTitle">CLEAR CONSOLE</h3>
+            <p id="clearDeviceLogsMessage">ARE YOU SURE YOU WANT TO CLEAR THE CURRENT SESSION LOGS?</p>
+        </div>
+        <div class="modal-actions">
+            <button id="clearDeviceLogsCancel" class="modal-btn-neu">CANCEL</button>
+            <button id="clearDeviceLogsConfirm" class="modal-btn-neu confirm-red">CLEAR</button>
+        </div>
+    </div>
+</div>
+
+    <script src="js/config.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/report.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/websocket-client.js"></script>
+    <script src="js/device.js"></script>
+
+</body>
+</html>
