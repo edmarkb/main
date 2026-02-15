@@ -242,15 +242,15 @@ function renderLogs(logs) {
           <div class="log-sensors">
             <div class="log-sensor">
               <span class="sensor-icon">🌡️</span>
-              <span class="sensor-reading">${log.temperature}°C</span>
+              <span class="sensor-reading">${log.temperature != null ? log.temperature : 0}°C</span>
             </div>
             <div class="log-sensor">
               <span class="sensor-icon">💧</span>
-              <span class="sensor-reading">${log.humidity}%</span>
+              <span class="sensor-reading">${log.humidity != null ? log.humidity : 0}%</span>
             </div>
             <div class="log-sensor">
               <span class="sensor-icon">☁️</span>
-              <span class="sensor-reading">${log.gas} ppm</span>
+              <span class="sensor-reading">${log.gas != null ? log.gas : 0} ppm</span>
             </div>
           </div>
         </div>
@@ -300,6 +300,13 @@ async function filterLogs() {
     filtered = filtered.filter(log => getEventStatus(log.eventType) === "critical");
   }
 
+  // Sort by timestamp - NEWEST FIRST (descending order)
+  filtered.sort((a, b) => {
+    const timeA = new Date(a.timestamp).getTime();
+    const timeB = new Date(b.timestamp).getTime();
+    return timeB - timeA;  // Descending order (newest first)
+  });
+
   renderLogs(filtered);
 }
 
@@ -348,3 +355,50 @@ if (clearLogsBtn && clearLogsModal) {
   // Load and filter logs (filterLogs handles the cleared timestamp check)
   await filterLogs();
 })();
+
+// ==========================================
+// REAL-TIME LOG UPDATES via WebSocket
+// Listen for events that create new logs and auto-refresh
+// ==========================================
+function setupLogsWebSocketListeners() {
+  // Wait for socket to be available (loaded from websocket-client.js)
+  if (typeof socket === 'undefined' || !socket) {
+    setTimeout(setupLogsWebSocketListeners, 500);
+    return;
+  }
+
+  // When a BFP dispatch happens, refresh logs after a short delay
+  // (give the backend time to persist the log)
+  socket.on('bfp-dispatch', () => {
+    console.log('📋 [LOGS] BFP dispatch detected, refreshing logs...');
+    setTimeout(filterLogs, 1000);
+  });
+
+  // When sensor-based critical/warning alerts are logged by the backend
+  socket.on('critical-alert', () => {
+    console.log('📋 [LOGS] Critical alert detected, refreshing logs...');
+    setTimeout(filterLogs, 1500);
+  });
+
+  socket.on('warning-alert', () => {
+    console.log('📋 [LOGS] Warning alert detected, refreshing logs...');
+    setTimeout(filterLogs, 1500);
+  });
+
+  // When alarm state changes (manual alarm on/off)
+  socket.on('alarm-state-changed', () => {
+    console.log('📋 [LOGS] Alarm state changed, refreshing logs...');
+    setTimeout(filterLogs, 1000);
+  });
+
+  // When device status changes (online/offline)
+  socket.on('device-status-changed', () => {
+    console.log('📋 [LOGS] Device status changed, refreshing logs...');
+    setTimeout(filterLogs, 1500);
+  });
+
+  console.log('✅ [LOGS] WebSocket listeners for real-time log updates initialized');
+}
+
+// Initialize after a short delay to let the socket connect
+setTimeout(setupLogsWebSocketListeners, 1000);

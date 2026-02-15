@@ -15,9 +15,18 @@ const API_CONFIG = {
     
     // Device endpoints
     GET_DEVICES: '/api/devices',
+    GET_ACTIVE_DEVICES: '/api/devices/active',
     UPDATE_DEVICE: '/api/devices/:id',
     
-    // Events endpoints
+    // Sensor data endpoints
+    GET_SENSOR_READINGS: '/api/sensor-data/readings',
+    GET_THRESHOLDS: '/api/sensor-data/thresholds',
+    
+    // Alert contacts endpoints
+    GET_ALERT_CONTACTS: '/api/alert-contacts',
+    UPDATE_ALERT_CONTACTS: '/api/alert-contacts',
+
+    // Events endpoints (backend handles logging automatically)
     LOG_EVENT: '/api/events',
   },
   

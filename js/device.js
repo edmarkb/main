@@ -12,19 +12,25 @@
     }
 })();
 
-// 1. ICON LIBRARY (SVG Paths)
+// 1. ICON LIBRARY (SVG Paths) - Colors match banner status
 const ICONS = {
-    SAFE: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="currentColor"><path d="m438-338 226-226-57-57-169 169-84-84-57 57 141 141Zm42 258q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Zm0-84q104-33 172-132t68-220v-189l-240-90-240 90v189q0 121 68 220t172 132Zm0-316Z"/></svg>`,
-    FIRE: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="currentColor"><path d="M200-400q0 52 21 98.5t60 81.5q-1-5-1-9v-9q0-32 12-60t35-51l113-111 113 111q23 23 35 51t12 60v9q0 4-1 9 39-35 60-81.5t21-98.5q0-50-18.5-94.5T608-574q-20 13-42 19.5t-45 6.5q-62 0-107.5-41T361-690q-39 33-69 68.5t-50.5 72Q221-513 210.5-475T200-400Zm240 52-57 56q-11 11-17 25t-6 29q0 32 23.5 55t56.5 23q33 0 56.5-23t23.5-55q0-16-6-29.5T497-292l-57-56Zm0-492v132q0 34 23.5 57t57.5 23q18 0 33.5-7.5T582-658l18-22q74 42 117 117t43 163q0 134-93 227T440-80q-134 0-227-93t-93-227q0-129 86.5-245T440-840Zm400 320q-17 0-28.5-11.5T800-560q0-17 11.5-28.5T840-600q17 0 28.5 11.5T880-560q0 17-11.5 28.5T840-520Zm-40-120v-200h80v200h-80Z"/></svg>`,
-    HEAT: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="currentColor"><path d="M320-120q-83 0-141.5-58.5T120-320q0-48 21-89.5t59-70.5v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q38 29 59 70.5t21 89.5q0 83-58.5 141.5T320-120Zm0-80q50 0 85-35t35-85q0-29-12.5-54T392-416l-32-24v-280q0-17-11.5-28.5T320-760q-17 0-28.5 11.5T280-720v280l-32 24q-23 17-35.5 42T200-320q0 50 35 85t85 35Zm0-120Zm400-200q-17 0-28.5-11.5T680-560q0-17 11.5-28.5T720-600q17 0 28.5 11.5T760-560q0 17-11.5 28.5T720-520Zm-40-120v-200h80v200h-80Z"/></svg>`,
-    SMOKE: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="currentColor"><path d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q25-92 100-149t170-57q117 0 198.5 81.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm0-80h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-83 0-141.5 58.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41Zm220-240Zm0 160q17 0 28.5-11.5T520-360q0-17-11.5-28.5T480-400q-17 0-28.5 11.5T440-360q0 17 11.5 28.5T480-320Zm-40-140h80v-180h-80v180Z"/></svg>`,
-    POWER: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-84 31.5-156.5T197-763l56 56q-44 44-68.5 102T160-480q0 134 93 227t227 93q134 0 227-93t93-227q0-67-24.5-125T707-707l56-56q54 54 85.5 126.5T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-40-360v-440h80v440h-80Z"/></svg>`,
+    SAFE: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#22c55e"><path d="m438-338 226-226-57-57-169 169-84-84-57 57 141 141Zm42 258q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Zm0-84q104-33 172-132t68-220v-189l-240-90-240 90v189q0 121 68 220t172 132Zm0-316Z"/></svg>`,
+    FIRE: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#ef4444"><path d="M200-400q0 52 21 98.5t60 81.5q-1-5-1-9v-9q0-32 12-60t35-51l113-111 113 111q23 23 35 51t12 60v9q0 4-1 9 39-35 60-81.5t21-98.5q0-50-18.5-94.5T608-574q-20 13-42 19.5t-45 6.5q-62 0-107.5-41T361-690q-39 33-69 68.5t-50.5 72Q221-513 210.5-475T200-400Zm240 52-57 56q-11 11-17 25t-6 29q0 32 23.5 55t56.5 23q33 0 56.5-23t23.5-55q0-16-6-29.5T497-292l-57-56Zm0-492v132q0 34 23.5 57t57.5 23q18 0 33.5-7.5T582-658l18-22q74 42 117 117t43 163q0 134-93 227T440-80q-134 0-227-93t-93-227q0-129 86.5-245T440-840Zm400 320q-17 0-28.5-11.5T800-560q0-17 11.5-28.5T840-600q17 0 28.5 11.5T880-560q0 17-11.5 28.5T840-520Zm-40-120v-200h80v200h-80Z"/></svg>`,
+    HEAT: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#ef4444"><path d="M320-120q-83 0-141.5-58.5T120-320q0-48 21-89.5t59-70.5v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q38 29 59 70.5t21 89.5q0 83-58.5 141.5T320-120Zm0-80q50 0 85-35t35-85q0-29-12.5-54T392-416l-32-24v-280q0-17-11.5-28.5T320-760q-17 0-28.5 11.5T280-720v280l-32 24q-23 17-35.5 42T200-320q0 50 35 85t85 35Zm0-120Zm400-200q-17 0-28.5-11.5T680-560q0-17 11.5-28.5T720-600q17 0 28.5 11.5T760-560q0 17-11.5 28.5T720-520Zm-40-120v-200h80v200h-80Z"/></svg>`,
+    SMOKE: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#ef4444"><path d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q25-92 100-149t170-57q117 0 198.5 81.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm0-80h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-83 0-141.5 58.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41Zm220-240Zm0 160q17 0 28.5-11.5T520-360q0-17-11.5-28.5T480-400q-17 0-28.5 11.5T440-360q0 17 11.5 28.5T480-320Zm-40-140h80v-180h-80v180Z"/></svg>`,
+    HEAT_WARN: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#f59e0b"><path d="M320-120q-83 0-141.5-58.5T120-320q0-48 21-89.5t59-70.5v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q38 29 59 70.5t21 89.5q0 83-58.5 141.5T320-120Zm0-80q50 0 85-35t35-85q0-29-12.5-54T392-416l-32-24v-280q0-17-11.5-28.5T320-760q-17 0-28.5 11.5T280-720v280l-32 24q-23 17-35.5 42T200-320q0 50 35 85t85 35Zm0-120Zm400-200q-17 0-28.5-11.5T680-560q0-17 11.5-28.5T720-600q17 0 28.5 11.5T760-560q0 17-11.5 28.5T720-520Zm-40-120v-200h80v200h-80Z"/></svg>`,
+    SMOKE_WARN: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#f59e0b"><path d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q25-92 100-149t170-57q117 0 198.5 81.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm0-80h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-83 0-141.5 58.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41Zm220-240Zm0 160q17 0 28.5-11.5T520-360q0-17-11.5-28.5T480-400q-17 0-28.5 11.5T440-360q0 17 11.5 28.5T480-320Zm-40-140h80v-180h-80v180Z"/></svg>`,
+    ALARM_OFF: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M160-200h640v-80H160v80Zm160-240h80v-120q0-33 23.5-56.5T480-640v-80q-66 0-113 47t-47 113v120Zm160 160Zm-200-80h400v-200q0-83-58.5-141.5T480-760q-83 0-141.5 58.5T280-560v200ZM160-120q-33 0-56.5-23.5T80-200v-80q0-33 23.5-56.5T160-360h40v-200q0-117 81.5-198.5T480-840q117 0 198.5 81.5T760-560v200h40q33 0 56.5 23.5T880-280v80q0 33-23.5 56.5T800-120H160Zm320-240Z"/></svg>`,
+    ALARM_ON: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 512 512" width="24px" fill="currentColor"><path d="M416.001,405.331V266.67c0-88.225-71.776-160.001-160-160.001c-88.225,0-160.002,71.776-160.002,160.001v138.662 c-29.409,0.001-53.335,23.926-53.335,53.333v42.666c0,5.892,4.777,10.669,10.669,10.669h405.332 c5.892,0,10.669-4.776,10.669-10.669v-42.666C469.334,429.257,445.408,405.331,416.001,405.331z M117.337,266.67 c0-76.459,62.206-138.663,138.664-138.663S394.663,190.21,394.663,266.67v138.662H266.67v-97.346 c18.382-4.75,32.001-21.472,32.001-41.317c0-23.528-19.141-42.669-42.669-42.669c-23.528,0-42.668,19.141-42.668,42.669 c0,19.845,13.619,36.568,32,41.317v97.346H117.337V266.67z M256.001,288c-11.762,0-21.331-9.569-21.331-21.33 c0-11.762,9.569-21.332,21.331-21.332c11.762,0,21.332,9.57,21.332,21.332C277.333,278.431,267.763,288,256.001,288z M447.996,490.663H64.002v-31.998c0-17.643,14.356-31.995,32.001-31.995h319.998c17.642,0,31.995,14.354,31.995,31.995V490.663z"/><path d="M69.336,266.67c0-5.892-4.776-10.669-10.669-10.669H10.669C4.776,256.001,0,260.777,0,266.67s4.776,10.669,10.669,10.669 h47.999C64.561,277.339,69.336,272.562,69.336,266.67z"/><path d="M148.096,101.109c1.976,3.423,5.563,5.336,9.25,5.336c1.809,0,3.644-0.461,5.324-1.431 c5.103-2.946,6.851-9.471,3.905-14.573l-23.998-41.569c-2.947-5.103-9.472-6.851-14.573-3.905 c-5.103,2.946-6.851,9.471-3.905,14.573L148.096,101.109z"/><path d="M256.001,80.008c5.892,0,10.669-4.776,10.669-10.669v-58.67C266.67,4.776,261.893,0,256.001,0 c-5.891,0-10.669,4.776-10.669,10.669v58.669C245.332,75.232,250.11,80.008,256.001,80.008z"/><path d="M28.966,147.909l50.805,29.334c1.68,0.97,3.515,1.431,5.325,1.431c3.687,0,7.273-1.914,9.249-5.335 c2.947-5.103,1.198-11.628-3.905-14.573l-50.805-29.334c-5.101-2.945-11.627-1.197-14.573,3.905 C22.114,138.437,23.863,144.963,28.966,147.909z"/><path d="M426.904,178.673c1.809,0,3.644-0.461,5.325-1.431l50.807-29.334c5.102-2.946,6.851-9.471,3.905-14.573 c-2.947-5.103-9.472-6.852-14.573-3.905l-50.807,29.334c-5.103,2.946-6.851,9.471-3.905,14.573 C419.63,176.76,423.216,178.673,426.904,178.673z"/><path d="M349.331,105.014c1.68,0.97,3.514,1.431,5.324,1.431c3.688,0,7.274-1.914,9.25-5.336l23.999-41.568 c2.947-5.103,1.197-11.628-3.905-14.573c-5.102-2.946-11.627-1.198-14.573,3.905L345.426,90.44 C342.481,95.544,344.228,102.069,349.331,105.014z"/><path d="M501.331,256.001h-48.001c-5.892,0-10.669,4.776-10.669,10.669s4.776,10.669,10.669,10.669h48.001 c5.89,0,10.669-4.776,10.669-10.669S507.223,256.001,501.331,256.001z"/></svg>`,
     BFP: `<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M280-120q-50 0-85-35t-35-85h-40q-33 0-56.5-23.5T40-320v-200h440v-160q0-33 23.5-56.5T560-760h80v-40q0-17 11.5-28.5T680-840h40q17 0 28.5 11.5T760-800v40h22q26 0 47 15t29 40l58 172q2 6 3 12.5t1 13.5v267H800q0 50-35 85t-85 35q-50 0-85-35t-35-85H400q0 50-35 85t-85 35Zm0-80q17 0-28.5-11.5T320-240q0-17-11.5-28.5T280-280q-17 0-28.5 11.5T240-240q0 17 11.5 28.5T280-200Zm400 0q17 0-28.5-11.5T720-240q0-17-11.5-28.5T680-280q-17 0-28.5 11.5T640-240q0 17 11.5 28.5T680-200ZM120-440v120h71q17-19 40-29.5t49-10.5q26 0 49 10.5t40 29.5h111v-120H120Zm440 120h31q17-19 40-29.5t49-10.5q26 0 49 10.5t40 29.5h71v-120H560v120Zm0-200h276l-54-160H560v160ZM40-560v-60h40v-80H40v-60h400v60h-40v80h40v60H40Zm100-60h70v-80h-70v80Zm130 0h70v-80h-70v80Zm210 180H120h360Zm80 0h280-280Z"/></svg>`
 };
 
 let activeDevice = null;
 let manualAlarmActive = false;
 let lastAlertState = "SAFE";
+let lastOnlineState = false;  // Track online status for logging
+let pollIntervalId = null;  // Track polling interval for cleanup
+let isPolling = false;  // Prevent concurrent fetch requests
 // Store device activity logs for reporting - load from localStorage if available (device-specific)
 let deviceActivityLogs = [];
 let currentDeviceId = null; // Track which device we're viewing
@@ -34,9 +40,9 @@ function getDeviceLogsKey() {
     return `deviceActivityLogs_${currentDeviceId}`;
 }
 
-// Helper function to get localStorage key for BFP number
-function getDeviceBFPKey() {
-    return `bfpContactNumber_${currentDeviceId}`;
+// Helper function to get localStorage key for BFP number (GLOBAL - shared across all devices)
+function getGlobalBFPKey() {
+    return 'globalBFPContactNumber';
 }
 
 // Helper function to load logs for specific device
@@ -90,7 +96,7 @@ if (!window.systemEventLogs) {
 }
 
 // 2. ACTIVITY LOG LOGIC
-function addDeviceLog(message, type = 'info') {
+function addDeviceLog(message, type = 'info', postToBackend = false) {
     const logList = document.getElementById('deviceLogList');
     if (!logList) return;
 
@@ -115,8 +121,11 @@ function addDeviceLog(message, type = 'info') {
     // Save to localStorage
     saveActivityLogsToStorage();
 
-    // Also add to global system event logs
-    addToSystemEventLog(message, type, activeDevice ? activeDevice.name : 'Unknown Device');
+    // Also add to global system event logs with actual sensor data
+    const temp = (activeDevice && activeDevice.temperature != null) ? activeDevice.temperature : 0;
+    const hum = (activeDevice && activeDevice.humidity != null) ? activeDevice.humidity : 0;
+    const gasVal = (activeDevice && activeDevice.gas != null) ? activeDevice.gas : 0;
+    addToSystemEventLog(message, type, activeDevice ? activeDevice.name : 'Unknown Device', temp, hum, gasVal, postToBackend);
 
     // Update this line inside your addDeviceLog function
 logEntry.innerHTML = `
@@ -132,7 +141,8 @@ logEntry.innerHTML = `
 }
 
 // Helper function to add event to system event log
-async function addToSystemEventLog(message, type, deviceName) {
+// postToBackend: true for user-initiated actions (alarm, BFP), false for sensor events (backend logs those)
+async function addToSystemEventLog(message, type, deviceName, temperature = null, humidity = null, gas = null, postToBackend = false) {
     const eventTypeMap = {
         'danger': 'critical',
         'warning': 'warning',
@@ -142,6 +152,7 @@ async function addToSystemEventLog(message, type, deviceName) {
     const eventType = eventTypeMap[type] || type;
     const deviceId = getDeviceIdFromName(deviceName);
     
+    // Use actual sensor data if provided, otherwise use 0 as placeholder
     const systemEvent = {
         id: window.systemEventLogs.length + 1,
         deviceId: deviceId,
@@ -149,36 +160,37 @@ async function addToSystemEventLog(message, type, deviceName) {
         timestamp: new Date().toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }),
         eventType: eventType,
         alertMessage: message,
-        temperature: 0,
-        humidity: 0,
-        gas: 0
+        temperature: (temperature != null) ? temperature : 0,
+        humidity: (humidity != null) ? humidity : 0,
+        gas: (gas != null) ? gas : 0
     };
     
     window.systemEventLogs.unshift(systemEvent);
     
-    // Post to API if enabled
-    if (API_CONFIG.ENABLE_API) {
+    // POST to backend for user-initiated events (alarm toggle, BFP dispatch, etc.)
+    // Sensor-based alerts are handled by the backend automatically — no need to double-post
+    if (postToBackend && API_CONFIG.ENABLE_API) {
         try {
             const apiPayload = {
                 deviceId: deviceId,
                 labName: deviceName,
                 eventType: eventType,
                 alertMessage: message,
-                temperature: 0,
-                humidity: 0,
-                gas: 0,
-                timestamp: new Date().toISOString()
+                temperature: (temperature != null) ? temperature : 0,
+                humidity: (humidity != null) ? humidity : 0,
+                gas: (gas != null) ? gas : 0,
+                timestamp: new Date().toLocaleString('en-US')
             };
             
             await apiCall('POST', API_CONFIG.ENDPOINTS.CREATE_LOG, apiPayload);
-            console.log('Log posted to API:', apiPayload);
+            console.log('✅ Log posted to backend:', eventType, message);
         } catch (error) {
-            console.error('Failed to post log to API:', error);
+            console.error('Failed to post log to backend:', error);
         }
     }
 }
 
-// Helper function to get device ID from name
+// Helper function to get device ID from name (now uses acesId directly)
 function getDeviceIdFromName(name) {
     // Find the device by name from the global devices array
     if (!name || typeof name !== 'string') return 'ACES-1';
@@ -186,34 +198,48 @@ function getDeviceIdFromName(name) {
     // Access the devices array from main.js (it's global)
     if (typeof devices !== 'undefined' && Array.isArray(devices)) {
         const device = devices.find(d => d.name === name);
-        if (device) {
-            // Map ESP URL to ACES ID
-            if (device.espUrl.includes('192.168.100.70')) return 'ACES-1';
-            if (device.espUrl.includes('192.168.100.71')) return 'ACES-2';
-            if (device.espUrl.includes('192.168.100.72')) return 'ACES-3';
+        if (device && device.acesId) {
+            return device.acesId;
         }
     }
-    
-    // Fallback to name matching (for backward compatibility)
-    if (name.includes('Computer Laboratory 1')) return 'ACES-1';
-    if (name.includes('Computer Laboratory 2')) return 'ACES-2';
-    if (name.includes('Food Laboratory')) return 'ACES-3';
     
     return 'ACES-1'; // Default fallback
 }
 
 // 3. EVENT MONITORING
-function checkEvents(temp, hum, gas) {
+
+// ============================================================
+// EVENT CHECKING & LOGGING (backend handles alert persistence)
+// ============================================================
+
+function checkEvents(temp, hum, gas, fire) {
     let currentState = "SAFE";
-    if (temp >= 42 && gas >= 600) currentState = "FIRE";
+    const isFire = fire === true || fire === 1 || fire === "true";
+    
+    // Critical conditions (highest priority)
+    if (isFire) currentState = "FIRE";
+    else if (temp >= 42 && gas >= 600) currentState = "FIRE";
     else if (temp >= 42) currentState = "HEAT";
     else if (gas >= 600) currentState = "GAS";
+    // Warning conditions (elevated but not critical)
+    else if (temp >= 38) currentState = "HEAT_WARNING";
+    else if (gas >= 450) currentState = "GAS_WARNING";
 
     if (currentState !== lastAlertState) {
-        if (currentState === "FIRE") addDeviceLog("CRITICAL: Potential Fire detected (Heat + Smoke)", "danger");
-        else if (currentState === "HEAT") addDeviceLog(`High Temperature Warning: ${temp.toFixed(1)}°C`, "warning");
-        else if (currentState === "GAS") addDeviceLog(`High Gas/Smoke Levels: ${gas} PPM`, "warning");
-        else if (currentState === "SAFE" && lastAlertState !== "SAFE") addDeviceLog("System returned to normal parameters.", "info");
+        // Backend handles alert logging - frontend only updates local UI
+        if (currentState === "FIRE") {
+            addDeviceLog("Fire condition detected by flame sensor.", "danger");
+        } else if (currentState === "HEAT") {
+            addDeviceLog(`Temperature threshold exceeded. Current value: ${temp.toFixed(1)}°C`, "danger");
+        } else if (currentState === "GAS") {
+            addDeviceLog(`Gas concentration exceeded safe limit. Current value: ${gas} ppm`, "danger");
+        } else if (currentState === "HEAT_WARNING") {
+            addDeviceLog(`High temperature detected. Current value: ${temp.toFixed(1)}°C`, "warning");
+        } else if (currentState === "GAS_WARNING") {
+            addDeviceLog(`Elevated gas concentration detected. Current value: ${gas} ppm`, "warning");
+        } else if (currentState === "SAFE" && lastAlertState !== "SAFE") {
+            addDeviceLog("System returned to normal parameters.", "info");
+        }
         
         lastAlertState = currentState;
     }
@@ -223,52 +249,73 @@ function checkEvents(temp, hum, gas) {
 function updateDetailUI() {
     if (!activeDevice) return;
 
-    const { temperature: temp, humidity: hum, gas } = activeDevice;
+    const { temperature: temp, humidity: hum, gas, fire } = activeDevice;
     const banner = document.getElementById('statusBanner');
     const bannerText = document.getElementById('bannerText');
     const bannerIcon = document.getElementById('bannerIcon');
     const tempBox = document.getElementById('tempBox');
     const gasBox = document.getElementById('gasBox');
 
-    banner.classList.remove('banner-safe', 'banner-danger');
-    [tempBox, gasBox].forEach(box => box && box.classList.remove('danger'));
+    banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning');
+    [tempBox, gasBox].forEach(box => box && box.classList.remove('danger', 'warning'));
 
     let isEmergency = false;
+    let isWarning = false;
 
-    // Threshold Checks with Icon Swapping
-    if (temp >= 42 && gas >= 600) {
+    // Check for actual fire sensor OR combined high temp + gas
+    const isFire = fire === true || fire === 1 || fire === "true";
+
+    // Threshold Checks with Icon Swapping (Priority: Fire > CombinedFire > Gas > Heat > Warnings > Safe)
+    if (isFire) {
         banner.classList.add('banner-danger');
-        bannerText.innerText = "FIRE ALERT DETECTED";
+        bannerText.innerText = "FIRE DETECTED";
         bannerIcon.innerHTML = ICONS.FIRE;
         if(tempBox) tempBox.classList.add('danger');
         if(gasBox) gasBox.classList.add('danger');
         isEmergency = true;
-    } else if (temp >= 42) {
+    } else if (temp >= 42 && gas >= 600) {
         banner.classList.add('banner-danger');
-        bannerText.innerText = "CRITICAL TEMPERATURE";
-        bannerIcon.innerHTML = ICONS.HEAT;
+        bannerText.innerText = "FIRE DETECTED";
+        bannerIcon.innerHTML = ICONS.FIRE;
         if(tempBox) tempBox.classList.add('danger');
+        if(gasBox) gasBox.classList.add('danger');
         isEmergency = true;
     } else if (gas >= 600) {
         banner.classList.add('banner-danger');
-        bannerText.innerText = "GAS / SMOKE DETECTED";
+        bannerText.innerText = "SMOKE / GAS DETECTED";
         bannerIcon.innerHTML = ICONS.SMOKE;
         if(gasBox) gasBox.classList.add('danger');
         isEmergency = true;
+    } else if (temp >= 42) {
+        banner.classList.add('banner-danger');
+        bannerText.innerText = "HIGH TEMPERATURE ALERT";
+        bannerIcon.innerHTML = ICONS.HEAT;
+        if(tempBox) tempBox.classList.add('danger');
+        isEmergency = true;
+    } else if (temp >= 38) {
+        banner.classList.add('banner-warning');
+        bannerText.innerText = "ELEVATED TEMPERATURE";
+        bannerIcon.innerHTML = ICONS.HEAT_WARN;
+        if(tempBox) tempBox.classList.add('warning');
+        isWarning = true;
+    } else if (gas >= 450) {
+        banner.classList.add('banner-warning');
+        bannerText.innerText = "ELEVATED GAS LEVEL";
+        bannerIcon.innerHTML = ICONS.SMOKE_WARN;
+        if(gasBox) gasBox.classList.add('warning');
+        isWarning = true;
     } else {
         banner.classList.add('banner-safe');
         bannerText.innerText = "SYSTEM SAFE";
         bannerIcon.innerHTML = ICONS.SAFE;
     }
 
-    // Alarm Override Visually
-    banner.style.opacity = (manualAlarmActive && isEmergency) ? "0.7" : "1";
-    if (manualAlarmActive && isEmergency) bannerText.innerText += " (MUTED)";
+
 
     // Update Values
-    document.getElementById('detTemp').textContent = temp.toFixed(1);
-    document.getElementById('detHum').textContent = hum.toFixed(1);
-    document.getElementById('detGas').textContent = gas.toFixed(0);
+    document.getElementById('detTemp').textContent = (temp ?? 0).toFixed(1);
+    document.getElementById('detHum').textContent = (hum ?? 0).toFixed(1);
+    document.getElementById('detGas').textContent = (gas ?? 0).toFixed(0);
 
     const statusEl = document.getElementById('detStatus');
     if (statusEl) {
@@ -281,17 +328,24 @@ function updateDetailUI() {
 let bfpContactNumber = "";
 
 // Helper function to load BFP number for specific device
-function loadBFPNumberForDevice(deviceId) {
-    bfpContactNumber = localStorage.getItem(getDeviceBFPKey()) || "";
+function loadGlobalBFPNumber() {
+    bfpContactNumber = localStorage.getItem(getGlobalBFPKey()) || "";
 }
 
-// Helper function to save BFP number to localStorage (device-specific)
-function saveBFPNumberToStorage() {
-    localStorage.setItem(getDeviceBFPKey(), bfpContactNumber);
-    // Sync BFP numbers to other devices
-    if (typeof emitBFPNumbersChanged === 'function' && activeDevice) {
-      emitBFPNumbersChanged(activeDevice.name, bfpContactNumber);
+// Helper function to save BFP number to localStorage (GLOBAL - shared across all devices)
+function saveGlobalBFPNumber() {
+    localStorage.setItem(getGlobalBFPKey(), bfpContactNumber);
+    // Sync BFP number to all other devices via WebSocket
+    if (typeof emitGlobalBFPNumberChanged === 'function') {
+      emitGlobalBFPNumberChanged(bfpContactNumber);
     }
+}
+
+// Function to update BFP number from WebSocket sync
+function updateBFPNumberFromSync(newNumber) {
+    bfpContactNumber = newNumber;
+    localStorage.setItem(getGlobalBFPKey(), newNumber);
+    console.log('📱 BFP number synced globally:', newNumber);
 } 
 
 // 5. BOOTSTRAP / INITIALIZATION
@@ -301,10 +355,14 @@ document.addEventListener('DOMContentLoaded', () => {
     activeDevice = devices.find(d => d.name === deviceName);
 
     if (activeDevice) {
-        // Load device-specific data from localStorage
+        // Initialize lastOnlineState to prevent false "came back online" on page load
+        lastOnlineState = activeDevice.online;
+        
+        // Load device-specific activity logs from localStorage
         const deviceId = getDeviceIdFromName(activeDevice.name);
         loadActivityLogsForDevice(deviceId);
-        loadBFPNumberForDevice(deviceId);
+        // Load global BFP number (shared across all devices)
+        loadGlobalBFPNumber();
         
         // Load saved alarm state from localStorage
         const savedAlarmState = localStorage.getItem(`manualAlarm_${deviceId}`);
@@ -323,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const alarmIconWrap = document.getElementById('alarmBtnIcon');
         const bfpIconWrap = document.querySelector('.bfp-icon-wrap');
 
-        if(alarmIconWrap) alarmIconWrap.innerHTML = ICONS.POWER; 
+        if(alarmIconWrap) alarmIconWrap.innerHTML = manualAlarmActive ? ICONS.ALARM_ON : ICONS.ALARM_OFF; 
         if(bfpIconWrap) bfpIconWrap.innerHTML = ICONS.BFP;
 
         const alarmBtn = document.getElementById('manualAlarmBtn');
@@ -335,17 +393,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if(bfpBtn) bfpBtn.classList.remove('is-active'); 
 
         updateDetailUI();
-        // TODO: Uncomment this when ESP32 is integrated to log on actual connection
-        // addDeviceLog(`Connected to ${activeDevice.name}. Monitoring active.`, "info");
+        
+        // Check events immediately with stored data (in case fire sensor was already triggered)
+        checkEvents(activeDevice.temperature, activeDevice.humidity, activeDevice.gas, activeDevice.fire);
         
         // Render saved logs from localStorage
         renderSavedActivityLogs();
         
-        setInterval(async () => {
-            await activeDevice.fetchData();
-            updateDetailUI();
-            checkEvents(activeDevice.temperature, activeDevice.humidity, activeDevice.gas);
-        }, 1000); 
+        // Sensor data now arrives via WebSocket 'sensor-data' event
+        // Online/offline status arrives via WebSocket 'device-status-changed' event
+        // No direct ESP32 polling needed
     }
 });
 
@@ -381,13 +438,22 @@ window.triggerValidation = function(type) {
     
     if(btnElement) btnElement.classList.add('is-active');
 
-    // --- CASE: MANUAL ALARM ---
+    // --- CASE: MANUAL ALARM / SIREN ---
     if (type === 'alarm') {
         if(numInput) numInput.style.display = 'none'; // Hide phone input
         const title = "SYSTEM CONFIRMATION";
-        const message = manualAlarmActive 
-            ? `ARE YOU SURE YOU WANT TO <span class="text-deactivate">DEACTIVATE</span> THE MANUAL ALARM?` 
-            : `ARE YOU SURE YOU WANT TO <span class="text-engage">ENGAGE</span> THE LABORATORY ALARM SYSTEM?`;
+        const acesId = getDeviceIdFromName(activeDevice.name);
+        const sirenSource = localStorage.getItem(`sirenSource_${acesId}`) || 'manual';
+        const isAutoSiren = manualAlarmActive && sirenSource === 'auto';
+        
+        let message;
+        if (manualAlarmActive && isAutoSiren) {
+            message = `THE SIREN WAS <span class="text-engage">AUTO-ACTIVATED</span> DUE TO CRITICAL CONDITIONS.<br><br>ARE YOU SURE YOU WANT TO <span class="text-deactivate">OVERRIDE AND DEACTIVATE</span> THE SIREN?`;
+        } else if (manualAlarmActive) {
+            message = `ARE YOU SURE YOU WANT TO <span class="text-deactivate">DEACTIVATE</span> THE SIREN?`;
+        } else {
+            message = `ARE YOU SURE YOU WANT TO <span class="text-engage">ENGAGE</span> THE LABORATORY SIREN?`;
+        }
 
         setTimeout(() => {
             showCustomModal(title, message, 
@@ -418,7 +484,7 @@ window.triggerValidation = function(type) {
                     // Validation: Must be at least 7 digits to be a real number
                     if (val && val.length >= 7) { 
                         bfpContactNumber = val;
-                        saveBFPNumberToStorage(); // Save to localStorage
+                        saveGlobalBFPNumber(); // Save globally and sync via WebSocket
                         numInput.style.display = 'none';
                         window.triggerValidation('bfp'); 
                     } else {
@@ -460,41 +526,110 @@ window.triggerValidation = function(type) {
 // Global function to reset BFP number and restart setup
 window.changeBfpNumber = function() {
     bfpContactNumber = "";
-    localStorage.removeItem('bfpContactNumber'); // Clear from storage
+    localStorage.removeItem(getGlobalBFPKey()); // Clear global BFP from storage
+    // Sync the cleared BFP number to all devices
+    if (typeof emitGlobalBFPNumberChanged === 'function') {
+      emitGlobalBFPNumberChanged("");
+    }
     document.getElementById('customModal').style.display = 'none';
     window.triggerValidation('bfp');
 };
 
-// Actual Logic for Alarm
+// Actual Logic for Alarm/Siren
 window.toggleManualAlarm = function() {
+    // Check WebSocket connection before toggling — prevent silent failures
+    if (typeof isWebSocketReady === 'undefined' || !isWebSocketReady) {
+        showToast("Server not connected. Please wait and try again.", "error");
+        return;
+    }
+
     manualAlarmActive = !manualAlarmActive;
     const alarmBtn = document.getElementById('manualAlarmBtn');
     const acesId = getDeviceIdFromName(activeDevice.name);
     
+    // Check if we're overriding an auto-triggered siren
+    const prevSource = localStorage.getItem(`sirenSource_${acesId}`) || 'manual';
+    const isOverride = !manualAlarmActive && prevSource === 'auto';
+    
+    const alarmIconWrap = document.getElementById('alarmBtnIcon');
     if (manualAlarmActive) {
-        addDeviceLog("MANUAL OVERRIDE: Alarm activated.", "danger");
+        addDeviceLog("MANUAL OVERRIDE: Siren activated.", "danger", true);
         if(alarmBtn) alarmBtn.classList.add('is-active');
-        // Sync alarm state to other devices
+        if(alarmIconWrap) alarmIconWrap.innerHTML = ICONS.ALARM_ON;
+        localStorage.setItem(`sirenSource_${acesId}`, 'manual');
+        // Sync siren state to other devices + backend
         if (typeof emitAlarmStateChanged === 'function') {
-          emitAlarmStateChanged(activeDevice.name, true, acesId);
+          emitAlarmStateChanged(activeDevice.name, true, acesId, 'manual');
         }
     } else {
-        addDeviceLog("Manual alarm reset to monitoring mode.", "info");
+        const logMsg = isOverride 
+          ? "USER OVERRIDE: Auto-siren deactivated by user." 
+          : "Siren deactivated. Returning to monitoring mode.";
+        addDeviceLog(logMsg, "info", true);
         if(alarmBtn) alarmBtn.classList.remove('is-active');
-        // Sync alarm state to other devices
+        if(alarmIconWrap) alarmIconWrap.innerHTML = ICONS.ALARM_OFF;
+        localStorage.setItem(`sirenSource_${acesId}`, 'manual');
+        // Sync siren state to other devices + backend
         if (typeof emitAlarmStateChanged === 'function') {
-          emitAlarmStateChanged(activeDevice.name, false, acesId);
+          emitAlarmStateChanged(activeDevice.name, false, acesId, 'manual');
         }
     }
 };
 
 // Actual Logic for BFP
 window.sendBFPAlert = function() {
-    addDeviceLog(`DISPATCH: BFP Alert Sent to ${bfpContactNumber} Successfully.`, "danger");
+    // Log to device-specific activity log only (NOT system events, to avoid duplication)
+    const logList = document.getElementById('deviceLogList');
+    if (logList) {
+        const dateObj = new Date();
+        const dateStr = dateObj.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
+        const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+        const logEntry = document.createElement('div');
+        
+        // Store log for reporting
+        deviceActivityLogs.push({
+            timestamp: `${dateStr} ${timeStr}`,
+            message: `DISPATCH: BFP Alert Sent to ${bfpContactNumber} Successfully.`,
+            type: 'danger',
+            fullTimestamp: new Date().toISOString()
+        });
+        
+        saveActivityLogsToStorage();
+        
+        logEntry.innerHTML = `
+            <div class="log-time-wrapper">
+              <span class="log-date">${dateStr}</span>
+              <span class="log-time">${timeStr}</span>
+            </div>
+            <span class="status-dot" style="background: #ef4444; box-shadow: 0 0 10px #ef4444;"></span>
+            <span class="log-msg">DISPATCH: BFP Alert Sent to ${bfpContactNumber} Successfully.</span>
+        `;
+        
+        logList.prepend(logEntry);
+    }
+    
+    // Log to system event logs with actual sensor data (BFP dispatch)
+    if (activeDevice) {
+        // Get current sensor values from the device, default to 0 if not available
+        const temp = (activeDevice.temperature != null) ? activeDevice.temperature : 0;
+        const hum = (activeDevice.humidity != null) ? activeDevice.humidity : 0;
+        const gasVal = (activeDevice.gas != null) ? activeDevice.gas : 0;
+        
+        addToSystemEventLog(
+            `Emergency alert dispatched to Bureau of Fire Protection at ${bfpContactNumber}`,
+            'bfp_alert',
+            activeDevice.name,
+            temp,
+            hum,
+            gasVal,
+            true  // POST to backend - user-initiated action
+        );
+    }
     
     // Broadcast dispatch to all connected devices (including self)
     if (typeof emitBFPDispatch === 'function') {
-        emitBFPDispatch(activeDevice.name, bfpContactNumber);
+        const acesId = getDeviceIdFromName(activeDevice.name);
+        emitBFPDispatch(activeDevice.name, bfpContactNumber, acesId);
     }
 };
 
