@@ -108,8 +108,38 @@
     </div>
   </div>
 
+  <!-- Siren/BFP confirmation modal (shared for inline detail mode) -->
+  <div id="customModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content modal-card">
+      <div class="modal-lcd-well">
+        <h3 id="modalTitle">SYSTEM CONFIRMATION</h3>
+        <p id="modalMessage">ARE YOU SURE YOU WANT TO PROCEED?</p>
+        <input type="text" id="bfpNumberInput" placeholder="ENTER BFP NUMBER..." autocomplete="off" inputmode="numeric" style="display: none;">
+      </div>
+      <div class="modal-actions">
+        <button id="modalCancel" class="modal-btn-neu">CANCEL</button>
+        <button id="modalConfirm" class="modal-btn-neu confirm-red">PROCEED</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clear device logs modal (shared for inline detail mode) -->
+  <div id="clearDeviceLogsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content modal-card">
+      <div class="modal-lcd-well">
+        <h3 id="clearDeviceLogsTitle">CLEAR CONSOLE</h3>
+        <p id="clearDeviceLogsMessage">ARE YOU SURE YOU WANT TO CLEAR THE CURRENT SESSION LOGS?</p>
+      </div>
+      <div class="modal-actions">
+        <button id="clearDeviceLogsCancel" class="modal-btn-neu">CANCEL</button>
+        <button id="clearDeviceLogsConfirm" class="modal-btn-neu confirm-red">CLEAR</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/config.js"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="js/report.js"></script>
   <script src="js/main.js"></script>
   <script src="js/websocket-client.js"></script>
   <script src="js/device.js"></script> 

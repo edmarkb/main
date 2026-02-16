@@ -30,7 +30,7 @@ if (darkModeToggle) {
     
     // Update icon
     if (themeIcon) {
-      themeIcon.innerHTML = isDark ? sunSVG : moonSVG;
+      themeIcon.innerHTML = isDark ? moonSVG : sunSVG;
     }
   });
 }

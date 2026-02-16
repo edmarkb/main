@@ -1950,7 +1950,7 @@ header {
   right: 12px !important; 
   
   /* Styling from your favorites */
-  font-size: 14px !important; 
+  font-size: 45px !important; 
   font-weight: 600;
   color: var(--text-muted);
   font-family: inherit; /* Standard font looks cleaner for units than SevenSegment */
@@ -1976,7 +1976,7 @@ header {
   padding-top: 4px !important;
   
   /* 2. TYPOGRAPHY: standard font is much easier to read than SevenSegment for text */
-  font-size: 13px !important; 
+  font-size: 25px !important; 
   font-family: inherit; 
   font-weight: 800;
   text-transform: uppercase;
@@ -2024,7 +2024,7 @@ header {
 .sensor-value {
   /* 1. TYPOGRAPHY: Big, Bold, and Digital */
   font-family: 'SevenSegment', monospace;
-  font-size: 48px !important; /* The 'Sweet Spot' size */
+  font-size: 85px !important; /* The 'Sweet Spot' size */
   font-weight: 900;
   line-height: 1;
   color: var(--text-primary);
@@ -2660,7 +2660,7 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 16px 28px;
+    padding: 12px 28px;
     background: transparent;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     gap: 8px;
@@ -2935,6 +2935,47 @@ body {
 }
 
 /* ============================================================
+   TABLET OVERRIDE (600px – 1023px)
+   Forces single column, centers tiles, better spacing
+   ============================================================ */
+@media (min-width: 481px) and (max-width: 1023px) {
+    .device-grid {
+        grid-template-columns: 1fr !important;
+        max-width: 600px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        gap: 20px !important;
+    }
+
+    .device-tile,
+    .device-card {
+        max-width: 100% !important;
+    }
+
+    .sensor-box {
+        aspect-ratio: 1 / 0.75 !important;
+        padding: 10px 4px !important;
+    }
+
+    .sensor-value {
+        font-size: clamp(2rem, 5vw, 2.8rem) !important;
+    }
+
+    .sensor-unit {
+        font-size: clamp(0.55rem, 1.5vw, 0.7rem) !important;
+    }
+
+    .sensor-label {
+        font-size: clamp(0.55rem, 1.5vw, 0.7rem) !important;
+    }
+
+    .sensor-icon {
+        width: 14px !important;
+        height: 14px !important;
+    }
+}
+
+/* ============================================================
    MASTER DESKTOP OVERRIDE: SENSORS + MODALS + LOGS
    ============================================================ */
 
@@ -3152,14 +3193,415 @@ body {
     animation: dark-deep-sunken-pulse 1.5s infinite ease-in-out;
 }
 
+/* --- 7. DASHBOARD: Constrained Vertical Layout for Web --- */
+.device-grid {
+    max-width: 1000px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    grid-template-columns: 1fr !important;
+}
+
+/* --- 8. INLINE DEVICE DETAIL (Desktop Dashboard) --- */
+
+/* Card container */
+.device-inline-detail {
+    padding: 25px 30px !important;
+    border-radius: 25px !important;
+    height: auto !important;
+    min-height: unset !important;
+}
+
+.device-inline-detail:hover {
+    transform: none !important;
+}
+
+/* Header */
+.device-inline-detail .inline-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.device-inline-detail .device-header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.device-inline-detail .device-name-text {
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+}
+
+.device-inline-detail .device-id-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--primary-accent);
+    background: rgba(65, 195, 143, 0.15);
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    width: fit-content;
+}
+
+.dark-mode .device-inline-detail .device-id-badge {
+    background: rgba(65, 195, 143, 0.2);
+}
+
+/* Menu button positioning within inline header */
+.device-inline-detail .device-menu-btn {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+}
+
+/* ---- Status Banner — full-width (spans all 3 sensors), vertical content ---- */
+.device-inline-detail .status-banner {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 auto 25px auto !important;
+    padding: 40px 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 260px !important;
+    height: auto !important;
+    gap: 0 !important;
+    border-radius: 30px !important;
+    background: #f8fafc !important;
+    box-shadow:
+        inset 10px 10px 20px rgba(0, 0, 0, 0.1),
+        inset -10px -10px 20px rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.5s ease;
+    box-sizing: border-box !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+.device-inline-detail .status-banner.banner-safe {
+    box-shadow:
+        inset 10px 10px 20px rgba(0, 0, 0, 0.08),
+        inset -10px -10px 20px rgba(255, 255, 255, 0.8),
+        inset 0 0 30px rgba(64, 192, 87, 0.05) !important;
+}
+
+.device-inline-detail [data-role="bannerIcon"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+}
+
+.device-inline-detail [data-role="bannerIcon"] svg {
+    width: 64px !important;
+    height: 64px !important;
+    display: block !important;
+}
+
+/* Banner text — vertical below icon, Seven Segment font + color coding */
+.device-inline-detail [data-role="bannerText"] {
+    font-family: 'Seven Segment', 'Courier New', Courier, monospace !important;
+    font-weight: 900 !important;
+    font-size: 2rem !important;
+    letter-spacing: 5px !important;
+    line-height: 1 !important;
+    margin-top: 15px !important;
+    margin-bottom: 0 !important;
+    display: inline-block !important;
+    text-transform: uppercase;
+    background: transparent !important;
+    padding: 0 !important;
+    transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+
+/* Banner text color coding — identical to mobile #bannerText */
+.device-inline-detail .status-banner.banner-safe [data-role="bannerText"] {
+    color: #40c057 !important;
+    text-shadow: 0 0 15px rgba(64, 192, 87, 0.5) !important;
+}
+
+.device-inline-detail .status-banner.banner-warning [data-role="bannerText"] {
+    color: #f59e0b !important;
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.6) !important;
+}
+
+.device-inline-detail .status-banner.banner-danger [data-role="bannerText"] {
+    color: #ff4757 !important;
+    text-shadow: 0 0 25px rgba(255, 71, 87, 0.7) !important;
+}
+
+/* Banner warning/danger animations (light mode) */
+.device-inline-detail .status-banner.banner-warning {
+    animation: deep-sunken-warning-pulse 2s infinite ease-in-out;
+}
+
+.device-inline-detail .status-banner.banner-danger {
+    animation: deep-sunken-pulse 1.5s infinite ease-in-out;
+}
+
+/* ---- Sensor Row — previous desktop styling (wider, taller, premium) ---- */
+.device-inline-detail .sensor-row {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    margin: 15px auto 30px auto !important;
+    gap: 25px !important;
+    box-sizing: border-box !important;
+}
+
+.device-inline-detail .sensor-row > .sensor-box {
+    flex: 1 !important;
+    min-width: 200px !important;
+    max-width: none !important;
+    height: clamp(120px, 15vh, 150px) !important;
+    padding: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-radius: 35px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    border: none !important;
+    aspect-ratio: unset !important;
+    min-height: unset !important;
+    width: auto !important;
+}
+
+.device-inline-detail .sensor-row .sensor-value {
+    font-size: clamp(3rem, 4vw, 4rem) !important;
+    font-family: 'SevenSegment', monospace !important;
+    width: 100% !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    margin: auto 0 !important;
+    letter-spacing: 2px !important;
+}
+
+.device-inline-detail .sensor-row .sensor-icon svg {
+    width: clamp(32px, 4vw, 40px) !important;
+    height: auto !important;
+}
+
+.device-inline-detail .sensor-row .sensor-label {
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem) !important;
+    font-weight: 800 !important;
+    margin-top: 5px !important;
+}
+
+.device-inline-detail .sensor-row .sensor-unit {
+    font-size: clamp(1.1rem, 1.5vw, 1.6rem) !important;
+    font-weight: 600 !important;
+}
+
+/* ---- Siren & BFP Buttons — tactile hardware keys (risen/sunken + colors) ---- */
+.device-inline-detail .modal-button-row {
+    display: flex !important;
+    gap: 25px !important;
+    margin-bottom: 25px !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+.device-inline-detail .modal-button-row .tactile-key {
+    /* Lock the tactile-key size: wider rounded rectangle */
+    width: 120px !important;
+    height: 80px !important;
+    flex: none !important;
+    border-radius: 20px !important;
+    border: none !important;
+    cursor: pointer;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin-top: 0 !important;
+    transition: all 0.2s ease;
+    /* Premium gradient & shadow: deep tactile raised look */
+    background: linear-gradient(145deg, #f8f9fa, #e2e8f0) !important;
+    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.15),
+               -8px -8px 16px rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Icon scaling inside tactile keys */
+.device-inline-detail .modal-button-row .tactile-key i,
+.device-inline-detail .modal-button-row .tactile-key span {
+    font-size: 1.8rem !important;
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1)) !important;
+}
+
+/* Default alarm button color */
+.device-inline-detail .modal-button-row [data-role="manualAlarmBtn"] {
+    color: var(--text-primary) !important;
+}
+
+/* BFP button — red accent */
+.device-inline-detail .modal-button-row [data-role="bfpBtn"] {
+    color: #ff4757 !important;
+}
+
+/* Sunken state: physical press + active */
+.device-inline-detail .modal-button-row .tactile-key:active,
+.device-inline-detail .modal-button-row .tactile-key.is-active {
+    background: #e2e8f0 !important;
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.2),
+                inset -6px -6px 12px rgba(255, 255, 255, 0.8) !important;
+    transform: scale(0.96);
+    color: #ff4757 !important;
+}
+
+/* Active alarm icon — red glow (mirrors #manualAlarmBtn.is-active .power-icon) */
+.device-inline-detail .tactile-key.is-active [data-role="alarmBtnIcon"] {
+    color: #ff4757 !important;
+    text-shadow: 0 0 10px rgba(255, 71, 87, 0.6) !important;
+    transition: all 0.3s ease;
+}
+
+/* Generate report & clear console buttons */
+.device-inline-detail .activity-log-action-btn {
+    white-space: nowrap !important;
+    font-size: 0.65rem !important;
+}
+
+.device-inline-detail .activity-log-header {
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+    padding: 12px 16px !important;
+}
+
+/* ---- Activity Log ---- */
+.device-inline-detail .activity-log-container {
+    width: 100% !important;
+    height: 220px !important;
+    margin: 15px auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: none !important;
+    box-sizing: border-box !important;
+    aspect-ratio: unset !important;
+    min-height: unset !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+.device-inline-detail .activity-log-title {
+    font-size: 0.9rem !important;
+}
+
+.device-inline-detail .activity-log-icon {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+/* Log list — match mobile #deviceLogList font & layout */
+.device-inline-detail [data-role="deviceLogList"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    font-family: 'Courier New', monospace !important;
+    width: 100% !important;
+    margin-top: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Log rows — match mobile #deviceLogList div */
+.device-inline-detail [data-role="deviceLogList"] > * {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding: 5px 0 5px 16px !important;
+    gap: 12px !important;
+    font-size: 0.75rem !important;
+    color: var(--text-primary) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+    background: inherit !important;
+}
+
+/* Log scrollbar */
+.device-inline-detail [data-role="deviceLogList"]::-webkit-scrollbar {
+    width: 4px;
+}
+.device-inline-detail [data-role="deviceLogList"]::-webkit-scrollbar-track {
+    background: transparent;
+}
+.device-inline-detail [data-role="deviceLogList"]::-webkit-scrollbar-thumb {
+    background: var(--shadow-dark);
+    border-radius: 10px;
+}
+
+/* ---- Dark Mode overrides ---- */
+.dark-mode .device-inline-detail .status-banner {
+    background: #1e293b !important;
+    box-shadow: inset 10px 10px 20px rgba(0, 0, 0, 0.4),
+                inset -10px -10px 20px rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark-mode .device-inline-detail .status-banner.banner-safe {
+    box-shadow: inset 10px 10px 20px rgba(0, 0, 0, 0.35),
+                inset -10px -10px 20px rgba(255, 255, 255, 0.03),
+                inset 0 0 30px rgba(64, 192, 87, 0.08) !important;
+}
+
+.dark-mode .device-inline-detail .status-banner.banner-warning {
+    animation: dark-deep-sunken-warning-pulse 2s infinite ease-in-out;
+}
+
+.dark-mode .device-inline-detail .status-banner.banner-danger {
+    animation: dark-deep-sunken-pulse 1.5s infinite ease-in-out;
+}
+
+/* Dark mode tactile buttons */
+.dark-mode .device-inline-detail .modal-button-row .tactile-key {
+    background: linear-gradient(145deg, #2d3748, #1a202c) !important;
+    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.6),
+               -8px -8px 16px rgba(255, 255, 255, 0.06) !important;
+}
+
+.dark-mode .device-inline-detail .modal-button-row .tactile-key:active,
+.dark-mode .device-inline-detail .modal-button-row .tactile-key.is-active {
+    background: #1a202c !important;
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.7),
+                inset -6px -6px 12px rgba(255, 255, 255, 0.04) !important;
+}
+
+/* BFP button red preserved in dark mode */
+.dark-mode .device-inline-detail .modal-button-row [data-role="bfpBtn"] {
+    color: #ff4757 !important;
+}
+
+.dark-mode .device-inline-detail [data-role="deviceLogList"] > * {
+    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+
 } /* END @media (min-width: 1024px) — MASTER DESKTOP OVERRIDE */
 
 /* ========================
    LOGS PAGE STYLES
    ======================== */
 
+/* Sticky header wrapper for logs page */
+.logs-sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--app-bg);
+    padding-bottom: 5px;
+}
+
+.logs-sticky-header .logs-filter-row,
+.logs-sticky-header .logs-controls {
+    margin-left: 15px;
+    margin-right: 15px;
+    width: auto;
+}
+
 .logs-page {
-    padding: 20px;
+    padding: 0 20px 20px 20px;
     max-width: 900px;
     margin: 0 auto;
 }

@@ -20,7 +20,8 @@
   }
 </script>
 
-<header class="main-header" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--bg-color); border-radius: 0 0 20px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+<div class="logs-sticky-header">
+<header class="main-header" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--app-bg); border-radius: 0 0 20px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
   <div style="display: flex; align-items: center; gap: 12px;">
     <button onclick="window.location.href='index.html'" class="back-btn">
       <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
@@ -31,7 +32,6 @@
   </div>
 </header>
 
-  <main class="main-content logs-page">
     <div class="logs-filter-row">
       <div class="filter-group">
         <label for="deviceFilter" class="filter-label">
@@ -97,6 +97,9 @@
         </div>
       </div>
     </div>
+</div><!-- end logs-sticky-header -->
+
+  <main class="main-content logs-page">
 
     <div class="timeline-container">
       <div class="timeline-line"></div>

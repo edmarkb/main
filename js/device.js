@@ -669,3 +669,576 @@ window.clearDeviceLogs = function() {
         }
     });
 };
+
+/* ============================================================
+   INLINE DEVICE DETAIL MODE (Desktop Dashboard)
+   Supports multiple devices showing detail views simultaneously
+   ============================================================ */
+
+// Per-device state for inline mode
+const inlineDeviceStates = new Map();
+
+// Helper: Get element within a specific device's inline container
+function getInlineEl(acesId, role) {
+  const container = document.querySelector(`.device-inline-detail[data-aces-id="${acesId}"]`);
+  if (!container) return null;
+  return container.querySelector(`[data-role="${role}"]`);
+}
+
+// Initialize all inline device views (called after renderDevices on desktop)
+function initAllInlineDevices() {
+  if (typeof devices === 'undefined') return;
+
+  devices.forEach(device => {
+    // Determine current alert state from sensor data (prevent false re-logging)
+    let initialAlertState = "SAFE";
+    const isFire = device.fire === true || device.fire === 1 || device.fire === "true";
+    if (isFire) initialAlertState = "FIRE";
+    else if (device.temperature >= 42 && device.gas >= 600) initialAlertState = "FIRE";
+    else if (device.temperature >= 42) initialAlertState = "HEAT";
+    else if (device.gas >= 600) initialAlertState = "GAS";
+    else if (device.temperature >= 38) initialAlertState = "HEAT_WARNING";
+    else if (device.gas >= 450) initialAlertState = "GAS_WARNING";
+
+    const state = {
+      lastAlertState: initialAlertState,
+      manualAlarmActive: localStorage.getItem(`manualAlarm_${device.acesId}`) === 'true',
+      deviceActivityLogs: JSON.parse(localStorage.getItem(`deviceActivityLogs_${device.acesId}`)) || []
+    };
+    inlineDeviceStates.set(device.acesId, state);
+
+    // Render saved activity logs
+    renderInlineSavedLogs(device.acesId);
+
+    // Set initial alarm button state
+    const alarmBtn = getInlineEl(device.acesId, 'manualAlarmBtn');
+    const alarmIcon = getInlineEl(device.acesId, 'alarmBtnIcon');
+    if (alarmBtn && alarmIcon) {
+      if (state.manualAlarmActive) {
+        alarmBtn.classList.add('is-active');
+        alarmIcon.innerHTML = ICONS.ALARM_ON;
+      } else {
+        alarmBtn.classList.remove('is-active');
+        alarmIcon.innerHTML = ICONS.ALARM_OFF;
+      }
+    }
+
+    // Set BFP icon
+    const bfpIconWrap = getInlineEl(device.acesId, 'bfpBtn');
+    if (bfpIconWrap) {
+      const wrap = bfpIconWrap.querySelector('.bfp-icon-wrap');
+      if (wrap) wrap.innerHTML = ICONS.BFP;
+    }
+
+    // Update banner/sensors with current data
+    updateInlineDetailUI(device.acesId);
+  });
+}
+
+// Update inline detail UI for a specific device
+function updateInlineDetailUI(acesId) {
+  if (typeof devices === 'undefined') return;
+  const device = devices.find(d => d.acesId === acesId);
+  if (!device) return;
+
+  const banner = getInlineEl(acesId, 'statusBanner');
+  const bannerText = getInlineEl(acesId, 'bannerText');
+  const bannerIcon = getInlineEl(acesId, 'bannerIcon');
+  const tempBox = getInlineEl(acesId, 'tempBox');
+  const gasBox = getInlineEl(acesId, 'gasBox');
+
+  if (!banner) return; // Not in inline mode
+
+  const { temperature: temp, humidity: hum, gas, fire } = device;
+
+  banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning');
+  [tempBox, gasBox].forEach(box => box && box.classList.remove('danger', 'warning'));
+
+  const isFire = fire === true || fire === 1 || fire === "true";
+
+  if (isFire) {
+    banner.classList.add('banner-danger');
+    bannerText.innerText = "FIRE DETECTED";
+    bannerIcon.innerHTML = ICONS.FIRE;
+    if (tempBox) tempBox.classList.add('danger');
+    if (gasBox) gasBox.classList.add('danger');
+  } else if (temp >= 42 && gas >= 600) {
+    banner.classList.add('banner-danger');
+    bannerText.innerText = "FIRE DETECTED";
+    bannerIcon.innerHTML = ICONS.FIRE;
+    if (tempBox) tempBox.classList.add('danger');
+    if (gasBox) gasBox.classList.add('danger');
+  } else if (gas >= 600) {
+    banner.classList.add('banner-danger');
+    bannerText.innerText = "SMOKE / GAS DETECTED";
+    bannerIcon.innerHTML = ICONS.SMOKE;
+    if (gasBox) gasBox.classList.add('danger');
+  } else if (temp >= 42) {
+    banner.classList.add('banner-danger');
+    bannerText.innerText = "HIGH TEMPERATURE ALERT";
+    bannerIcon.innerHTML = ICONS.HEAT;
+    if (tempBox) tempBox.classList.add('danger');
+  } else if (temp >= 38) {
+    banner.classList.add('banner-warning');
+    bannerText.innerText = "ELEVATED TEMPERATURE";
+    bannerIcon.innerHTML = ICONS.HEAT_WARN;
+    if (tempBox) tempBox.classList.add('warning');
+  } else if (gas >= 450) {
+    banner.classList.add('banner-warning');
+    bannerText.innerText = "ELEVATED GAS LEVEL";
+    bannerIcon.innerHTML = ICONS.SMOKE_WARN;
+    if (gasBox) gasBox.classList.add('warning');
+  } else {
+    banner.classList.add('banner-safe');
+    bannerText.innerText = "SYSTEM SAFE";
+    bannerIcon.innerHTML = ICONS.SAFE;
+  }
+
+  // Update sensor values
+  const detTemp = getInlineEl(acesId, 'detTemp');
+  const detHum = getInlineEl(acesId, 'detHum');
+  const detGas = getInlineEl(acesId, 'detGas');
+  if (detTemp) detTemp.textContent = (temp ?? 0).toFixed(1);
+  if (detHum) detHum.textContent = (hum ?? 0).toFixed(1);
+  if (detGas) detGas.textContent = (gas ?? 0).toFixed(0);
+
+  // Update status
+  const statusEl = getInlineEl(acesId, 'detStatus');
+  if (statusEl) {
+    statusEl.textContent = device.online ? "ONLINE" : "OFFLINE";
+    statusEl.className = `device-status ${device.online ? 'online' : 'offline'}`;
+  }
+}
+
+// Check events for inline device
+function checkInlineEvents(acesId, temp, hum, gas, fire) {
+  const state = inlineDeviceStates.get(acesId);
+  if (!state) return;
+
+  let currentState = "SAFE";
+  const isFire = fire === true || fire === 1 || fire === "true";
+
+  if (isFire) currentState = "FIRE";
+  else if (temp >= 42 && gas >= 600) currentState = "FIRE";
+  else if (temp >= 42) currentState = "HEAT";
+  else if (gas >= 600) currentState = "GAS";
+  else if (temp >= 38) currentState = "HEAT_WARNING";
+  else if (gas >= 450) currentState = "GAS_WARNING";
+
+  if (currentState !== state.lastAlertState) {
+    if (currentState === "FIRE") {
+      addInlineDeviceLog(acesId, "Fire condition detected by flame sensor.", "danger");
+    } else if (currentState === "HEAT") {
+      addInlineDeviceLog(acesId, `Temperature threshold exceeded. Current value: ${temp.toFixed(1)}°C`, "danger");
+    } else if (currentState === "GAS") {
+      addInlineDeviceLog(acesId, `Gas concentration exceeded safe limit. Current value: ${gas} ppm`, "danger");
+    } else if (currentState === "HEAT_WARNING") {
+      addInlineDeviceLog(acesId, `High temperature detected. Current value: ${temp.toFixed(1)}°C`, "warning");
+    } else if (currentState === "GAS_WARNING") {
+      addInlineDeviceLog(acesId, `Elevated gas concentration detected. Current value: ${gas} ppm`, "warning");
+    } else if (currentState === "SAFE" && state.lastAlertState !== "SAFE") {
+      addInlineDeviceLog(acesId, "System returned to normal parameters.", "info");
+    }
+
+    state.lastAlertState = currentState;
+  }
+}
+
+// Add log entry for inline device
+function addInlineDeviceLog(acesId, message, type, postToBackend) {
+  if (typeof type === 'undefined') type = 'info';
+  if (typeof postToBackend === 'undefined') postToBackend = false;
+
+  const logList = getInlineEl(acesId, 'deviceLogList');
+  if (!logList) return;
+
+  const state = inlineDeviceStates.get(acesId);
+  if (!state) return;
+
+  const device = (typeof devices !== 'undefined') ? devices.find(d => d.acesId === acesId) : null;
+
+  const dateObj = new Date();
+  const dateStr = dateObj.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
+  const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+  let dotColor = "#3b82f6";
+  if (type === 'danger') dotColor = "#ef4444";
+  if (type === 'warning') dotColor = "#fcc419";
+
+  // Store log
+  state.deviceActivityLogs.push({
+    timestamp: `${dateStr} ${timeStr}`,
+    message: message,
+    type: type,
+    fullTimestamp: new Date().toISOString()
+  });
+
+  // Save to localStorage
+  localStorage.setItem(`deviceActivityLogs_${acesId}`, JSON.stringify(state.deviceActivityLogs));
+
+  // Add to system event log
+  if (device && typeof addToSystemEventLog === 'function') {
+    const temp = (device.temperature != null) ? device.temperature : 0;
+    const hum = (device.humidity != null) ? device.humidity : 0;
+    const gasVal = (device.gas != null) ? device.gas : 0;
+    addToSystemEventLog(message, type, device.name, temp, hum, gasVal, postToBackend);
+  }
+
+  // Render log entry
+  const logEntry = document.createElement('div');
+  logEntry.innerHTML = `
+    <div class="log-time-wrapper">
+      <span class="log-date">${dateStr}</span>
+      <span class="log-time">${timeStr}</span>
+    </div>
+    <span class="status-dot" style="background: ${dotColor}; box-shadow: 0 0 10px ${dotColor};"></span>
+    <span class="log-msg">${message}</span>
+  `;
+  logList.prepend(logEntry);
+}
+
+// Render saved activity logs for inline device
+function renderInlineSavedLogs(acesId) {
+  const logList = getInlineEl(acesId, 'deviceLogList');
+  if (!logList) return;
+
+  const state = inlineDeviceStates.get(acesId);
+  if (!state) return;
+
+  let html = '';
+  [...state.deviceActivityLogs].reverse().forEach(log => {
+    let dotColor = "#3b82f6";
+    if (log.type === 'danger') dotColor = "#ef4444";
+    if (log.type === 'warning') dotColor = "#fcc419";
+
+    const timestampParts = log.timestamp.split(' ');
+    const dateStr = timestampParts[0];
+    const timeStr = timestampParts[1] + ' ' + timestampParts[2];
+
+    html += `<div>
+      <div class="log-time-wrapper">
+        <span class="log-date">${dateStr}</span>
+        <span class="log-time">${timeStr}</span>
+      </div>
+      <span class="status-dot" style="background: ${dotColor}; box-shadow: 0 0 10px ${dotColor};"></span>
+      <span class="log-msg">${log.message}</span>
+    </div>`;
+  });
+
+  logList.innerHTML = html;
+}
+
+// Trigger validation for inline device (siren/BFP)
+window.triggerInlineValidation = function(type, acesId) {
+  if (typeof devices === 'undefined') return;
+  const device = devices.find(d => d.acesId === acesId);
+  if (!device) return;
+
+  const alarmBtn = getInlineEl(acesId, 'manualAlarmBtn');
+  const bfpBtn = getInlineEl(acesId, 'bfpBtn');
+  const numInput = document.getElementById('bfpNumberInput');
+  const state = inlineDeviceStates.get(acesId);
+  if (!state) return;
+
+  // Apply is-active to the correct button based on type
+  const activeBtn = type === 'alarm' ? alarmBtn : bfpBtn;
+  if (activeBtn) activeBtn.classList.add('is-active');
+
+  if (type === 'alarm') {
+    if (numInput) numInput.style.display = 'none';
+    const title = "SYSTEM CONFIRMATION";
+    const sirenSource = localStorage.getItem(`sirenSource_${acesId}`) || 'manual';
+    const isAutoSiren = state.manualAlarmActive && sirenSource === 'auto';
+
+    let message;
+    if (state.manualAlarmActive && isAutoSiren) {
+      message = `THE SIREN WAS <span class="text-engage">AUTO-ACTIVATED</span> DUE TO CRITICAL CONDITIONS.<br><br>ARE YOU SURE YOU WANT TO <span class="text-deactivate">OVERRIDE AND DEACTIVATE</span> THE SIREN?`;
+    } else if (state.manualAlarmActive) {
+      message = `ARE YOU SURE YOU WANT TO <span class="text-deactivate">DEACTIVATE</span> THE SIREN?`;
+    } else {
+      message = `ARE YOU SURE YOU WANT TO <span class="text-engage">ENGAGE</span> THE LABORATORY SIREN?`;
+    }
+
+    setTimeout(() => {
+      showCustomModal(title, message,
+        () => { toggleInlineManualAlarm(acesId); },
+        () => { if (!state.manualAlarmActive && alarmBtn) alarmBtn.classList.remove('is-active'); }
+      );
+    }, 150);
+  } else if (type === 'bfp') {
+    const globalBfpNumber = localStorage.getItem('globalBFPContactNumber') || '';
+
+    if (!globalBfpNumber) {
+      if (numInput) {
+        numInput.style.display = 'block';
+        numInput.value = "";
+        numInput.focus();
+        numInput.oninput = function() {
+          this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
+        };
+      }
+
+      setTimeout(() => {
+        showCustomModal("BFP SETUP", "ENTER LOCAL BFP CONTACT NUMBER (NUMBERS ONLY, MAX 11):",
+          () => {
+            const val = numInput.value.trim();
+            if (val && val.length >= 7) {
+              localStorage.setItem('globalBFPContactNumber', val);
+              if (typeof emitGlobalBFPNumberChanged === 'function') {
+                emitGlobalBFPNumberChanged(val);
+              }
+              numInput.style.display = 'none';
+              triggerInlineValidation('bfp', acesId);
+            } else {
+              showToast("Please enter a valid phone number (7-11 digits)", "error");
+              if (bfpBtn) bfpBtn.classList.remove('is-active');
+            }
+          },
+          () => {
+            if (numInput) numInput.style.display = 'none';
+            if (bfpBtn) bfpBtn.classList.remove('is-active');
+          }
+        );
+      }, 150);
+    } else {
+      if (numInput) numInput.style.display = 'none';
+      const title = "FIRE DISPATCH";
+      const message = `CONFIRM ALERT TO BFP AT:<br>
+        <span class="text-engage" style="font-size: 1.2rem; display: block; margin: 10px 0;">${globalBfpNumber}</span>
+        <span onclick="window.changeInlineBfpNumber('${acesId}')" class="text-change">
+          <span style="font-size: 0.9rem; margin-right: 4px;">✎</span> CHANGE NUMBER
+        </span>`;
+
+      setTimeout(() => {
+        showCustomModal(title, message,
+          () => {
+            sendInlineBFPAlert(acesId);
+            if (bfpBtn) bfpBtn.classList.remove('is-active');
+          },
+          () => { if (bfpBtn) bfpBtn.classList.remove('is-active'); }
+        );
+      }, 150);
+    }
+  }
+};
+
+// Change BFP number for inline mode
+window.changeInlineBfpNumber = function(acesId) {
+  localStorage.removeItem('globalBFPContactNumber');
+  if (typeof emitGlobalBFPNumberChanged === 'function') {
+    emitGlobalBFPNumberChanged("");
+  }
+  document.getElementById('customModal').style.display = 'none';
+  triggerInlineValidation('bfp', acesId);
+};
+
+// Toggle manual alarm for inline device
+function toggleInlineManualAlarm(acesId) {
+  if (typeof isWebSocketReady === 'undefined' || !isWebSocketReady) {
+    showToast("Server not connected. Please wait and try again.", "error");
+    return;
+  }
+
+  const state = inlineDeviceStates.get(acesId);
+  if (!state) return;
+
+  const device = (typeof devices !== 'undefined') ? devices.find(d => d.acesId === acesId) : null;
+  if (!device) return;
+
+  state.manualAlarmActive = !state.manualAlarmActive;
+  const alarmBtn = getInlineEl(acesId, 'manualAlarmBtn');
+  const alarmIcon = getInlineEl(acesId, 'alarmBtnIcon');
+
+  const prevSource = localStorage.getItem(`sirenSource_${acesId}`) || 'manual';
+  const isOverride = !state.manualAlarmActive && prevSource === 'auto';
+
+  if (state.manualAlarmActive) {
+    addInlineDeviceLog(acesId, "MANUAL OVERRIDE: Siren activated.", "danger", true);
+    if (alarmBtn) alarmBtn.classList.add('is-active');
+    if (alarmIcon) alarmIcon.innerHTML = ICONS.ALARM_ON;
+    localStorage.setItem(`sirenSource_${acesId}`, 'manual');
+    if (typeof emitAlarmStateChanged === 'function') {
+      emitAlarmStateChanged(device.name, true, acesId, 'manual');
+    }
+  } else {
+    const logMsg = isOverride
+      ? "USER OVERRIDE: Auto-siren deactivated by user."
+      : "Siren deactivated. Returning to monitoring mode.";
+    addInlineDeviceLog(acesId, logMsg, "info", true);
+    if (alarmBtn) alarmBtn.classList.remove('is-active');
+    if (alarmIcon) alarmIcon.innerHTML = ICONS.ALARM_OFF;
+    localStorage.setItem(`sirenSource_${acesId}`, 'manual');
+    if (typeof emitAlarmStateChanged === 'function') {
+      emitAlarmStateChanged(device.name, false, acesId, 'manual');
+    }
+  }
+
+  localStorage.setItem(`manualAlarm_${acesId}`, state.manualAlarmActive ? 'true' : 'false');
+}
+
+// Send BFP alert for inline device
+function sendInlineBFPAlert(acesId) {
+  const device = (typeof devices !== 'undefined') ? devices.find(d => d.acesId === acesId) : null;
+  if (!device) return;
+
+  const bfpNumber = localStorage.getItem('globalBFPContactNumber') || '';
+  if (!bfpNumber) return;
+
+  const state = inlineDeviceStates.get(acesId);
+  if (!state) return;
+
+  const logList = getInlineEl(acesId, 'deviceLogList');
+
+  // Create timestamp
+  const dateObj = new Date();
+  const dateStr = dateObj.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
+  const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+  const message = `DISPATCH: BFP Alert Sent to ${bfpNumber} Successfully.`;
+  const dotColor = "#ef4444";
+
+  // Store log for device activity (manually, to avoid double system event via addInlineDeviceLog)
+  state.deviceActivityLogs.push({
+    timestamp: `${dateStr} ${timeStr}`,
+    message: message,
+    type: 'danger',
+    fullTimestamp: new Date().toISOString()
+  });
+  localStorage.setItem(`deviceActivityLogs_${acesId}`, JSON.stringify(state.deviceActivityLogs));
+
+  // Render log entry in DOM
+  if (logList) {
+    const logEntry = document.createElement('div');
+    logEntry.innerHTML = `
+      <div class="log-time-wrapper">
+        <span class="log-date">${dateStr}</span>
+        <span class="log-time">${timeStr}</span>
+      </div>
+      <span class="status-dot" style="background: ${dotColor}; box-shadow: 0 0 10px ${dotColor};"></span>
+      <span class="log-msg">${message}</span>
+    `;
+    logList.prepend(logEntry);
+  }
+
+  // Log to system event logs (one call only — matches detail page sendBFPAlert pattern)
+  const temp = (device.temperature != null) ? device.temperature : 0;
+  const hum = (device.humidity != null) ? device.humidity : 0;
+  const gasVal = (device.gas != null) ? device.gas : 0;
+
+  if (typeof addToSystemEventLog === 'function') {
+    addToSystemEventLog(
+      `Emergency alert dispatched to Bureau of Fire Protection at ${bfpNumber}`,
+      'bfp_alert',
+      device.name,
+      temp, hum, gasVal,
+      true
+    );
+  }
+
+  if (typeof emitBFPDispatch === 'function') {
+    emitBFPDispatch(device.name, bfpNumber, acesId);
+  }
+}
+
+// Clear device logs for inline device
+window.clearInlineDeviceLogs = function(acesId) {
+  const clearModal = document.getElementById('clearDeviceLogsModal');
+  if (!clearModal) return;
+  const cancelBtn = document.getElementById('clearDeviceLogsCancel');
+  const confirmBtn = document.getElementById('clearDeviceLogsConfirm');
+
+  clearModal.style.display = 'flex';
+
+  cancelBtn.onclick = () => { clearModal.style.display = 'none'; };
+
+  confirmBtn.onclick = () => {
+    clearModal.style.display = 'none';
+
+    const state = inlineDeviceStates.get(acesId);
+    if (state) {
+      state.deviceActivityLogs = [];
+    }
+    localStorage.removeItem(`deviceActivityLogs_${acesId}`);
+
+    const logList = getInlineEl(acesId, 'deviceLogList');
+    if (logList) {
+      logList.innerHTML = `<div class="system-clear-msg">Console cleared. Monitoring...</div>`;
+    }
+  };
+
+  clearModal.addEventListener('click', (e) => {
+    if (e.target === clearModal) clearModal.style.display = 'none';
+  });
+};
+
+// Toggle report menu for inline device
+window.toggleInlineReportMenu = function(acesId) {
+  const menu = getInlineEl(acesId, 'deviceReportMenu');
+  if (menu) {
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+};
+
+// Generate report for inline device
+window.generateInlineDeviceReport = function(acesId, format) {
+  const menu = getInlineEl(acesId, 'deviceReportMenu');
+  if (menu) menu.style.display = 'none';
+
+  if (typeof devices === 'undefined') return;
+  const device = devices.find(d => d.acesId === acesId);
+  if (!device) return;
+
+  const deviceName = device.name;
+
+  // Get logs from the inline device log container
+  const logList = getInlineEl(acesId, 'deviceLogList');
+  if (!logList) return;
+
+  const logs = [];
+  const logEntries = logList.querySelectorAll('div');
+  logEntries.forEach(entry => {
+    const dateEl = entry.querySelector('.log-date');
+    const timeEl = entry.querySelector('.log-time');
+    const msgEl = entry.querySelector('.log-msg');
+    const dotEl = entry.querySelector('.status-dot');
+
+    if (timeEl && msgEl) {
+      const date = dateEl ? dateEl.textContent.trim() : '';
+      const time = timeEl.textContent.trim();
+      const timestamp = date ? `${date} ${time}` : time;
+      const message = msgEl.textContent.trim();
+
+      let type = 'info';
+      if (dotEl) {
+        const color = dotEl.style.background;
+        if (color.includes('ef4444') || color === '#ef4444') type = 'danger';
+        else if (color.includes('fcc419') || color === '#fcc419') type = 'warning';
+      }
+
+      logs.push({ timestamp, message, type, fullTimestamp: new Date().toISOString() });
+    }
+  });
+
+  if (!logs || logs.length === 0) {
+    showToast('No device activity logs to report', 'warning');
+    return;
+  }
+
+  const timestamp = new Date().toLocaleString('en-US', {
+    month: '2-digit', day: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+  });
+
+  const filename = `${deviceName.replace(/\s+/g, '_')}_ActivityLog_${new Date().toISOString().split('T')[0]}`;
+
+  if (format === 'pdf' && typeof generateActivityLogPDF === 'function') {
+    const content = generateActivityLogPDF(logs, deviceName, timestamp);
+    if (typeof downloadPDF === 'function') downloadPDF(content, filename);
+  } else if (format === 'txt' && typeof generateActivityLogTXT === 'function') {
+    const content = generateActivityLogTXT(logs, deviceName, timestamp);
+    if (typeof downloadTXT === 'function') downloadTXT(content, filename);
+  } else if (format === 'csv' && typeof generateActivityLogCSV === 'function') {
+    const content = generateActivityLogCSV(logs, deviceName, timestamp);
+    if (typeof downloadCSV === 'function') downloadCSV(content, filename);
+  }
+};

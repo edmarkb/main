@@ -314,12 +314,29 @@ function initWebSocket() {
       device.online = data.status === 'online';
       saveDevices();
       
-      // Update dashboard tiles
-      if (typeof renderDevices === 'function') {
+      // Check if inline detail mode (desktop)
+      const inlineContainer = document.querySelector(`.device-inline-detail[data-aces-id="${device.acesId}"]`);
+      if (inlineContainer) {
+        // Update inline detail in-place (no full re-render needed)
+        if (typeof updateInlineDetailUI === 'function') {
+          updateInlineDetailUI(device.acesId);
+        }
+        // Log status change in inline activity log
+        if (wasOnline !== device.online) {
+          if (typeof addInlineDeviceLog === 'function') {
+            if (device.online) {
+              addInlineDeviceLog(device.acesId, "Device came back online", "info");
+            } else {
+              addInlineDeviceLog(device.acesId, "Device connection lost", "danger");
+            }
+          }
+        }
+      } else if (typeof renderDevices === 'function') {
+        // Mobile: re-render tiles
         renderDevices();
       }
       
-      // Update device detail page if viewing this device
+      // Update device detail page if viewing this device (device.html)
       if (typeof activeDevice !== 'undefined' && activeDevice && activeDevice.acesId === device.acesId) {
         if (typeof updateDetailUI === 'function') {
           updateDetailUI();
@@ -380,6 +397,27 @@ function initWebSocket() {
     localStorage.setItem(`manualAlarm_${acesId}`, data.isActive ? 'true' : 'false');
     localStorage.setItem(`sirenSource_${acesId}`, source);
 
+    // Update inline alarm button (desktop dashboard)
+    if (typeof getInlineEl === 'function') {
+      const inlineAlarmBtn = getInlineEl(acesId, 'manualAlarmBtn');
+      const inlineAlarmIcon = getInlineEl(acesId, 'alarmBtnIcon');
+      if (inlineAlarmBtn) {
+        if (data.isActive) {
+          inlineAlarmBtn.classList.add('is-active');
+        } else {
+          inlineAlarmBtn.classList.remove('is-active');
+        }
+        if (inlineAlarmIcon && typeof ICONS !== 'undefined') {
+          inlineAlarmIcon.innerHTML = data.isActive ? ICONS.ALARM_ON : ICONS.ALARM_OFF;
+        }
+      }
+      // Update inline state
+      if (typeof inlineDeviceStates !== 'undefined') {
+        const state = inlineDeviceStates.get(acesId);
+        if (state) state.manualAlarmActive = data.isActive;
+      }
+    }
+
     // Show toast with appropriate message
     if (source === 'auto') {
       showToast(`${data.deviceName} siren auto-activated (critical condition)`, 'danger');
@@ -396,6 +434,23 @@ function initWebSocket() {
     for (const [deviceId, state] of Object.entries(states)) {
       localStorage.setItem(`manualAlarm_${deviceId}`, state.isActive ? 'true' : 'false');
       localStorage.setItem(`sirenSource_${deviceId}`, state.source || 'manual');
+
+      // Update inline alarm buttons on desktop dashboard
+      if (typeof getInlineEl === 'function') {
+        const inlineBtn = getInlineEl(deviceId, 'manualAlarmBtn');
+        const inlineIcon = getInlineEl(deviceId, 'alarmBtnIcon');
+        if (inlineBtn) {
+          if (state.isActive) inlineBtn.classList.add('is-active');
+          else inlineBtn.classList.remove('is-active');
+          if (inlineIcon && typeof ICONS !== 'undefined') {
+            inlineIcon.innerHTML = state.isActive ? ICONS.ALARM_ON : ICONS.ALARM_OFF;
+          }
+        }
+        if (typeof inlineDeviceStates !== 'undefined') {
+          const inlineState = inlineDeviceStates.get(deviceId);
+          if (inlineState) inlineState.manualAlarmActive = state.isActive;
+        }
+      }
     }
 
     // If on device detail page, update the button to match server state
@@ -581,14 +636,25 @@ function initWebSocket() {
       if (typeof renderDevices === 'function') {
         const tile = document.querySelector(`.device-tile[data-name="${device.name}"]`);
         if (tile) {
-          if (typeof updateSensorValues === 'function') {
-            updateSensorValues(tile, device);
-          }
-          // Update online status on tile
-          const statusEl = tile.querySelector('.device-status');
-          if (statusEl) {
-            statusEl.textContent = device.online ? 'Online' : 'Offline';
-            statusEl.className = `device-status ${device.online ? 'online' : 'offline'}`;
+          if (tile.classList.contains('device-inline-detail')) {
+            // Desktop inline mode - use specialized update functions
+            if (typeof updateInlineDetailUI === 'function') {
+              updateInlineDetailUI(data.deviceId);
+            }
+            if (typeof checkInlineEvents === 'function') {
+              checkInlineEvents(data.deviceId, device.temperature, device.humidity, device.gas, device.fire);
+            }
+          } else {
+            // Mobile tile mode
+            if (typeof updateSensorValues === 'function') {
+              updateSensorValues(tile, device);
+            }
+            // Update online status on tile
+            const statusEl = tile.querySelector('.device-status');
+            if (statusEl) {
+              statusEl.textContent = device.online ? 'Online' : 'Offline';
+              statusEl.className = `device-status ${device.online ? 'online' : 'offline'}`;
+            }
           }
         } else {
           // Not on dashboard page, that's fine
@@ -646,10 +712,20 @@ function initWebSocket() {
       // Dashboard - update tile to show emergency state
       const tile = document.querySelector(`.device-tile[data-name="${device.name}"]`);
       if (tile) {
-        console.log('🎨 [CRITICAL-ALERT] Updating dashboard tile with red border class');
-        tile.classList.add('emergency-active');
-        if (typeof updateSensorValues === 'function') {
-          updateSensorValues(tile, device);
+        if (tile.classList.contains('device-inline-detail')) {
+          // Desktop inline mode
+          console.log('🎨 [CRITICAL-ALERT] Updating inline detail view');
+          if (typeof updateInlineDetailUI === 'function') updateInlineDetailUI(data.deviceId);
+          if (typeof checkInlineEvents === 'function') {
+            checkInlineEvents(data.deviceId, device.temperature, device.humidity, device.gas, device.fire);
+          }
+        } else {
+          // Mobile tile mode
+          console.log('🎨 [CRITICAL-ALERT] Updating dashboard tile with red border class');
+          tile.classList.add('emergency-active');
+          if (typeof updateSensorValues === 'function') {
+            updateSensorValues(tile, device);
+          }
         }
       } else {
         // Debug: Log all existing tiles to help identify the mismatch
@@ -708,9 +784,19 @@ function initWebSocket() {
       // Dashboard - update tile to show warning state
       const tile = document.querySelector(`.device-tile[data-name="${device.name}"]`);
       if (tile) {
-        console.log('🎨 [WARNING-ALERT] Updating dashboard tile with warning class');
-        if (typeof updateSensorValues === 'function') {
-          updateSensorValues(tile, device);
+        if (tile.classList.contains('device-inline-detail')) {
+          // Desktop inline mode
+          console.log('🎨 [WARNING-ALERT] Updating inline detail view');
+          if (typeof updateInlineDetailUI === 'function') updateInlineDetailUI(data.deviceId);
+          if (typeof checkInlineEvents === 'function') {
+            checkInlineEvents(data.deviceId, device.temperature, device.humidity, device.gas, device.fire);
+          }
+        } else {
+          // Mobile tile mode
+          console.log('🎨 [WARNING-ALERT] Updating dashboard tile with warning class');
+          if (typeof updateSensorValues === 'function') {
+            updateSensorValues(tile, device);
+          }
         }
       } else {
         // Debug: Log all existing tiles to help identify the mismatch

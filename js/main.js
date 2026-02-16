@@ -251,46 +251,150 @@ function updateSensorValues(tile, device) {
   tile.classList.toggle("warning-active", isWarning && !isEmergency);
 }
 
-// ---------------- RENDER DEVICE TILES ----------------
+// ---------------- RENDER DEVICE TILES / INLINE DETAIL ----------------
 function renderDevices() {
   if (!deviceGrid) return; // Guard against missing grid
   deviceGrid.innerHTML = "";
 
-  devices.forEach(device => {
-    const tile = document.createElement("div");
-    tile.className = "device-tile";
-    tile.setAttribute('data-name', device.name);
-    const statusClass = device.online ? "online" : "offline";
+  const isDesktop = window.innerWidth >= 1024 && typeof ICONS !== 'undefined';
 
+  if (isDesktop) {
+    // ========================================
+    // DESKTOP: Inline Device Detail View
+    // ========================================
+    const detTempIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-120q-83 0-141.5-58.5T280-320q0-48 21-89.5t59-70.5v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q38 29 59 70.5t21 89.5q0 83-58.5 141.5T480-120Zm0-80q50 0 85-35t35-85q0-29-12.5-54T552-416l-32-24v-280q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720v280l-32 24q-23 17-35.5 42T360-320q0 50 35 85t85 35Zm0-120Z"/></svg>`;
+    const detHumIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M460-160q-50 0-85-35t-35-85h80q0 17 11.5 28.5T460-240q17 0 28.5-11.5T500-280q0-17-11.5-28.5T460-320H80v-80h380q50 0 85 35t35 85q0 50-35 85t-85 35ZM80-560v-80h540q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43h-80q0-59 40.5-99.5T620-840q59 0 99.5 40.5T760-700q0 59-40.5 99.5T620-560H80Zm660 320v-80q26 0 43-17t17-43q0-26-17-43t-43-17H80v-80h660q59 0 99.5 40.5T880-380q0 59-40.5 99.5T740-240Z"/></svg>`;
+    const detGasIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M320-80q-66 0-113-47t-47-113v-400q0-66 47-113t113-47h40v-80h80v80h80v-80h80v80h40q66 0 113 47t47 113v400q0 66-47 113T640-80H320Zm0-80h320q33 0 56.5-23.5T720-240v-400q0-33-23.5-56.5T640-720H320q-33 0-56.5 23.5T240-640v400q0 33 23.5 56.5T320-160Zm0-400h320v-80H320v80Zm160 320q42 0 71-28.5t29-69.5q0-33-19-56.5T480-490q-63 72-81.5 96T380-338q0 41 29 69.5t71 28.5ZM240-720v560-560Z"/></svg>`;
+    const logSVG = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" class="activity-log-icon"><path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>`;
+    const reportSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="m720-120 160-160-56-56-64 64v-167h-80v167l-64-64-56 56 160 160ZM560 0v-80h320V0H560ZM240-160q-33 0-56.5-23.5T160-240v-560q0-33 23.5-56.5T240-880h280l240 240v121h-80v-81H480v-200H240v560h240v80H240Zm0-80v-560 560Z"/></svg>`;
+
+    devices.forEach(device => {
+      const card = document.createElement("div");
+      card.className = "device-tile device-inline-detail";
+      card.setAttribute('data-name', device.name);
+      card.setAttribute('data-aces-id', device.acesId);
+      const statusClass = device.online ? "online" : "offline";
+      const alarmOn = localStorage.getItem(`manualAlarm_${device.acesId}`) === 'true';
+
+      card.innerHTML = `
+        <div class="inline-detail-header">
+          <div class="device-header-info">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="device-name-text">${device.name}</span>
+              <div data-role="detStatus" class="device-status ${statusClass}">${device.online ? "ONLINE" : "OFFLINE"}</div>
+            </div>
+            <span class="device-id-badge">${device.acesId}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="device-menu-btn" onclick="toggleMenu(event, '${device.name}')">⋮</button>
+            <div class="device-menu" id="menu-${device.name}" style="display: none;">
+              <button onclick="editDevice('${device.name}')">Rename</button>
+              <button onclick="removeDevice('${device.name}')">Remove</button>
+            </div>
+          </div>
+        </div>
+
+        <div data-role="statusBanner" class="status-banner banner-safe">
+          <div data-role="bannerIcon"></div>
+          <h2 data-role="bannerText">SYSTEM SAFE</h2>
+        </div>
+
+        <div class="sensor-row">
+          <div class="sensor-box" data-role="tempBox">
+            <div class="sensor-icon">${detTempIcon}</div>
+            <div class="sensor-unit">°C</div>
+            <span class="sensor-value" data-role="detTemp">${(device.temperature ?? 0).toFixed(1)}</span>
+            <div class="sensor-label">Temperature</div>
+          </div>
+          <div class="sensor-box" data-role="humBox">
+            <div class="sensor-icon">${detHumIcon}</div>
+            <div class="sensor-unit">%</div>
+            <span class="sensor-value" data-role="detHum">${(device.humidity ?? 0).toFixed(1)}</span>
+            <div class="sensor-label">Humidity</div>
+          </div>
+          <div class="sensor-box" data-role="gasBox">
+            <div class="sensor-icon">${detGasIcon}</div>
+            <div class="sensor-unit">PPM</div>
+            <span class="sensor-value" data-role="detGas">${(device.gas ?? 0).toFixed(0)}</span>
+            <div class="sensor-label">Gas/Smoke</div>
+          </div>
+        </div>
+
+        <div class="modal-button-row" style="display: flex; gap: 25px; margin-bottom: 25px; justify-content: center; width: 100%;">
+          <button onclick="triggerInlineValidation('alarm', '${device.acesId}')" data-role="manualAlarmBtn" class="modal-btn tactile-key ${alarmOn ? 'is-active' : ''}">
+            <span data-role="alarmBtnIcon" class="power-icon">${alarmOn ? ICONS.ALARM_ON : ICONS.ALARM_OFF}</span>
+          </button>
+          <button onclick="triggerInlineValidation('bfp', '${device.acesId}')" data-role="bfpBtn" class="modal-btn delete-style tactile-key">
+            <span class="bfp-icon-wrap">${ICONS.BFP}</span>
+          </button>
+        </div>
+
+        <div class="sensor-box activity-log-container" style="height: 220px; padding: 0; display: flex; flex-direction: column; margin-top: 10px;">
+          <div class="activity-log-header">
+            <div class="activity-log-title-group">
+              ${logSVG}
+              <h3 class="activity-log-title">DEVICE ACTIVITY LOG</h3>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="report-dropdown">
+                <button class="activity-log-action-btn" onclick="toggleInlineReportMenu('${device.acesId}')">GENERATE REPORT</button>
+                <div data-role="deviceReportMenu" class="report-menu" style="display: none;">
+                  <button class="report-option" onclick="generateInlineDeviceReport('${device.acesId}', 'pdf')">${reportSVG} PDF</button>
+                  <button class="report-option" onclick="generateInlineDeviceReport('${device.acesId}', 'txt')">${reportSVG} TXT</button>
+                  <button class="report-option" onclick="generateInlineDeviceReport('${device.acesId}', 'csv')">${reportSVG} CSV</button>
+                </div>
+              </div>
+              <button onclick="clearInlineDeviceLogs('${device.acesId}')" class="activity-log-action-btn">CLEAR CONSOLE</button>
+            </div>
+          </div>
+          <div data-role="deviceLogList" style="width: 100%; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 0 28px 20px 28px;"></div>
+        </div>
+      `;
+
+      deviceGrid.appendChild(card);
+    });
+
+  } else {
+    // ========================================
+    // MOBILE: Compact Device Tiles
+    // ========================================
     const tempIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-120q-83 0-141.5-58.5T280-320q0-48 21-89.5t59-70.5v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q38 29 59 70.5t21 89.5q0 83-58.5 141.5T480-120Zm0-80q50 0 85-35t35-85q0-29-12.5-54T552-416l-32-24v-280q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720v280l-32 24q-23 17-35.5 42T360-320q0 50 35 85t85 35Zm0-120Z"/></svg>`;
     const humIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" fill="currentColor"><path d="M460-160q-50 0-85-35t-35-85h80q0 17 11.5 28.5T460-240q17 0 28.5-11.5T500-280q0-17-11.5-28.5T460-320H80v-80h380q50 0 85 35t35 85q0 50-35 85t-85 35ZM80-560v-80h540q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43h-80q0-59 40.5-99.5T620-840q59 0 99.5 40.5T760-700q0 59-40.5 99.5T620-560H80Zm660 320v-80q26 0 43-17t17-43q0-26-17-43t-43-17H80v-80h660q59 0 99.5 40.5T880-380q0 59-40.5 99.5T740-240Z"/></svg>`;
     const gasIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" fill="currentColor"><path d="M320-80q-66 0-113-47t-47-113v-400q0-66 47-113t113-47h40v-80h80v80h80v-80h80v80h40q66 0 113 47t47 113v400q0 66-47 113T640-80H320Zm0-80h320q33 0 56.5-23.5T720-240v-400q0-33-23.5-56.5T640-720H320q-33 0-56.5 23.5T240-640v400q0 33 23.5 56.5T320-160Zm0-400h320v-80H320v80Zm160 320q42 0 71-28.5t29-69.5q0-33-19-56.5T480-490q-63 72-81.5 96T380-338q0 41 29 69.5t71 28.5ZM240-720v560-560Z"/></svg>`;
-    
-    tile.innerHTML = `
-      <div class="device-name">
-        <div class="device-name-left">
-          <span>${device.name}</span>
-          <span class="device-status ${statusClass}">${device.online ? "Online" : "Offline"}</span>
+
+    devices.forEach(device => {
+      const tile = document.createElement("div");
+      tile.className = "device-tile";
+      tile.setAttribute('data-name', device.name);
+      const statusClass = device.online ? "online" : "offline";
+      
+      tile.innerHTML = `
+        <div class="device-name">
+          <div class="device-name-left">
+            <span>${device.name}</span>
+            <span class="device-status ${statusClass}">${device.online ? "Online" : "Offline"}</span>
+          </div>
+          <button class="device-menu-btn" onclick="toggleMenu(event, '${device.name}')">⋮</button>
+          <div class="device-menu" id="menu-${device.name}" style="display: none;">
+            <button onclick="editDevice('${device.name}')">Rename</button>
+            <button onclick="removeDevice('${device.name}')">Remove</button>
+          </div>
         </div>
-        <button class="device-menu-btn" onclick="toggleMenu(event, '${device.name}')">⋮</button>
-        <div class="device-menu" id="menu-${device.name}" style="display: none;">
-          <button onclick="editDevice('${device.name}')">Rename</button>
-          <button onclick="removeDevice('${device.name}')">Remove</button>
-        </div>
-      </div>
-      <div class="sensor-row"></div>
-      <button onclick="openDeviceDetail('${device.name}')">View Details</button>
-    `;
+        <div class="sensor-row"></div>
+        <button onclick="openDeviceDetail('${device.name}')">View Details</button>
+      `;
 
-    const row = tile.querySelector(".sensor-row");
-    row.appendChild(createSensorHTML("Temp", (device.temperature ?? 0).toFixed(1), "°C", tempIcon));
-    row.appendChild(createSensorHTML("Humidity", (device.humidity ?? 0).toFixed(1), "%", humIcon));
-    row.appendChild(createSensorHTML("Gas", (device.gas ?? 0).toFixed(1), "PPM", gasIcon));
+      const row = tile.querySelector(".sensor-row");
+      row.appendChild(createSensorHTML("Temp", (device.temperature ?? 0).toFixed(1), "°C", tempIcon));
+      row.appendChild(createSensorHTML("Humidity", (device.humidity ?? 0).toFixed(1), "%", humIcon));
+      row.appendChild(createSensorHTML("Gas", (device.gas ?? 0).toFixed(1), "PPM", gasIcon));
 
-    deviceGrid.appendChild(tile);
-    updateSensorValues(tile, device);
-  });
+      deviceGrid.appendChild(tile);
+      updateSensorValues(tile, device);
+    });
+  }
 
+  // Add device button (both modes)
   if (devices.length < 3) {
     const addCard = document.createElement("div");
     addCard.className = "device-card add-device-slot";
@@ -300,6 +404,11 @@ function renderDevices() {
     `;
     addCard.onclick = addDevicePrompt;
     deviceGrid.appendChild(addCard);
+  }
+
+  // Initialize inline devices on desktop
+  if (isDesktop && typeof initAllInlineDevices === 'function') {
+    initAllInlineDevices();
   }
 }
 
@@ -728,7 +837,7 @@ function applySavedTheme() {
     
     // Update the icon to match the theme
     if (themeIcon) {
-        themeIcon.innerHTML = isDark ? sunSVG : moonSVG;
+        themeIcon.innerHTML = isDark ? moonSVG : sunSVG;
     }
 }
 
@@ -742,7 +851,7 @@ if (darkModeBtn) {
         
         // Update icon
         if (themeIcon) {
-            themeIcon.innerHTML = isDark ? sunSVG : moonSVG;
+            themeIcon.innerHTML = isDark ? moonSVG : sunSVG;
         }
     };
 }
@@ -754,7 +863,20 @@ applySavedTheme();
 // No frontend-initiated log posting needed
 
 // ---------------- START ----------------
-renderDevices();
+// Deferred to DOMContentLoaded so ICONS from device.js is available for desktop inline detail
+document.addEventListener('DOMContentLoaded', () => {
+  renderDevices();
+});
+
+// Re-render on breakpoint change (mobile ↔ desktop)
+let _lastDesktopState = window.innerWidth >= 1024;
+window.addEventListener('resize', () => {
+  const isDesktop = window.innerWidth >= 1024;
+  if (isDesktop !== _lastDesktopState) {
+    _lastDesktopState = isDesktop;
+    renderDevices();
+  }
+});
 
 // Sensor data arrives via WebSocket 'sensor-data' event from backend
 // No direct ESP32 polling needed - backend is the single poller
