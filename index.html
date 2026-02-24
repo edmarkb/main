@@ -21,14 +21,90 @@
 </script>
 </div>
 
+<!-- Side Navigation (Desktop/Tablet) -->
+<aside class="side-nav collapsed" id="sideNav">
+  <div class="side-nav-header">
+    <img src="assets/icons/aceslogo2.svg" alt="ACES Logo" class="side-nav-logo">
+    <div class="side-nav-title">ACES IOT<br><span class="side-nav-subtitle">DASHBOARD</span></div>
+    <button class="side-nav-toggle" id="sideNavToggle" title="Expand" data-tooltip="Expand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+  </div>
+
+  <nav class="side-nav-links">
+    <a href="index.html" class="side-nav-link active" data-tooltip="Dashboard">
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520ZM120-120v-240h320v240H120Z"/></svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="logs.html" class="side-nav-link" data-tooltip="Logs">
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
+      <span>Logs</span>
+    </a>
+    <a href="#" class="side-nav-link" onclick="openAlertSettings(); return false;" data-tooltip="Alerts">
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M200-246q54-53 125.5-83.5T480-360q83 0 154.5 30.5T760-246v-514H200v514Zm280-194q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm69-80h422q-44-39-99.5-59.5T480-280q-56 0-112.5 20.5T269-200Zm211-320q-25 0-42.5-17.5T420-580q0-25 17.5-42.5T480-640q25 0 42.5 17.5T540-580q0 25-17.5 42.5T480-520Zm0 17Z"/></svg>
+      <span>Alerts</span>
+    </a>
+  </nav>
+
+  <div class="side-nav-devices">
+    <div class="side-nav-section-header" data-tooltip="Added Devices">
+      <svg viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="1.2" class="side-nav-section-icon"><path d="M6.5 5V7.5M6.5 7.5C5.39543 7.5 4.5 8.39543 4.5 9.5C4.5 10.6046 5.39543 11.5 6.5 11.5M6.5 7.5C7.60457 7.5 8.5 8.39543 8.5 9.5C8.5 10.6046 7.60457 11.5 6.5 11.5M6.5 11.5V20M12.5 5V13.5M12.5 13.5C11.3954 13.5 10.5 14.3954 10.5 15.5C10.5 16.6046 11.3954 17.5 12.5 17.5M12.5 13.5C13.6046 13.5 14.5 14.3954 14.5 15.5C14.5 16.6046 13.6046 17.5 12.5 17.5M12.5 17.5V20M18.5 5V7.5M18.5 7.5C17.3954 7.5 16.5 8.39543 16.5 9.5C16.5 10.6046 17.3954 11.5 18.5 11.5M18.5 7.5C19.6046 7.5 20.5 8.39543 20.5 9.5C20.5 10.6046 19.6046 11.5 18.5 11.5M18.5 11.5V20"/></svg>
+      <div class="side-nav-section-title">ADDED DEVICES</div>
+      <button class="side-nav-add-btn" onclick="addDevicePrompt()" title="Add new device">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+      </button>
+    </div>
+    <ul class="side-nav-device-list" id="sideNavDeviceList">
+      <!-- Populated dynamically by JS -->
+    </ul>
+  </div>
+
+  <div class="side-nav-footer">
+    <button class="side-nav-theme-toggle" id="sideNavThemeToggle" data-tooltip="Theme">
+      <span id="sideNavThemeIcon"></span>
+      <span id="sideNavThemeLabel">Theme</span>
+    </button>
+  </div>
+</aside>
+<script>
+// Apply sidebar state instantly — suppress transition on load
+(function() {
+  var nav = document.getElementById('sideNav');
+  var btn = document.getElementById('sideNavToggle');
+  if (!nav || !btn) return;
+  nav.style.transition = 'none';
+  document.body.style.transition = 'none';
+  var saved = localStorage.getItem('sideNavCollapsed');
+  var collapsed = saved === null ? true : saved === 'true';
+  if (collapsed) {
+    nav.classList.add('collapsed');
+    document.body.classList.add('side-nav-collapsed');
+    btn.setAttribute('data-tooltip', 'Expand'); btn.title = 'Expand';
+  } else {
+    nav.classList.remove('collapsed');
+    document.body.classList.remove('side-nav-collapsed');
+    btn.setAttribute('data-tooltip', 'Collapse'); btn.title = 'Collapse';
+  }
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      nav.style.transition = '';
+      document.body.style.transition = '';
+    });
+  });
+})();
+</script>
+
 <header class="neo-header">
   <div class="header-inner">
     
     <div class="header-left">
-  <a href="index.html" style="text-decoration: none; color: inherit;">
-    <h1>ACES IOT<span class="desktop-title-part"> DASHBOARD</span></h1>
-  </a>
-  <span class="mobile-subtitle">DASHBOARD</span>
+  <img src="assets/icons/aceslogo2.svg" alt="ACES Logo" class="header-logo">
+  <div class="header-title-group">
+    <a href="index.html" style="text-decoration: none; color: inherit;">
+      <h1>ACES IOT<span class="desktop-title-part"> DASHBOARD</span></h1>
+    </a>
+    <span class="mobile-subtitle">DASHBOARD</span>
+  </div>
 </div>
 
     <div class="header-controls-group">
@@ -136,6 +212,26 @@
       </div>
     </div>
   </div>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="bottom-nav" id="bottomNav">
+  <a href="index.html" class="bottom-nav-item active">
+    <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520ZM120-120v-240h320v240H120Z"/></svg>
+    <span>Dashboard</span>
+  </a>
+  <a href="#" class="bottom-nav-item" onclick="openAlertSettings(); return false;">
+    <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M200-246q54-53 125.5-83.5T480-360q83 0 154.5 30.5T760-246v-514H200v514Zm280-194q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm69-80h422q-44-39-99.5-59.5T480-280q-56 0-112.5 20.5T269-200Zm211-320q-25 0-42.5-17.5T420-580q0-25 17.5-42.5T480-640q25 0 42.5 17.5T540-580q0 25-17.5 42.5T480-520Zm0 17Z"/></svg>
+    <span>Alerts</span>
+  </a>
+  <a href="logs.html" class="bottom-nav-item">
+    <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
+    <span>Logs</span>
+  </a>
+  <button class="bottom-nav-item" id="bottomNavThemeToggle">
+    <span id="bottomNavThemeIcon"></span>
+    <span id="bottomNavThemeLabel">Theme</span>
+  </button>
+</nav>
 
   <script src="js/config.js"></script>
   <script src="/socket.io/socket.io.js"></script>

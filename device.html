@@ -85,6 +85,92 @@
     document.body.classList.add('dark-mode');
   }
 </script>
+
+<!-- Side Navigation (Desktop/Tablet) -->
+<aside class="side-nav collapsed" id="sideNav">
+  <div class="side-nav-header">
+    <img src="assets/icons/aceslogo2.svg" alt="ACES Logo" class="side-nav-logo">
+    <div class="side-nav-title">ACES IOT<br><span class="side-nav-subtitle">DASHBOARD</span></div>
+    <button class="side-nav-toggle" id="sideNavToggle" title="Expand" data-tooltip="Expand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+  </div>
+
+  <nav class="side-nav-links">
+    <a href="index.html" class="side-nav-link active" data-tooltip="Dashboard">
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520ZM120-120v-240h320v240H120Z"/></svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="logs.html" class="side-nav-link" data-tooltip="Logs">
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
+      <span>Logs</span>
+    </a>
+    <a href="#" class="side-nav-link" onclick="openAlertSettings(); return false;" data-tooltip="Alerts">
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M200-246q54-53 125.5-83.5T480-360q83 0 154.5 30.5T760-246v-514H200v514Zm280-194q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm69-80h422q-44-39-99.5-59.5T480-280q-56 0-112.5 20.5T269-200Zm211-320q-25 0-42.5-17.5T420-580q0-25 17.5-42.5T480-640q25 0 42.5 17.5T540-580q0 25-17.5 42.5T480-520Zm0 17Z"/></svg>
+      <span>Alerts</span>
+    </a>
+  </nav>
+
+  <div class="side-nav-footer">
+    <button class="side-nav-theme-toggle" id="sideNavThemeToggle" data-tooltip="Theme">
+      <span id="sideNavThemeIcon"></span>
+      <span id="sideNavThemeLabel">Theme</span>
+    </button>
+  </div>
+</aside>
+
+<script>
+// Side nav collapse toggle (shared logic for non-main.js pages)
+(function() {
+  const sideNav = document.getElementById('sideNav');
+  const toggleBtn = document.getElementById('sideNavToggle');
+  if (!sideNav || !toggleBtn) return;
+  // Suppress transition on load
+  sideNav.style.transition = 'none';
+  document.body.style.transition = 'none';
+  const saved = localStorage.getItem('sideNavCollapsed');
+  const isCollapsed = saved === null ? true : saved === 'true';
+  if (isCollapsed) { sideNav.classList.add('collapsed'); document.body.classList.add('side-nav-collapsed'); toggleBtn.setAttribute('data-tooltip','Expand'); toggleBtn.title='Expand'; }
+  else { sideNav.classList.remove('collapsed'); document.body.classList.remove('side-nav-collapsed'); toggleBtn.setAttribute('data-tooltip','Collapse'); toggleBtn.title='Collapse'; }
+  requestAnimationFrame(function() { requestAnimationFrame(function() { sideNav.style.transition = ''; document.body.style.transition = ''; }); });
+  toggleBtn.addEventListener('click', () => {
+    const willCollapse = !sideNav.classList.contains('collapsed');
+    sideNav.classList.toggle('collapsed', willCollapse);
+    document.body.classList.toggle('side-nav-collapsed', willCollapse);
+    localStorage.setItem('sideNavCollapsed', willCollapse);
+    toggleBtn.setAttribute('data-tooltip', willCollapse ? 'Expand' : 'Collapse');
+    toggleBtn.title = willCollapse ? 'Expand' : 'Collapse';
+  });
+})();
+
+// Sidebar collapsed tooltip
+(function() {
+  let tip = null;
+  function show(el) {
+    const sideNav = document.getElementById('sideNav');
+    if (!sideNav || !sideNav.classList.contains('collapsed')) return;
+    const text = el.getAttribute('data-tooltip');
+    if (!text) return;
+    if (!tip) { tip = document.createElement('div'); tip.className = 'side-nav-tooltip'; document.body.appendChild(tip); }
+    tip.textContent = text;
+    const rect = el.getBoundingClientRect();
+    tip.style.left = (rect.right + 10) + 'px';
+    tip.style.top = (rect.top + rect.height / 2) + 'px';
+    tip.style.transform = 'translateY(-50%)';
+    tip.classList.add('visible');
+  }
+  function hide() { if (tip) tip.classList.remove('visible'); }
+  document.addEventListener('mouseover', function(e) {
+    const el = e.target.closest('[data-tooltip]');
+    if (el && el.closest('.side-nav')) show(el); else hide();
+  });
+  document.addEventListener('mouseout', function(e) {
+    const el = e.target.closest('[data-tooltip]');
+    if (el && el.closest('.side-nav')) hide();
+  });
+})();
+</script>
+
     <div class="dashboard-container">
         
         <header class="main-header" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--bg-color); border-radius: 0 0 20px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
@@ -150,14 +236,16 @@
 
            <div class="modal-button-row" style="display: flex; gap: 25px; margin-bottom: 25px; justify-content: center; width: 100%;">
     
-    <button onclick="triggerValidation('alarm')" id="manualAlarmBtn" class="modal-btn tactile-key">
+    <button onclick="triggerValidation('alarm')" id="manualAlarmBtn" class="modal-btn tactile-key tactile-key-labeled">
         <span id="alarmBtnIcon" class="power-icon">
             </span>
+        <span class="tactile-label" id="alarmBtnLabel">ACTIVATE ALARM</span>
     </button>
 
-    <button onclick="triggerValidation('bfp')" id="bfpBtn" class="modal-btn delete-style tactile-key">
+    <button onclick="triggerValidation('bfp')" id="bfpBtn" class="modal-btn delete-style tactile-key tactile-key-labeled">
         <span class="bfp-icon-wrap">
             </span>
+        <span class="tactile-label">ALERT BFP</span>
     </button>
     
 </div>
@@ -240,6 +328,41 @@
         </div>
     </div>
 </div>
+
+<!-- Alert Contacts Modal -->
+<div id="numbersModal" class="modal">
+  <div class="modal-content">
+    <h2>Alert Contacts</h2>
+    <ul id="numbersList"></ul>
+    <div class="input-group" style="margin-top: 20px;">
+      <input type="tel" id="newNumber" placeholder="Enter phone number" maxlength="11">
+    </div>
+    <div class="modal-button-row">
+      <button id="saveNumbersBtn" class="modal-btn cancel-style">Close</button>
+      <button id="addNumberBtn" class="modal-btn save-style">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="bottom-nav" id="bottomNav">
+  <a href="index.html" class="bottom-nav-item">
+    <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520ZM120-120v-240h320v240H120Z"/></svg>
+    <span>Dashboard</span>
+  </a>
+  <a href="#" class="bottom-nav-item" onclick="openAlertSettings(); return false;">
+    <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M200-246q54-53 125.5-83.5T480-360q83 0 154.5 30.5T760-246v-514H200v514Zm280-194q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm69-80h422q-44-39-99.5-59.5T480-280q-56 0-112.5 20.5T269-200Zm211-320q-25 0-42.5-17.5T420-580q0-25 17.5-42.5T480-640q25 0 42.5 17.5T540-580q0 25-17.5 42.5T480-520Zm0 17Z"/></svg>
+    <span>Alerts</span>
+  </a>
+  <a href="logs.html" class="bottom-nav-item">
+    <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
+    <span>Logs</span>
+  </a>
+  <button class="bottom-nav-item" id="bottomNavThemeToggle">
+    <span id="bottomNavThemeIcon"></span>
+    <span id="bottomNavThemeLabel">Theme</span>
+  </button>
+</nav>
 
     <script src="js/config.js"></script>
     <script src="/socket.io/socket.io.js"></script>

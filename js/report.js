@@ -103,14 +103,13 @@ async function generateReport(format) {
       logs = logs.filter(log => log.deviceId === targetDeviceId);
     }
     
-    // Apply critical filter (if enabled)
-    const criticalToggle = document.getElementById('criticalToggle');
-    if (criticalToggle && criticalToggle.checked) {
+    // Apply status filter (if set)
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter && statusFilter.value !== 'all') {
+      const selectedStatus = statusFilter.value;
       logs = logs.filter(log => {
-        if (log.eventType === 'critical' || log.eventType === 'bfp_alert') return true;
-        if (log.eventType === 'warning' || log.eventType === 'manual_alarm_on') return true;
-        if (log.eventType === 'device_offline') return true;
-        return false;
+        const status = getEventStatus(log.eventType);
+        return status === selectedStatus;
       });
     }
     
@@ -363,6 +362,9 @@ function generateTXTReport(logs, timestamp, deviceFilter = null) {
   const eventCounts = {
     warning: 0,
     critical: 0,
+    gas_critical: 0,
+    gas_warning: 0,
+    smoke_warning: 0,
     device_online: 0,
     device_offline: 0,
     manual_alarm_on: 0,
@@ -377,7 +379,10 @@ function generateTXTReport(logs, timestamp, deviceFilter = null) {
   });
 
   report += 'EVENT SUMMARY:\n';
-  report += `  Warnings: ${eventCounts.warning}\n`;
+  report += `  Smoke Warnings: ${eventCounts.smoke_warning}\n`;
+  report += `  Gas Warnings: ${eventCounts.gas_warning}\n`;
+  report += `  Gas Critical: ${eventCounts.gas_critical}\n`;
+  report += `  Heat/Other Warnings: ${eventCounts.warning}\n`;
   report += `  Critical: ${eventCounts.critical}\n`;
   report += `  BFP Alerts: ${eventCounts.bfp_alert}\n`;
   report += `  Device Online: ${eventCounts.device_online}\n`;
@@ -409,10 +414,10 @@ function generateTXTReport(logs, timestamp, deviceFilter = null) {
 function generatePDFReport(logs, timestamp, deviceFilter = null) {
   // Helper function to get color for event type
   function getEventColor(eventType) {
-    if (eventType === 'critical' || eventType === 'bfp_alert') {
+    if (eventType === 'critical' || eventType === 'gas_critical' || eventType === 'bfp_alert') {
       return '#ffebee'; // Light red for critical
     }
-    if (eventType === 'warning' || eventType === 'manual_alarm_on' || eventType === 'device_offline') {
+    if (eventType === 'warning' || eventType === 'gas_warning' || eventType === 'smoke_warning' || eventType === 'manual_alarm_on' || eventType === 'device_offline') {
       return '#fff3e0'; // Light orange for warning
     }
     return '#f1f8e9'; // Light green for safe
@@ -445,6 +450,9 @@ function generatePDFReport(logs, timestamp, deviceFilter = null) {
   const eventCounts = {
     warning: 0,
     critical: 0,
+    gas_critical: 0,
+    gas_warning: 0,
+    smoke_warning: 0,
     device_online: 0,
     device_offline: 0,
     manual_alarm_on: 0,
@@ -461,7 +469,10 @@ function generatePDFReport(logs, timestamp, deviceFilter = null) {
   html += '<div class="summary">';
   html += '<strong>Summary:</strong><br>';
   html += `Total Events: ${logs.length}<br>`;
-  html += `Warnings: ${eventCounts.warning} | `;
+  html += `Smoke Warnings: ${eventCounts.smoke_warning} | `;
+  html += `Gas Warnings: ${eventCounts.gas_warning} | `;
+  html += `Gas Critical: ${eventCounts.gas_critical} | `;
+  html += `Heat/Other Warnings: ${eventCounts.warning} | `;
   html += `Critical: ${eventCounts.critical} | `;
   html += `BFP Alerts: ${eventCounts.bfp_alert}`;
   html += '</div>';
@@ -472,9 +483,9 @@ function generatePDFReport(logs, timestamp, deviceFilter = null) {
 
   logs.forEach(log => {
     let rowClass = 'safe-row';
-    if (log.eventType === 'critical' || log.eventType === 'bfp_alert') {
+    if (log.eventType === 'critical' || log.eventType === 'gas_critical' || log.eventType === 'bfp_alert') {
       rowClass = 'critical-row';
-    } else if (log.eventType === 'warning' || log.eventType === 'manual_alarm_on' || log.eventType === 'device_offline') {
+    } else if (log.eventType === 'warning' || log.eventType === 'gas_warning' || log.eventType === 'smoke_warning' || log.eventType === 'manual_alarm_on' || log.eventType === 'device_offline') {
       rowClass = 'warning-row';
     }
     
@@ -501,9 +512,9 @@ function generateCSVReport(logs) {
 
   logs.forEach(log => {
     let severity = 'INFO';
-    if (log.eventType === 'critical' || log.eventType === 'bfp_alert') {
+    if (log.eventType === 'critical' || log.eventType === 'gas_critical' || log.eventType === 'bfp_alert') {
       severity = 'CRITICAL';
-    } else if (log.eventType === 'warning' || log.eventType === 'manual_alarm_on' || log.eventType === 'device_offline') {
+    } else if (log.eventType === 'warning' || log.eventType === 'gas_warning' || log.eventType === 'smoke_warning' || log.eventType === 'manual_alarm_on' || log.eventType === 'device_offline') {
       severity = 'WARNING';
     }
     

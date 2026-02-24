@@ -11,6 +11,10 @@
   --accent-green-soft: #cfeee2;
   --status-online: #41c38f;
   --status-offline: #8fa6b8;
+
+  /* Neumorphic shadows (light mode) */
+  --shadow-dark: rgba(0, 0, 0, 0.15);
+  --shadow-light: rgba(255, 255, 255, 0.95);
 }
 
 /* ============================================================
@@ -122,6 +126,13 @@
              -8px -8px 16px var(--shadow-light) !important;
   border: none;
   /* NO height rule here so cards stay big */
+}
+
+/* Inline detail must NOT inherit the raised tile shadow */
+.dark-mode .device-tile.device-inline-detail {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 /* --- RAISED CONTROLS (Buttons/Toggles) --- */
@@ -303,6 +314,14 @@
   animation: dark-deep-sunken-warning-pulse 2s infinite ease-in-out;
 }
 
+.dark-mode .status-banner.banner-smoke-warning {
+  animation: dark-deep-sunken-warning-pulse 2s infinite ease-in-out;
+}
+
+.dark-mode .status-banner.banner-gas-warning {
+  animation: dark-deep-sunken-gas-warning-pulse 1.8s infinite ease-in-out;
+}
+
 .dark-mode .status-banner.banner-danger {
   animation: dark-deep-sunken-pulse 1.5s infinite ease-in-out;
 }
@@ -319,6 +338,21 @@
       inset 10px 10px 25px rgba(0, 0, 0, 0.45),
       inset -10px -10px 25px rgba(255, 255, 255, 0.02),
       inset 0 0 50px rgba(245, 158, 11, 0.2);
+  }
+}
+
+@keyframes dark-deep-sunken-gas-warning-pulse {
+  0%, 100% {
+    box-shadow:
+      inset 10px 10px 20px rgba(0, 0, 0, 0.4),
+      inset -10px -10px 20px rgba(255, 255, 255, 0.03),
+      inset 0 0 30px rgba(249, 115, 22, 0.12);
+  }
+  50% {
+    box-shadow:
+      inset 10px 10px 25px rgba(0, 0, 0, 0.45),
+      inset -10px -10px 25px rgba(255, 255, 255, 0.02),
+      inset 0 0 50px rgba(249, 115, 22, 0.22);
   }
 }
 
@@ -1174,8 +1208,12 @@ header {
   text-shadow: none !important;
 }
 /* Forces the font on the number specifically */
-.seven-seg-modal {
-  font-family: 'SevenSegment', monospace !important;
+.number-display {
+  font-family: inherit !important;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
   text-shadow: none !important;
 }
 
@@ -1193,6 +1231,15 @@ header {
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.dark-mode .delete-btn-modal,
+.dark-mode #numbersList li .delete-btn-modal,
+.dark-mode #numbersList li button,
+.dark-mode .modal-content #numbersList li button {
+  color: #ff4757 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .delete-btn-modal:hover {
@@ -2086,8 +2133,27 @@ header {
 .header-left { 
   margin-right: auto;
   display: flex;
-  flex-direction: column; /* Forces vertical stacking everywhere */
-  align-items: flex-start; /* Aligns both lines to the absolute left */
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  filter: brightness(0);
+  transition: filter 0.3s ease;
+}
+
+.dark-mode .header-logo {
+  filter: brightness(0) invert(1);
+}
+
+.header-title-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .header-left h1 {
@@ -2228,21 +2294,18 @@ header {
 .dark-mode #numbersList li {
     background-color: var(--card-bg);
     color: var(--text-primary);
-    /* REFINED SHADOW: No white glow, prevents right-side clipping */
     box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), 
                 -4px -4px 8px rgba(255, 255, 255, 0.02) !important;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .dark-mode .delete-num-btn {
-    background: var(--card-bg);
-    color: #ef4444;
+    background: transparent;
+    color: #ff4757;
     border: none;
     border-radius: 8px;
     padding: 6px 12px;
-    /* Soft shadows for the button in the dark */
-    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3), 
-                -2px -2px 5px rgba(255, 255, 255, 0.05);
+    box-shadow: none;
     cursor: pointer;
     transition: all 0.2s ease;
     font-weight: bold;
@@ -2255,6 +2318,79 @@ header {
 }
 .dark-mode .nav-item:nth-child(1):hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
 .dark-mode .nav-item:nth-child(2):hover { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+
+/* Hide header nav below sidebar breakpoint — use bottom nav instead */
+@media (max-width: 767px) {
+  .header-controls-group {
+    display: none !important;
+  }
+
+  /* Hides the inline 'DASHBOARD' next to ACES IOT */
+  .desktop-title-part {
+    display: none !important;
+  }
+
+  /* Shows the 'DASHBOARD' subtitle under ACES IOT */
+  .mobile-subtitle {
+    display: block !important;
+    text-align: center !important;
+    margin: 2px 0 0 0 !important;
+    padding: 0 !important;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    width: 100%;
+  }
+
+  .header-logo {
+    width: 30px;
+    height: 30px;
+  }
+
+  .header-left h1 {
+    font-size: 1.1rem;
+    display: block !important;
+  }
+
+  /* Remove header bar styling — just logo + title centered */
+  .neo-header,
+  .dark-mode .neo-header {
+    background: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0.5rem 0 0 0 !important;
+    padding: 0.5rem 1rem !important;
+    width: 100% !important;
+    position: relative !important;
+    top: auto !important;
+    z-index: auto !important;
+    display: flex !important;
+    justify-content: center !important;
+    border: none !important;
+  }
+
+  .neo-header .header-inner {
+    justify-content: center;
+    width: auto;
+  }
+
+  .header-left {
+    margin-right: 0;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .header-title-group {
+    align-items: center;
+  }
+
+  /* Add bottom padding so content isn't hidden behind bottom nav */
+  body {
+    padding-bottom: 70px;
+  }
+}
 
 /* --- MOBILE (PIXEL 7) OVERRIDE --- */
 @media (max-width: 480px) {
@@ -2276,6 +2412,11 @@ header {
     width: 100%;
   }
 
+  .header-logo {
+    width: 30px;
+    height: 30px;
+  }
+
   .header-left h1 {
     font-size: 1.1rem;
     display: block !important; /* Ensure the H1 doesn't try to flex anymore */
@@ -2285,6 +2426,144 @@ header {
   .nav-item { flex-direction: column; padding: 6px 8px; min-width: 50px; gap: 0; }
   .nav-text { display: block !important; font-size: 10px; margin-top: 2px; }
   .nav-svg { width: 20px; height: 20px; margin-right: 0; }
+
+  /* Remove header bar styling on mobile — just logo + title centered */
+  .neo-header,
+  .dark-mode .neo-header {
+    background: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0.5rem 0 0 0 !important;
+    padding: 0.5rem 1rem !important;
+    width: 100% !important;
+    position: relative !important;
+    top: auto !important;
+    z-index: auto !important;
+    display: flex !important;
+    justify-content: center !important;
+    border: none !important;
+  }
+
+  .neo-header .header-inner {
+    justify-content: center;
+    width: auto;
+  }
+
+  .header-left {
+    margin-right: 0;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .header-title-group {
+    align-items: center;
+  }
+
+  .mobile-subtitle {
+    text-align: center !important;
+  }
+
+  /* Add bottom padding to body so content isn't hidden behind bottom nav */
+  body {
+    padding-bottom: 70px;
+  }
+}
+
+/* ============================================================
+   MOBILE BOTTOM NAVIGATION BAR
+   ============================================================ */
+
+/* Hidden by default (desktop/tablet) */
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: var(--card-bg);
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
+    padding: 6px 0;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 8px 0 6px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    flex: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+    position: relative;
+  }
+
+  .bottom-nav-item svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    transition: transform 0.2s ease;
+  }
+
+  /* Active page indicator */
+  .bottom-nav-item.active {
+    color: #1a1a1a;
+  }
+
+  .bottom-nav-item.active svg {
+    transform: scale(1.15);
+  }
+
+  .bottom-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 3px;
+    background: #1a1a1a;
+    border-radius: 0 0 3px 3px;
+  }
+
+  .bottom-nav-item.active span {
+    font-weight: 700;
+  }
+
+  .bottom-nav-item:active {
+    opacity: 0.7;
+  }
+
+  /* Dark mode bottom nav */
+  .dark-mode .bottom-nav {
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .dark-mode .bottom-nav-item.active {
+    color: #ffffff;
+  }
+
+  .dark-mode .bottom-nav-item.active::before {
+    background: #ffffff;
+  }
 }
 
 /* ============================================================
@@ -2361,6 +2640,26 @@ body {
     text-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
 }
 
+/* SMOKE WARNING STATE: Yellow Pulsing (300-449 ppm) */
+.status-banner.banner-smoke-warning {
+    animation: deep-sunken-warning-pulse 2s infinite ease-in-out;
+}
+
+.status-banner.banner-smoke-warning #bannerText {
+    color: #f59e0b;
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+}
+
+/* GAS WARNING STATE: Orange Pulsing (450-599 ppm) */
+.status-banner.banner-gas-warning {
+    animation: deep-sunken-gas-warning-pulse 1.8s infinite ease-in-out;
+}
+
+.status-banner.banner-gas-warning #bannerText {
+    color: #f97316;
+    text-shadow: 0 0 22px rgba(249, 115, 22, 0.65);
+}
+
 @keyframes deep-sunken-warning-pulse {
     0%, 100% {
         box-shadow:
@@ -2373,6 +2672,22 @@ body {
             inset 10px 10px 25px rgba(0, 0, 0, 0.1),
             inset -10px -10px 25px rgba(255, 255, 255, 0.7),
             inset 0 0 50px rgba(245, 158, 11, 0.12);
+    }
+}
+
+/* GAS WARNING Pulse Animation (Orange) */
+@keyframes deep-sunken-gas-warning-pulse {
+    0%, 100% {
+        box-shadow:
+            inset 10px 10px 20px rgba(0, 0, 0, 0.08),
+            inset -10px -10px 20px rgba(255, 255, 255, 0.8),
+            inset 0 0 30px rgba(249, 115, 22, 0.06);
+    }
+    50% {
+        box-shadow:
+            inset 10px 10px 25px rgba(0, 0, 0, 0.1),
+            inset -10px -10px 25px rgba(255, 255, 255, 0.7),
+            inset 0 0 50px rgba(249, 115, 22, 0.14);
     }
 }
 
@@ -2602,6 +2917,45 @@ body {
 .tactile-key span {
     font-size: 1.8rem;
     filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1));
+}
+
+/* --- TACTILE KEY WITH LABEL --- */
+.tactile-key-labeled {
+    flex-direction: column !important;
+    gap: 6px !important;
+    height: auto !important;
+    min-height: 80px !important;
+    padding: 12px 8px !important;
+}
+
+.tactile-label {
+    font-size: 0.55rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    line-height: 1;
+    filter: none !important;
+}
+
+.tactile-key.is-active .tactile-label {
+    color: #ff4757;
+}
+
+.delete-style .tactile-label {
+    color: #ff4757;
+}
+
+.dark-mode .tactile-label {
+    color: var(--text-secondary);
+}
+
+.dark-mode .tactile-key.is-active .tactile-label {
+    color: #ff6b6b;
+}
+
+.dark-mode .delete-style .tactile-label {
+    color: #ff6b6b;
 }
 
 /* Color accents */
@@ -2935,10 +3289,630 @@ body {
 }
 
 /* ============================================================
+   SIDE NAVIGATION BAR (Desktop/Tablet >= 768px)
+   ============================================================ */
+
+/* Hidden by default (mobile) */
+.side-nav {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .side-nav {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    height: 100dvh; /* iOS/iPadOS: accounts for browser chrome */
+    background: var(--card-bg);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.06);
+    z-index: 1100;
+    padding: 24px 0;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* --- Collapsed state --- */
+  .side-nav.collapsed {
+    width: 72px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /* Hide text elements when collapsed */
+  .side-nav.collapsed .side-nav-title,
+  .side-nav.collapsed .side-nav-link span,
+  .side-nav.collapsed .side-nav-section-title,
+  .side-nav.collapsed .side-nav-add-btn,
+  .side-nav.collapsed .side-nav-device-name,
+  .side-nav.collapsed .side-nav-device-id,
+  .side-nav.collapsed #sideNavThemeLabel {
+    display: none;
+  }
+
+  /* Expanded text elements */
+  .side-nav:not(.collapsed) .side-nav-title,
+  .side-nav:not(.collapsed) .side-nav-link span,
+  .side-nav:not(.collapsed) .side-nav-section-title,
+  .side-nav:not(.collapsed) .side-nav-add-btn,
+  .side-nav:not(.collapsed) .side-nav-device-name,
+  .side-nav:not(.collapsed) .side-nav-device-id,
+  .side-nav:not(.collapsed) #sideNavThemeLabel {
+    opacity: 1;
+    width: auto;
+    transition: opacity 0.25s ease 0.1s;
+  }
+
+  /* Toggle button — compact, inside header row */
+  .side-nav-toggle {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: auto;
+    transition: all 0.2s ease;
+    padding: 0;
+  }
+
+  .side-nav-toggle:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--text-primary);
+  }
+
+  .side-nav-toggle svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    stroke-width: 2.5;
+    color: var(--text-primary);
+    opacity: 0.7;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .side-nav-toggle:hover svg {
+    opacity: 1;
+  }
+
+  /* Chevron direction: < when expanded, > when collapsed */
+  .side-nav:not(.collapsed) .side-nav-toggle svg {
+    transform: rotate(0deg);
+  }
+
+  .side-nav.collapsed .side-nav-toggle svg {
+    transform: rotate(180deg);
+  }
+
+  /* Collapsed header: center logo independently */
+  .side-nav.collapsed .side-nav-header {
+    position: relative;
+    padding: 0 0 16px;
+    gap: 0;
+    justify-content: center;
+    border-bottom: none;
+  }
+
+  /* In collapsed mode, toggle is absolutely positioned so it doesn't shift the logo */
+  .side-nav.collapsed .side-nav-toggle {
+    position: absolute;
+    right: 2px;
+    top: 4px;
+    margin-left: 0;
+    width: 22px;
+    height: 22px;
+    background: transparent;
+  }
+
+  .side-nav.collapsed .side-nav-toggle svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 3;
+    color: var(--text-primary);
+    opacity: 0.7;
+  }
+
+  .side-nav.collapsed .side-nav-toggle:hover svg {
+    opacity: 1;
+  }
+
+  /* Collapsed links: center icons */
+  .side-nav.collapsed .side-nav-link {
+    justify-content: center;
+    padding: 10px 0;
+    margin: 1px 10px;
+  }
+
+  .side-nav.collapsed .side-nav-links {
+    padding: 8px 0;
+  }
+
+  /* Collapsed devices: center dots, hide section header extras */
+  .side-nav.collapsed .side-nav-devices {
+    padding: 4px 0 0;
+    overflow: hidden;
+  }
+
+  .side-nav.collapsed .side-nav-section-header {
+    justify-content: center;
+    padding: 10px 0;
+    margin: 0 10px;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .side-nav.collapsed .side-nav-section-icon {
+    margin-left: 0;
+  }
+
+  .side-nav.collapsed .side-nav-device-item {
+    justify-content: center;
+    padding: 10px 0;
+    margin: 1px 10px;
+    gap: 0;
+  }
+
+  /* Collapsed footer: center theme icon */
+  .side-nav.collapsed .side-nav-footer {
+    padding: 12px 0 8px;
+  }
+
+  .side-nav.collapsed .side-nav-theme-toggle {
+    justify-content: center;
+    width: auto;
+    padding: 10px;
+    margin: 0 auto;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  /* --- Sidebar tooltip (JS-driven, appended to body) --- */
+  .side-nav-tooltip {
+    position: fixed;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10000;
+    background: var(--text-primary);
+    color: var(--card-bg);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .side-nav-tooltip.visible {
+    opacity: 1;
+  }
+
+  /* --- Dark mode toggle button --- */
+  .dark-mode .side-nav-toggle {
+    color: var(--text-secondary);
+  }
+
+  .dark-mode .side-nav-toggle:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+  }
+
+  /* Hide the old top header on desktop */
+  .neo-header,
+  .main-header {
+    display: none !important;
+  }
+
+  /* Shift main content to the right — transitions with sidebar */
+  body {
+    margin-left: 280px;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body.side-nav-collapsed {
+    margin-left: 72px;
+  }
+
+  /* Fix bottom nav hidden on side-nav screens */
+  .bottom-nav {
+    display: none !important;
+  }
+
+  /* --- Side Nav Header --- */
+  .side-nav-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    margin-bottom: 0;
+  }
+
+  .side-nav-logo {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    filter: brightness(0);
+    transition: filter 0.3s ease;
+  }
+
+  .dark-mode .side-nav-logo {
+    filter: brightness(0) invert(1);
+  }
+
+  .side-nav-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+
+  .side-nav-subtitle {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--text-secondary);
+  }
+
+  /* --- Nav Links --- */
+  .side-nav-links {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 12px;
+    gap: 2px;
+  }
+
+  .side-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    background: none;
+  }
+
+  .side-nav-link svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  .side-nav-link:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-primary);
+  }
+
+  .side-nav-link.active {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+
+  /* --- Devices Section --- */
+  .side-nav-devices {
+    padding: 8px 12px 0;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .side-nav-section-title {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-primary);
+    padding: 0;
+    opacity: 0.8;
+  }
+
+  .side-nav-section-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px 10px;
+    gap: 8px;
+  }
+
+  .side-nav-section-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--text-primary);
+    opacity: 0.8;
+  }
+
+  .side-nav-section-header .side-nav-section-title {
+    padding-right: 0;
+  }
+
+  .side-nav-add-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid rgba(65, 195, 143, 0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(65, 195, 143, 0.08);
+    color: #41c38f;
+    box-shadow: none;
+    transition: all 0.2s ease;
+    opacity: 0.85;
+    margin-left: auto;
+  }
+
+  .side-nav-add-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .side-nav-add-btn:hover {
+    background: rgba(65, 195, 143, 0.12);
+    color: #41c38f;
+    box-shadow: none;
+    transform: none;
+    opacity: 1;
+  }
+
+  .side-nav-add-btn:active {
+    transform: scale(0.9);
+    box-shadow: none;
+    background: rgba(65, 195, 143, 0.2);
+  }
+
+  .dark-mode .side-nav-add-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    box-shadow: none;
+  }
+
+  .dark-mode .side-nav-add-btn:hover {
+    background: rgba(65, 195, 143, 0.15);
+    color: #41c38f;
+    box-shadow: none;
+  }
+
+  .side-nav-device-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .side-nav-device-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .side-nav-device-item:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-primary);
+  }
+
+  .side-nav-device-item.active {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+
+  /* Scroll-highlight flash animation */
+  @keyframes sideNavFlash {
+    0% { background: rgba(65, 195, 143, 0.25); }
+    100% { background: transparent; }
+  }
+
+  .side-nav-device-item.scroll-target {
+    animation: sideNavFlash 1.2s ease-out forwards;
+  }
+
+  .side-nav-device-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: #94a3b8;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .side-nav-device-dot.online {
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+  }
+
+  .side-nav-device-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  .side-nav-device-id {
+    font-size: 0.68rem;
+    color: var(--primary-accent);
+    opacity: 1;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* --- Footer (Theme Toggle) --- */
+  .side-nav-footer {
+    padding: 12px 12px 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    margin-top: auto;
+  }
+
+  .side-nav-theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+
+  .side-nav-theme-toggle:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-primary);
+  }
+
+  .side-nav-theme-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* --- Dark Mode Side Nav --- */
+  .dark-mode .side-nav {
+    background: var(--card-bg);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .dark-mode .side-nav-header {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .dark-mode .side-nav-link:hover,
+  .dark-mode .side-nav-device-item:hover,
+  .dark-mode .side-nav-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .dark-mode .side-nav-link.active,
+  .dark-mode .side-nav-device-item.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+  }
+
+  .dark-mode .side-nav-footer {
+    border-top-color: rgba(255, 255, 255, 0.06);
+  }
+
+  /* --- Logs page: shift sticky header too --- */
+  .logs-sticky-header {
+    margin-left: 0;
+  }
+}
+
+/* Side nav right-click context menu */
+.side-nav-context-menu {
+  position: fixed;
+  z-index: 10000;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18),
+              0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
+  animation: ctxFadeIn 0.15s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+@keyframes ctxFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.side-nav-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background 0.15s ease;
+}
+
+.side-nav-context-menu button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.side-nav-context-menu .ctx-rename {
+  color: #41c38f;
+}
+.side-nav-context-menu .ctx-rename:hover {
+  background: rgba(65, 195, 143, 0.1);
+}
+
+.side-nav-context-menu .ctx-remove {
+  color: #ff4757;
+}
+.side-nav-context-menu .ctx-remove:hover {
+  background: rgba(255, 71, 87, 0.1);
+}
+
+/* Dark mode context menu */
+.dark-mode .side-nav-context-menu {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5),
+              0 2px 8px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark-mode .side-nav-context-menu button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dark-mode .side-nav-context-menu .ctx-rename:hover {
+  background: rgba(65, 195, 143, 0.15);
+}
+
+.dark-mode .side-nav-context-menu .ctx-remove:hover {
+  background: rgba(255, 71, 87, 0.12);
+}
+
+/* ============================================================
    TABLET OVERRIDE (600px – 1023px)
    Forces single column, centers tiles, better spacing
    ============================================================ */
-@media (min-width: 481px) and (max-width: 1023px) {
+@media (min-width: 481px) and (max-width: 767px) {
     .device-grid {
         grid-template-columns: 1fr !important;
         max-width: 600px !important;
@@ -2979,7 +3953,7 @@ body {
    MASTER DESKTOP OVERRIDE: SENSORS + MODALS + LOGS
    ============================================================ */
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
 
     /* 1. THE ROW: Only controls the top dashboard area */
     .device-detail-page .sensor-row {
@@ -3189,191 +4163,386 @@ body {
     animation: dark-deep-sunken-warning-pulse 2s infinite ease-in-out;
 }
 
+.dark-mode .device-detail-page #statusBanner.banner-smoke-warning {
+    animation: dark-deep-sunken-warning-pulse 2s infinite ease-in-out;
+}
+
+.dark-mode .device-detail-page #statusBanner.banner-gas-warning {
+    animation: dark-deep-sunken-gas-warning-pulse 1.8s infinite ease-in-out;
+}
+
 .dark-mode .device-detail-page #statusBanner.banner-danger {
     animation: dark-deep-sunken-pulse 1.5s infinite ease-in-out;
 }
 
 /* --- 7. DASHBOARD: Constrained Vertical Layout for Web --- */
 .device-grid {
-    max-width: 1000px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    max-width: none !important;
+    margin-left: 20px !important;
+    margin-right: 20px !important;
     grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    scroll-snap-type: y proximity;
 }
 
-/* --- 8. INLINE DEVICE DETAIL (Desktop Dashboard) --- */
+/* --- 8. INLINE DEVICE DETAIL — BENTO BOX LAYOUT (Desktop Dashboard) --- */
 
-/* Card container */
+/* Outer container — transparent layout shell, NOT a card */
 .device-inline-detail {
-    padding: 25px 30px !important;
-    border-radius: 25px !important;
-    height: auto !important;
-    min-height: unset !important;
+    padding: 20px 0 !important;
+    border-radius: 0 !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    scroll-snap-align: start;
 }
 
 .device-inline-detail:hover {
     transform: none !important;
+    box-shadow: none !important;
 }
 
-/* Header */
-.device-inline-detail .inline-detail-header {
+/* Separator between inline devices */
+.device-inline-detail + .device-inline-detail {
+    border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    position: relative;
+}
+.device-inline-detail + .device-inline-detail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.12), transparent);
+}
+.dark-mode .device-inline-detail + .device-inline-detail {
+    border-top-color: rgba(255, 255, 255, 0.06) !important;
+}
+.dark-mode .device-inline-detail + .device-inline-detail::before {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+}
+
+/* Title bar — flat row above the grid */
+.device-inline-detail .bento-title-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
-    position: relative;
+    margin-bottom: 14px;
+    padding: 0 4px;
 }
 
-.device-inline-detail .device-header-info {
+.device-inline-detail .bento-title-info {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-.device-inline-detail .device-name-text {
-    font-size: 1.3rem;
+.device-inline-detail .bento-device-name {
+    font-size: 1.35rem;
     font-weight: 800;
-    letter-spacing: -0.2px;
+    letter-spacing: -0.3px;
+    color: var(--text-primary);
 }
 
-.device-inline-detail .device-id-badge {
-    font-size: 0.8rem;
-    font-weight: 600;
+.device-inline-detail .bento-device-id {
+    font-size: 0.78rem;
+    font-weight: 700;
     color: var(--primary-accent);
-    background: rgba(65, 195, 143, 0.15);
-    padding: 2px 8px;
-    border-radius: 6px;
     letter-spacing: 0.5px;
-    width: fit-content;
 }
 
-.dark-mode .device-inline-detail .device-id-badge {
-    background: rgba(65, 195, 143, 0.2);
+.device-inline-detail .bento-title-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Menu button positioning within inline header */
-.device-inline-detail .device-menu-btn {
-    position: relative !important;
-    top: auto !important;
-    right: auto !important;
+.device-inline-detail .bento-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
 }
 
-/* ---- Status Banner — full-width (spans all 3 sensors), vertical content ---- */
-.device-inline-detail .status-banner {
+.device-inline-detail .bento-rename-btn {
+    background: rgba(65, 195, 143, 0.12) !important;
+    color: #000000 !important;
+}
+.device-inline-detail .bento-rename-btn:hover {
+    background: rgba(65, 195, 143, 0.22) !important;
+    box-shadow: 0 2px 8px rgba(65, 195, 143, 0.2) !important;
+}
+
+.device-inline-detail .bento-remove-btn {
+    background: rgba(255, 71, 87, 0.1) !important;
+    color: #ff4757 !important;
+}
+.device-inline-detail .bento-remove-btn:hover {
+    background: rgba(255, 71, 87, 0.2) !important;
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.2) !important;
+}
+
+/* Override the global dark-mode device-tile button rule */
+.dark-mode .device-tile.device-inline-detail .bento-action-btn.bento-rename-btn {
+    color: #ffffff !important;
+    background: rgba(65, 195, 143, 0.15) !important;
+}
+.dark-mode .device-tile.device-inline-detail .bento-action-btn.bento-remove-btn {
+    color: #ff4757 !important;
+    background: rgba(255, 71, 87, 0.12) !important;
+}
+
+.device-inline-detail .bento-action-btn svg {
+    flex-shrink: 0;
+}
+
+.device-inline-detail .inline-detail-header {
+    display: none !important;
+}
+
+/* =============================================
+   BENTO GRID — 2-column layout, each cell is its own card
+   =============================================*/
+.device-inline-detail .bento-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    grid-template-rows: 1fr 1fr 1.2fr;
+    gap: 14px;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+}
+
+/* ---- Shared bento card base (neumorphic) ---- */
+.device-inline-detail .bento-banner,
+.device-inline-detail .bento-sensors,
+.device-inline-detail .bento-controls,
+.device-inline-detail .bento-trends,
+.device-inline-detail .bento-log {
+    background: var(--card-bg);
+    border-radius: 22px;
+    box-shadow: 8px 8px 18px var(--shadow-dark),
+               -8px -8px 18px var(--shadow-light);
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.device-inline-detail .bento-banner:hover,
+.device-inline-detail .bento-sensors:hover,
+.device-inline-detail .bento-controls:hover,
+.device-inline-detail .bento-trends:hover,
+.device-inline-detail .bento-log:hover {
+    transform: translateY(-3px);
+    box-shadow: 10px 10px 24px var(--shadow-dark),
+               -10px -10px 24px var(--shadow-light),
+               0 4px 20px rgba(65, 195, 143, 0.08);
+}
+
+.dark-mode .device-inline-detail .bento-banner:hover,
+.dark-mode .device-inline-detail .bento-sensors:hover,
+.dark-mode .device-inline-detail .bento-controls:hover,
+.dark-mode .device-inline-detail .bento-trends:hover,
+.dark-mode .device-inline-detail .bento-log:hover {
+    box-shadow: 10px 10px 24px var(--shadow-dark),
+               -10px -10px 24px var(--shadow-light),
+               0 4px 20px rgba(65, 195, 143, 0.12);
+}
+
+.dark-mode .device-inline-detail .bento-banner,
+.dark-mode .device-inline-detail .bento-sensors,
+.dark-mode .device-inline-detail .bento-controls,
+.dark-mode .device-inline-detail .bento-trends,
+.dark-mode .device-inline-detail .bento-log {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* --- Row 1-2: Left — Status Banner (spans top 2 rows) --- */
+.device-inline-detail .bento-banner {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: flex;
+    padding: clamp(12px, 2vh, 24px);
+    align-items: stretch;
+}
+
+.device-inline-detail .bento-banner .status-banner {
     width: 100% !important;
     max-width: none !important;
-    margin: 0 auto 25px auto !important;
-    padding: 40px 20px !important;
+    margin: 0 !important;
+    padding: clamp(20px, 3vh, 40px) 20px !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    min-height: 260px !important;
+    min-height: unset !important;
     height: auto !important;
     gap: 0 !important;
-    border-radius: 30px !important;
-    background: #f8fafc !important;
+    border-radius: clamp(22px, 3vw, 40px) !important;
+    background: #f0f2f5 !important;
     box-shadow:
         inset 10px 10px 20px rgba(0, 0, 0, 0.1),
         inset -10px -10px 20px rgba(255, 255, 255, 0.8) !important;
     transition: all 0.5s ease;
     box-sizing: border-box !important;
     border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    flex: 1;
 }
 
-.device-inline-detail .status-banner.banner-safe {
-    box-shadow:
-        inset 10px 10px 20px rgba(0, 0, 0, 0.08),
-        inset -10px -10px 20px rgba(255, 255, 255, 0.8),
-        inset 0 0 30px rgba(64, 192, 87, 0.05) !important;
+/* Banner state glow applied to the wrapper card */
+.device-inline-detail .bento-banner:has(.banner-safe) {
+    box-shadow: 6px 6px 14px var(--shadow-dark),
+               -6px -6px 14px var(--shadow-light),
+               inset 0 0 40px rgba(64, 192, 87, 0.06);
 }
 
-.device-inline-detail [data-role="bannerIcon"] {
+.device-inline-detail .bento-banner:has(.banner-warning) {
+    box-shadow: 6px 6px 14px var(--shadow-dark),
+               -6px -6px 14px var(--shadow-light),
+               inset 0 0 40px rgba(245, 158, 11, 0.08);
+    animation: deep-sunken-warning-pulse 2s infinite ease-in-out;
+}
+
+.device-inline-detail .bento-banner:has(.banner-smoke-warning) {
+    box-shadow: 6px 6px 14px var(--shadow-dark),
+               -6px -6px 14px var(--shadow-light),
+               inset 0 0 40px rgba(245, 158, 11, 0.08);
+    animation: deep-sunken-warning-pulse 2s infinite ease-in-out;
+}
+
+.device-inline-detail .bento-banner:has(.banner-gas-warning) {
+    box-shadow: 6px 6px 14px var(--shadow-dark),
+               -6px -6px 14px var(--shadow-light),
+               inset 0 0 40px rgba(249, 115, 22, 0.1);
+    animation: deep-sunken-gas-warning-pulse 1.8s infinite ease-in-out;
+}
+
+.device-inline-detail .bento-banner:has(.banner-danger) {
+    box-shadow: 6px 6px 14px var(--shadow-dark),
+               -6px -6px 14px var(--shadow-light),
+               inset 0 0 40px rgba(255, 71, 87, 0.1);
+    animation: deep-sunken-pulse 1.5s infinite ease-in-out;
+}
+
+.device-inline-detail .bento-banner [data-role="bannerIcon"] {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     margin: 0 !important;
 }
 
-.device-inline-detail [data-role="bannerIcon"] svg {
-    width: 64px !important;
-    height: 64px !important;
+.device-inline-detail .bento-banner [data-role="bannerIcon"] svg {
+    width: clamp(40px, 7vh, 80px) !important;
+    height: clamp(40px, 7vh, 80px) !important;
     display: block !important;
 }
 
-/* Banner text — vertical below icon, Seven Segment font + color coding */
-.device-inline-detail [data-role="bannerText"] {
+.device-inline-detail .bento-banner [data-role="bannerText"] {
     font-family: 'Seven Segment', 'Courier New', Courier, monospace !important;
     font-weight: 900 !important;
-    font-size: 2rem !important;
+    font-size: clamp(1rem, 3vh, 2.2rem) !important;
     letter-spacing: 5px !important;
     line-height: 1 !important;
-    margin-top: 15px !important;
+    margin-top: clamp(8px, 1.5vh, 16px) !important;
     margin-bottom: 0 !important;
     display: inline-block !important;
     text-transform: uppercase;
     background: transparent !important;
     padding: 0 !important;
     transition: color 0.15s ease, text-shadow 0.15s ease;
+    text-align: center;
 }
 
-/* Banner text color coding — identical to mobile #bannerText */
-.device-inline-detail .status-banner.banner-safe [data-role="bannerText"] {
+.device-inline-detail .bento-banner .status-banner.banner-safe [data-role="bannerText"] {
     color: #40c057 !important;
     text-shadow: 0 0 15px rgba(64, 192, 87, 0.5) !important;
 }
 
-.device-inline-detail .status-banner.banner-warning [data-role="bannerText"] {
+.device-inline-detail .bento-banner .status-banner.banner-warning [data-role="bannerText"] {
     color: #f59e0b !important;
     text-shadow: 0 0 20px rgba(245, 158, 11, 0.6) !important;
 }
 
-.device-inline-detail .status-banner.banner-danger [data-role="bannerText"] {
+.device-inline-detail .bento-banner .status-banner.banner-smoke-warning [data-role="bannerText"] {
+    color: #f59e0b !important;
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.6) !important;
+}
+
+.device-inline-detail .bento-banner .status-banner.banner-gas-warning [data-role="bannerText"] {
+    color: #f97316 !important;
+    text-shadow: 0 0 22px rgba(249, 115, 22, 0.65) !important;
+}
+
+.device-inline-detail .bento-banner .status-banner.banner-danger [data-role="bannerText"] {
     color: #ff4757 !important;
     text-shadow: 0 0 25px rgba(255, 71, 87, 0.7) !important;
 }
 
-/* Banner warning/danger animations (light mode) */
-.device-inline-detail .status-banner.banner-warning {
-    animation: deep-sunken-warning-pulse 2s infinite ease-in-out;
+/* --- Row 1: Right — Sensor Cards --- */
+.device-inline-detail .bento-sensors {
+    grid-column: 2;
+    grid-row: 1;
+    padding: clamp(10px, 1.5vh, 18px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
 }
 
-.device-inline-detail .status-banner.banner-danger {
-    animation: deep-sunken-pulse 1.5s infinite ease-in-out;
-}
-
-/* ---- Sensor Row — previous desktop styling (wider, taller, premium) ---- */
-.device-inline-detail .sensor-row {
+.device-inline-detail .bento-sensors .sensor-row {
     display: flex !important;
     flex-direction: row !important;
     justify-content: space-between !important;
     width: 100% !important;
-    margin: 15px auto 30px auto !important;
-    gap: 25px !important;
+    margin: 0 !important;
+    gap: clamp(6px, 1vw, 14px) !important;
     box-sizing: border-box !important;
+    flex: 1;
+    align-items: stretch;
+    min-height: 0;
 }
 
-.device-inline-detail .sensor-row > .sensor-box {
+.device-inline-detail .bento-sensors .sensor-row > .sensor-box {
     flex: 1 !important;
-    min-width: 200px !important;
+    min-width: 0 !important;
     max-width: none !important;
-    height: clamp(120px, 15vh, 150px) !important;
-    padding: 20px !important;
+    height: auto !important;
+    padding: clamp(8px, 1.5vh, 20px) clamp(6px, 1vw, 16px) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
     align-items: center !important;
-    border-radius: 35px !important;
+    border-radius: clamp(12px, 1.5vw, 18px) !important;
     box-sizing: border-box !important;
     position: relative !important;
     border: none !important;
     aspect-ratio: unset !important;
-    min-height: unset !important;
+    min-height: 0 !important;
     width: auto !important;
+    overflow: hidden;
 }
 
-.device-inline-detail .sensor-row .sensor-value {
-    font-size: clamp(3rem, 4vw, 4rem) !important;
+.device-inline-detail .bento-sensors .sensor-value {
+    font-size: clamp(1.4rem, 3.5vh, 3.6rem) !important;
     font-family: 'SevenSegment', monospace !important;
     width: 100% !important;
     text-align: center !important;
@@ -3382,71 +4551,93 @@ body {
     letter-spacing: 2px !important;
 }
 
-.device-inline-detail .sensor-row .sensor-icon svg {
-    width: clamp(32px, 4vw, 40px) !important;
+.device-inline-detail .bento-sensors .sensor-icon svg {
+    width: clamp(18px, 2.5vh, 38px) !important;
     height: auto !important;
 }
 
-.device-inline-detail .sensor-row .sensor-label {
-    font-size: clamp(0.95rem, 1.5vw, 1.1rem) !important;
+.device-inline-detail .bento-sensors .sensor-label {
+    font-size: clamp(0.55rem, 1.2vh, 1rem) !important;
     font-weight: 800 !important;
-    margin-top: 5px !important;
+    margin-top: clamp(2px, 0.5vh, 6px) !important;
 }
 
-.device-inline-detail .sensor-row .sensor-unit {
-    font-size: clamp(1.1rem, 1.5vw, 1.6rem) !important;
+.device-inline-detail .bento-sensors .sensor-unit {
+    font-size: clamp(0.6rem, 1.2vh, 1.3rem) !important;
     font-weight: 600 !important;
 }
 
-/* ---- Siren & BFP Buttons — tactile hardware keys (risen/sunken + colors) ---- */
-.device-inline-detail .modal-button-row {
-    display: flex !important;
-    gap: 25px !important;
-    margin-bottom: 25px !important;
-    justify-content: center !important;
-    width: 100% !important;
+/* --- Row 3: Left — Control Buttons --- */
+.device-inline-detail .bento-controls {
+    grid-column: 1;
+    grid-row: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: clamp(12px, 1.5vh, 20px) 18px;
 }
 
-.device-inline-detail .modal-button-row .tactile-key {
-    /* Lock the tactile-key size: wider rounded rectangle */
-    width: 120px !important;
-    height: 80px !important;
-    flex: none !important;
-    border-radius: 20px !important;
+.device-inline-detail .bento-controls .modal-button-row {
+    display: flex !important;
+    gap: clamp(12px, 1.5vw, 20px) !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 !important;
+    flex: 1;
+    align-items: center;
+}
+
+.device-inline-detail .bento-controls .tactile-key {
+    width: auto !important;
+    height: auto !important;
+    min-height: unset !important;
+    flex: 1 1 0 !important;
+    max-height: 70% !important;
+    border-radius: clamp(14px, 1.5vw, 22px) !important;
     border: none !important;
     cursor: pointer;
     display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 !important;
+    padding: clamp(10px, 2vh, 20px) clamp(10px, 1.5vw, 20px) !important;
     margin-top: 0 !important;
     transition: all 0.2s ease;
-    /* Premium gradient & shadow: deep tactile raised look */
+    gap: clamp(4px, 1vh, 10px) !important;
     background: linear-gradient(145deg, #f8f9fa, #e2e8f0) !important;
     box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.15),
                -8px -8px 16px rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Icon scaling inside tactile keys */
-.device-inline-detail .modal-button-row .tactile-key i,
-.device-inline-detail .modal-button-row .tactile-key span {
-    font-size: 1.8rem !important;
+.device-inline-detail .bento-controls .tactile-key i,
+.device-inline-detail .bento-controls .tactile-key span:not(.tactile-label) {
+    font-size: clamp(1.5rem, 3.5vh, 2.5rem) !important;
     filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1)) !important;
 }
 
-/* Default alarm button color */
-.device-inline-detail .modal-button-row [data-role="manualAlarmBtn"] {
+.device-inline-detail .bento-controls .tactile-label {
+    font-size: clamp(0.5rem, 1.2vh, 0.75rem) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    line-height: 1.1 !important;
+    text-align: center !important;
+    color: var(--text-secondary) !important;
+    filter: none !important;
+}
+
+.device-inline-detail .bento-controls [data-role="manualAlarmBtn"] {
     color: var(--text-primary) !important;
 }
 
-/* BFP button — red accent */
-.device-inline-detail .modal-button-row [data-role="bfpBtn"] {
+.device-inline-detail .bento-controls [data-role="bfpBtn"] {
     color: #ff4757 !important;
 }
 
-/* Sunken state: physical press + active */
-.device-inline-detail .modal-button-row .tactile-key:active,
-.device-inline-detail .modal-button-row .tactile-key.is-active {
+/* Sunken state */
+.device-inline-detail .bento-controls .tactile-key:active,
+.device-inline-detail .bento-controls .tactile-key.is-active {
     background: #e2e8f0 !important;
     box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.2),
                 inset -6px -6px 12px rgba(255, 255, 255, 0.8) !important;
@@ -3454,50 +4645,357 @@ body {
     color: #ff4757 !important;
 }
 
-/* Active alarm icon — red glow (mirrors #manualAlarmBtn.is-active .power-icon) */
 .device-inline-detail .tactile-key.is-active [data-role="alarmBtnIcon"] {
     color: #ff4757 !important;
     text-shadow: 0 0 10px rgba(255, 71, 87, 0.6) !important;
     transition: all 0.3s ease;
 }
 
-/* Generate report & clear console buttons */
-.device-inline-detail .activity-log-action-btn {
-    white-space: nowrap !important;
-    font-size: 0.65rem !important;
+.device-inline-detail .tactile-key.is-active .tactile-label {
+    color: #ff4757 !important;
 }
 
-.device-inline-detail .activity-log-header {
+.device-inline-detail [data-role="bfpBtn"] .tactile-label {
+    color: #ff4757 !important;
+}
+
+/* --- Row 2: Right — Sensor Trends --- */
+.device-inline-detail .bento-trends {
+    grid-column: 2;
+    grid-row: 2;
+    padding: clamp(10px, 1.5vh, 16px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Trends header: title left, timeframe buttons right */
+.device-inline-detail .bento-trends-header {
     justify-content: space-between !important;
-    box-sizing: border-box !important;
-    padding: 12px 16px !important;
+    align-items: center;
+    gap: 6px;
 }
 
-/* ---- Activity Log ---- */
-.device-inline-detail .activity-log-container {
+.device-inline-detail .bento-trends-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.device-inline-detail .trend-timeframe-btns {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+    background: #e8ecf1;
+    border-radius: 10px;
+    padding: 3px;
+    border: 1px solid rgba(0,0,0,0.04);
+    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.1),
+               inset -3px -3px 6px rgba(255,255,255,0.9);
+}
+
+.dark-mode .device-inline-detail .trend-timeframe-btns {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.08);
+    box-shadow: inset 2px 2px 4px rgba(0,0,0,0.3),
+               inset -2px -2px 4px rgba(255,255,255,0.04);
+}
+
+.device-inline-detail .trend-tf-btn {
+    padding: clamp(2px, 0.4vh, 5px) clamp(6px, 0.8vw, 12px);
+    font-size: clamp(0.45rem, 0.75vh, 0.62rem);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: none !important;
+    border-radius: 6px;
+    cursor: pointer;
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    line-height: 1.2;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.device-inline-detail .trend-tf-btn:hover {
+    background: rgba(65, 195, 143, 0.1) !important;
+    color: var(--text-primary) !important;
+    box-shadow: none !important;
+}
+
+.device-inline-detail .trend-tf-btn.active {
+    background: #41c38f !important;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(65, 195, 143, 0.3) !important;
+}
+
+.dark-mode .device-inline-detail .trend-tf-btn {
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    box-shadow: none !important;
+}
+
+.dark-mode .device-inline-detail .trend-tf-btn:hover {
+    background: rgba(65, 195, 143, 0.15) !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+.dark-mode .device-inline-detail .trend-tf-btn.active {
+    background: #41c38f !important;
+    color: #fff !important;
+    box-shadow: 0 2px 10px rgba(65, 195, 143, 0.35) !important;
+}
+
+/* Trend chart wrapper (holds canvas, loading, no-data states) */
+.device-inline-detail .trend-chart-wrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.device-inline-detail .trend-loading,
+.device-inline-detail .trend-no-data {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: clamp(0.55rem, 0.9vh, 0.72rem);
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.device-inline-detail .trend-loading-spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid rgba(65, 195, 143, 0.2);
+    border-top-color: #41c38f;
+    border-radius: 50%;
+    animation: trendSpin 0.8s linear infinite;
+}
+
+@keyframes trendSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- Trend Chart Hover: Crosshair + Tooltip --- */
+.device-inline-detail .trend-crosshair {
+    position: absolute;
+    width: 1px;
+    background: rgba(65, 195, 143, 0.5);
+    pointer-events: none;
+    z-index: 2;
+    transition: left 0.06s ease-out;
+}
+
+.dark-mode .device-inline-detail .trend-crosshair {
+    background: rgba(65, 195, 143, 0.6);
+}
+
+/* Intersection dots on crosshair line */
+.device-inline-detail .trend-crosshair-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    left: -3.5px;
+    transform: translateY(-50%);
+    box-shadow: 0 0 6px currentColor;
+    pointer-events: none;
+    z-index: 3;
+}
+.device-inline-detail .trend-tooltip {
+    position: absolute;
+    z-index: 10;
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    padding: 8px 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.06);
+    min-width: 130px;
+    transition: left 0.06s ease-out, top 0.06s ease-out;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.dark-mode .device-inline-detail .trend-tooltip {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.device-inline-detail .trend-tooltip-time {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dark-mode .device-inline-detail .trend-tooltip-time {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.device-inline-detail .trend-tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0;
+    font-size: 0.62rem;
+}
+
+.device-inline-detail .trend-tooltip-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.device-inline-detail .trend-tooltip-label {
+    color: var(--text-secondary);
+    font-weight: 600;
+    flex: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.device-inline-detail .trend-tooltip-value {
+    font-weight: 800;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+.device-inline-detail .bento-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: clamp(4px, 1vh, 12px);
+    padding-top: 4px;
+    flex-shrink: 0;
+}
+
+.device-inline-detail .bento-section-icon {
+    width: clamp(14px, 1.5vh, 20px);
+    height: clamp(14px, 1.5vh, 20px);
+    fill: var(--text-primary);
+    stroke: var(--text-primary);
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.device-inline-detail .bento-section-title {
+    font-size: clamp(0.6rem, 1vh, 0.82rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-primary);
+}
+
+.device-inline-detail .trend-chart-wrapper .trend-chart-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    cursor: crosshair;
+}
+
+.device-inline-detail .trend-legend {
+    display: flex;
+    gap: clamp(6px, 1vw, 14px);
+    justify-content: center;
+    margin-top: clamp(4px, 0.8vh, 10px);
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.device-inline-detail .trend-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: clamp(0.5rem, 0.9vh, 0.65rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+}
+
+.device-inline-detail .trend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* --- Row 3: Right — Activity Log --- */
+.device-inline-detail .bento-log {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.device-inline-detail .bento-log .activity-log-container {
     width: 100% !important;
-    height: 220px !important;
-    margin: 15px auto !important;
+    height: 100% !important;
+    min-height: unset !important;
+    margin: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     flex: none !important;
     box-sizing: border-box !important;
     aspect-ratio: unset !important;
-    min-height: unset !important;
     padding: 0 !important;
     overflow: hidden !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.device-inline-detail .activity-log-action-btn {
+    white-space: nowrap !important;
+    font-size: 0.75rem !important;
+    padding: 8px 16px !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+}
+
+.device-inline-detail .activity-log-header {
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+    padding: 16px 20px !important;
 }
 
 .device-inline-detail .activity-log-title {
-    font-size: 0.9rem !important;
+    font-size: clamp(0.65rem, 1.1vh, 0.95rem) !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.2px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
 .device-inline-detail .activity-log-icon {
-    width: 20px !important;
-    height: 20px !important;
+    width: 22px !important;
+    height: 22px !important;
 }
 
-/* Log list — match mobile #deviceLogList font & layout */
 .device-inline-detail [data-role="deviceLogList"] {
     display: flex !important;
     flex-direction: column !important;
@@ -3509,20 +5007,19 @@ body {
     overflow-x: hidden !important;
 }
 
-/* Log rows — match mobile #deviceLogList div */
 .device-inline-detail [data-role="deviceLogList"] > * {
     display: flex !important;
     align-items: center !important;
     width: 100% !important;
-    padding: 5px 0 5px 16px !important;
-    gap: 12px !important;
-    font-size: 0.75rem !important;
+    padding: 10px 0 10px 20px !important;
+    gap: 14px !important;
+    font-size: 0.85rem !important;
     color: var(--text-primary) !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
     background: inherit !important;
+    line-height: 1.4 !important;
 }
 
-/* Log scrollbar */
 .device-inline-detail [data-role="deviceLogList"]::-webkit-scrollbar {
     width: 4px;
 }
@@ -3534,43 +5031,92 @@ body {
     border-radius: 10px;
 }
 
-/* ---- Dark Mode overrides ---- */
-.dark-mode .device-inline-detail .status-banner {
+/* =============================================
+   BENTO — DARK MODE OVERRIDES
+   =============================================*/
+
+/* Dark mode title bar buttons */
+.dark-mode .device-inline-detail .bento-rename-btn {
+    background: rgba(65, 195, 143, 0.15) !important;
+    color: #ffffff !important;
+}
+.dark-mode .device-inline-detail .bento-rename-btn:hover {
+    background: rgba(65, 195, 143, 0.25) !important;
+}
+.dark-mode .device-inline-detail .bento-remove-btn {
+    background: rgba(255, 71, 87, 0.12) !important;
+    color: #ff4757 !important;
+}
+.dark-mode .device-inline-detail .bento-remove-btn:hover {
+    background: rgba(255, 71, 87, 0.22) !important;
+}
+
+/* Dark mode banner inset shadow */
+.dark-mode .device-inline-detail .bento-banner .status-banner {
     background: #1e293b !important;
-    box-shadow: inset 10px 10px 20px rgba(0, 0, 0, 0.4),
-                inset -10px -10px 20px rgba(255, 255, 255, 0.03) !important;
+    box-shadow:
+        inset 10px 10px 20px rgba(0, 0, 0, 0.4),
+        inset -10px -10px 20px rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
 }
 
-.dark-mode .device-inline-detail .status-banner.banner-safe {
-    box-shadow: inset 10px 10px 20px rgba(0, 0, 0, 0.35),
-                inset -10px -10px 20px rgba(255, 255, 255, 0.03),
-                inset 0 0 30px rgba(64, 192, 87, 0.08) !important;
+.dark-mode .device-inline-detail .bento-banner .status-banner.banner-safe {
+    box-shadow:
+        inset 10px 10px 20px rgba(0, 0, 0, 0.35),
+        inset -10px -10px 20px rgba(255, 255, 255, 0.03),
+        inset 0 0 30px rgba(64, 192, 87, 0.08) !important;
 }
 
-.dark-mode .device-inline-detail .status-banner.banner-warning {
+/* Dark mode banner states on wrapper card */
+.dark-mode .device-inline-detail .bento-banner:has(.banner-safe) {
+    box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.4),
+               -6px -6px 14px rgba(255, 255, 255, 0.03),
+               inset 0 0 40px rgba(64, 192, 87, 0.08);
+}
+
+.dark-mode .device-inline-detail .bento-banner:has(.banner-warning) {
+    box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.4),
+               -6px -6px 14px rgba(255, 255, 255, 0.03),
+               inset 0 0 40px rgba(245, 158, 11, 0.1);
     animation: dark-deep-sunken-warning-pulse 2s infinite ease-in-out;
 }
 
-.dark-mode .device-inline-detail .status-banner.banner-danger {
+.dark-mode .device-inline-detail .bento-banner:has(.banner-smoke-warning) {
+    box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.4),
+               -6px -6px 14px rgba(255, 255, 255, 0.03),
+               inset 0 0 40px rgba(245, 158, 11, 0.1);
+    animation: dark-deep-sunken-warning-pulse 2s infinite ease-in-out;
+}
+
+.dark-mode .device-inline-detail .bento-banner:has(.banner-gas-warning) {
+    box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.4),
+               -6px -6px 14px rgba(255, 255, 255, 0.03),
+               inset 0 0 40px rgba(249, 115, 22, 0.12);
+    animation: dark-deep-sunken-gas-warning-pulse 1.8s infinite ease-in-out;
+}
+
+.dark-mode .device-inline-detail .bento-banner:has(.banner-danger) {
+    box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.4),
+               -6px -6px 14px rgba(255, 255, 255, 0.03),
+               inset 0 0 40px rgba(255, 71, 87, 0.12);
     animation: dark-deep-sunken-pulse 1.5s infinite ease-in-out;
 }
 
 /* Dark mode tactile buttons */
-.dark-mode .device-inline-detail .modal-button-row .tactile-key {
+.dark-mode .device-inline-detail .bento-controls .tactile-key {
     background: linear-gradient(145deg, #2d3748, #1a202c) !important;
     box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.6),
                -8px -8px 16px rgba(255, 255, 255, 0.06) !important;
 }
 
-.dark-mode .device-inline-detail .modal-button-row .tactile-key:active,
-.dark-mode .device-inline-detail .modal-button-row .tactile-key.is-active {
+.dark-mode .device-inline-detail .bento-controls .tactile-key:active,
+.dark-mode .device-inline-detail .bento-controls .tactile-key.is-active {
     background: #1a202c !important;
     box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.7),
                 inset -6px -6px 12px rgba(255, 255, 255, 0.04) !important;
 }
 
-/* BFP button red preserved in dark mode */
-.dark-mode .device-inline-detail .modal-button-row [data-role="bfpBtn"] {
+.dark-mode .device-inline-detail .bento-controls [data-role="bfpBtn"] {
     color: #ff4757 !important;
 }
 
@@ -3578,7 +5124,7 @@ body {
     border-bottom-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-} /* END @media (min-width: 1024px) — MASTER DESKTOP OVERRIDE */
+} /* END @media (min-width: 768px) — MASTER DESKTOP OVERRIDE */
 
 /* ========================
    LOGS PAGE STYLES
@@ -3593,8 +5139,7 @@ body {
     padding-bottom: 5px;
 }
 
-.logs-sticky-header .logs-filter-row,
-.logs-sticky-header .logs-controls {
+.logs-sticky-header .logs-toolbar {
     margin-left: 15px;
     margin-right: 15px;
     width: auto;
@@ -3623,47 +5168,32 @@ body {
     font-weight: 400;
 }
 
-/* Logs Filter Row */
-.logs-filter-row {
-    margin-bottom: 15px;
-    padding: 15px 20px;
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.06), -4px -4px 8px rgba(255, 255, 255, 0.8);
+/* Logs Toolbar - Combined filter & controls row */
+.logs-toolbar {
     display: flex;
     align-items: center;
-    box-sizing: border-box;
-}
-
-/* Logs Controls */
-.logs-controls {
-    display: flex;
-    align-items: center;
-    width: 100%;
+    justify-content: space-between;
     gap: 15px;
-    margin-bottom: 25px;
-    padding: 15px 20px;
+    margin-bottom: 20px;
+    padding: 12px 20px;
     background: var(--card-bg);
     border-radius: 12px;
     box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.06), -4px -4px 8px rgba(255, 255, 255, 0.8);
+    box-sizing: border-box;
+    flex-wrap: wrap;
 }
 
-.logs-controls .toggle-label {
-    flex-shrink: 0;
-}
-
-.logs-controls-left {
+.toolbar-filters {
     display: flex;
     align-items: center;
     gap: 20px;
     flex-wrap: wrap;
-    flex-shrink: 0;
 }
 
-.logs-controls-right {
+.toolbar-actions {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     margin-left: auto;
     flex-shrink: 0;
 }
@@ -3705,65 +5235,6 @@ body {
 .filter-select:focus {
     outline: none;
     border-color: #3b82f6;
-}
-
-/* Toggle Switch */
-.toggle-label {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-}
-
-.toggle-checkbox {
-    display: none;
-}
-
-.toggle-slider {
-    position: relative;
-    width: 50px;
-    height: 26px;
-    background: var(--app-bg);
-    border-radius: 26px;
-    box-shadow: 
-        inset 4px 4px 8px rgba(0, 0, 0, 0.08),
-        inset -4px -4px 8px rgba(255, 255, 255, 0.7);
-    transition: all 0.3s ease;
-}
-
-.toggle-slider::before {
-    content: "";
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    top: 3px;
-    left: 3px;
-    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
-    box-shadow: 
-        2px 2px 5px rgba(0, 0, 0, 0.1),
-        -2px -2px 5px rgba(255, 255, 255, 0.8);
-    transition: all 0.3s ease;
-}
-
-.toggle-checkbox:checked + .toggle-slider {
-    box-shadow: 
-        inset 4px 4px 8px rgba(220, 38, 38, 0.2),
-        inset -4px -4px 8px rgba(255, 255, 255, 0.5);
-}
-
-.toggle-checkbox:checked + .toggle-slider::before {
-    transform: translateX(24px);
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    box-shadow: 
-        2px 2px 5px rgba(220, 38, 38, 0.3),
-        -2px -2px 5px rgba(255, 255, 255, 0.5);
-}
-
-.toggle-text {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-primary);
 }
 
 /* Clear Logs Button */
@@ -4025,34 +5496,8 @@ body {
 }
 
 /* Dark Mode Overrides for Logs Page */
-.dark-mode .logs-filter-row,
-.dark-mode .logs-controls {
+.dark-mode .logs-toolbar {
     box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5), -4px -4px 8px rgba(255, 255, 255, 0.02);
-}
-
-.dark-mode .toggle-slider {
-    box-shadow: 
-        inset 4px 4px 8px rgba(0, 0, 0, 0.3),
-        inset -4px -4px 8px rgba(255, 255, 255, 0.02);
-}
-
-.dark-mode .toggle-slider::before {
-    background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
-    box-shadow: 
-        2px 2px 5px rgba(0, 0, 0, 0.3),
-        -2px -2px 5px rgba(255, 255, 255, 0.03);
-}
-
-.dark-mode .toggle-checkbox:checked + .toggle-slider {
-    box-shadow: 
-        inset 4px 4px 8px rgba(220, 38, 38, 0.3),
-        inset -4px -4px 8px rgba(255, 255, 255, 0.02);
-}
-
-.dark-mode .toggle-checkbox:checked + .toggle-slider::before {
-    box-shadow: 
-        2px 2px 5px rgba(220, 38, 38, 0.4),
-        -2px -2px 5px rgba(255, 255, 255, 0.02);
 }
 
 .dark-mode .filter-select {
@@ -4101,29 +5546,21 @@ body {
         margin-bottom: 20px;
     }
 
-    .logs-filter-row {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-        padding: 12px 15px;
-        margin-bottom: 15px;
-    }
-
-    .logs-controls {
+    .logs-toolbar {
         flex-direction: column;
         align-items: stretch;
         gap: 12px;
         padding: 12px 15px;
     }
 
-    .logs-controls-left {
+    .toolbar-filters {
         flex-direction: column;
         align-items: stretch;
         gap: 12px;
     }
 
-    .logs-controls-right {
-        width: 100%;
+    .toolbar-actions {
+        margin-left: 0;
         justify-content: stretch;
     }
 
@@ -4208,7 +5645,7 @@ body {
         font-size: 0.75rem;
     }
 
-    .logs-controls {
+    .logs-toolbar {
         padding: 10px 12px;
     }
 
@@ -4326,8 +5763,8 @@ body {
     }
 }
 
-/* Desktop (1024px+) - Ensure proper scaling */
-@media (min-width: 1024px) {
+/* Desktop (768px+) - Ensure proper scaling */
+@media (min-width: 768px) {
     .logs-page {
         padding: 30px;
         max-width: 1000px;
@@ -4337,14 +5774,8 @@ body {
         margin-bottom: 30px;
     }
 
-    .logs-filter-row {
-        padding: 18px 24px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .logs-controls {
-        padding: 18px 24px;
+    .logs-toolbar {
+        padding: 14px 24px;
         width: 100%;
         box-sizing: border-box;
     }
@@ -4514,77 +5945,33 @@ body {
   }
 }
 
-/* Mobile - Icon Only with Tooltips */
+/* Mobile - Full buttons with text */
 @media (max-width: 480px) {
-  .logs-controls {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    box-sizing: border-box;
-  }
-
-  .logs-controls-right {
+  .toolbar-actions {
     display: flex;
     gap: 10px;
-    margin-left: auto;
-    width: auto;
-    justify-content: flex-end;
-    flex-shrink: 0;
-  }
-
-  .toggle-label {
-    gap: 8px;
-    white-space: nowrap;
-  }
-
-  .toggle-text {
-    font-size: 0.8rem;
-  }
-
-  .toggle-slider {
-    width: 42px;
-    height: 22px;
-    border-radius: 22px;
-  }
-
-  .toggle-slider::before {
-    width: 16px;
-    height: 16px;
-    top: 3px;
-    left: 3px;
-  }
-
-  .clear-logs-btn .btn-text,
-  .generate-report-btn .btn-text {
-    display: none;
+    margin-left: 0;
+    width: 100%;
   }
 
   .clear-logs-btn,
   .generate-report-btn {
-    min-width: 44px;
-    width: 44px;
-    height: 44px;
-    padding: 10px;
+    flex: 1;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 0.8rem;
     justify-content: center;
   }
 
   .clear-logs-btn svg,
   .generate-report-btn svg:first-child {
-    width: 20px;
-    height: 20px;
-    margin: 0;
+    width: 16px;
+    height: 16px;
   }
 
   .dropdown-arrow {
-    position: absolute;
-    right: 4px;
-    bottom: 4px;
-    width: 12px !important;
-    height: 12px !important;
+    width: 14px !important;
+    height: 14px !important;
   }
 
   .report-menu {

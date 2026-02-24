@@ -34,6 +34,20 @@ function syncDevicesFromAPI() {
             local.name = name;
             changed = true;
           }
+          // Always update online status from server (source of truth)
+          const serverOnline = sd.online || false;
+          if (local.online !== serverOnline) {
+            local.online = serverOnline;
+            changed = true;
+          }
+          // Zero out sensor values when offline
+          if (!serverOnline) {
+            local.temperature = 0;
+            local.humidity = 0;
+            local.gas = 0;
+            local.fire = false;
+            changed = true;
+          }
         } else {
           const newDev = new Device(id, name, sd.espUrl || '');
           newDev.temperature = sd.temperature;
@@ -60,6 +74,11 @@ function syncDevicesFromAPI() {
         if (typeof renderDevices === 'function') renderDevices();
         console.log('📋 Synced devices from REST API');
       }
+      // Always refresh side nav dots to match actual online status
+      devices.forEach(d => {
+        const dot = document.querySelector(`.side-nav-device-item[data-device-name="${d.name}"] .side-nav-device-dot`);
+        if (dot) dot.classList.toggle('online', !!d.online);
+      });
 
       // AFTER syncing from API, share the clean list with the server
       if (socket && isWebSocketReady) {
@@ -150,6 +169,9 @@ function initWebSocket() {
 
     // Request current siren states from server
     socket.emit('request-siren-state');
+
+    // Request current BFP number from server
+    socket.emit('request-bfp-number');
   });
 
   // Receive synced device list from server (for multi-user sync)
@@ -178,7 +200,9 @@ function initWebSocket() {
         if (serverDevice.humidity != null) localDevice.humidity = serverDevice.humidity;
         if (serverDevice.gas != null) localDevice.gas = serverDevice.gas;
         if (serverDevice.flame != null) localDevice.flame = serverDevice.flame;
-        if (serverDevice.online != null) localDevice.online = serverDevice.online;
+        if (serverDevice.online != null) {
+          localDevice.online = serverDevice.online;
+        }
         // Update name if server has a different (authoritative) name
         if (name && localDevice.name !== name) {
           console.log(`✏️ Server renamed ${localDevice.name} → ${name}`);
@@ -215,6 +239,11 @@ function initWebSocket() {
         renderDevices();
       }
     }
+    // Always refresh side nav dots after sync
+    devices.forEach(d => {
+      const dot = document.querySelector(`.side-nav-device-item[data-device-name="${d.name}"] .side-nav-device-dot`);
+      if (dot) dot.classList.toggle('online', !!d.online);
+    });
   });
 
   // Connection lost
@@ -251,6 +280,9 @@ function initWebSocket() {
       
       if (typeof renderDevices === 'function') {
         renderDevices();
+      }
+      if (typeof populateSideNavDevices === 'function') {
+        populateSideNavDevices();
       }
       
       showToast(`${name} added by another user`, 'info');
@@ -312,7 +344,20 @@ function initWebSocket() {
     if (device) {
       const wasOnline = device.online;
       device.online = data.status === 'online';
+      // Zero out sensor values when device goes offline
+      if (!device.online) {
+        device.temperature = 0;
+        device.humidity = 0;
+        device.gas = 0;
+        device.fire = false;
+      }
       saveDevices();
+
+      // Update side nav dot directly
+      const sideNavDot = document.querySelector(`.side-nav-device-item[data-device-name="${device.name}"] .side-nav-device-dot`);
+      if (sideNavDot) {
+        sideNavDot.classList.toggle('online', device.online);
+      }
       
       // Check if inline detail mode (desktop)
       const inlineContainer = document.querySelector(`.device-inline-detail[data-aces-id="${device.acesId}"]`);
@@ -334,6 +379,11 @@ function initWebSocket() {
       } else if (typeof renderDevices === 'function') {
         // Mobile: re-render tiles
         renderDevices();
+      }
+
+      // Update side nav dot
+      if (typeof updateSideNavDeviceStatus === 'function') {
+        updateSideNavDeviceStatus(device.name, device.online);
       }
       
       // Update device detail page if viewing this device (device.html)
@@ -383,6 +433,12 @@ function initWebSocket() {
       alarmIconWrap.innerHTML = data.isActive ? ICONS.ALARM_ON : ICONS.ALARM_OFF;
     }
 
+    // Update the alarm label text if on device detail page
+    const alarmLabelEl = document.getElementById('alarmBtnLabel');
+    if (alarmLabelEl) {
+      alarmLabelEl.textContent = data.isActive ? 'DEACTIVATE ALARM' : 'ACTIVATE ALARM';
+    }
+
     // Update the manualAlarmActive variable if on device detail page
     if (typeof manualAlarmActive !== 'undefined') {
       // Only update if this event is for the device we're currently viewing
@@ -401,6 +457,7 @@ function initWebSocket() {
     if (typeof getInlineEl === 'function') {
       const inlineAlarmBtn = getInlineEl(acesId, 'manualAlarmBtn');
       const inlineAlarmIcon = getInlineEl(acesId, 'alarmBtnIcon');
+      const inlineAlarmLabel = getInlineEl(acesId, 'alarmBtnLabel');
       if (inlineAlarmBtn) {
         if (data.isActive) {
           inlineAlarmBtn.classList.add('is-active');
@@ -409,6 +466,9 @@ function initWebSocket() {
         }
         if (inlineAlarmIcon && typeof ICONS !== 'undefined') {
           inlineAlarmIcon.innerHTML = data.isActive ? ICONS.ALARM_ON : ICONS.ALARM_OFF;
+        }
+        if (inlineAlarmLabel) {
+          inlineAlarmLabel.textContent = data.isActive ? 'DEACTIVATE ALARM' : 'ACTIVATE ALARM';
         }
       }
       // Update inline state
@@ -439,11 +499,15 @@ function initWebSocket() {
       if (typeof getInlineEl === 'function') {
         const inlineBtn = getInlineEl(deviceId, 'manualAlarmBtn');
         const inlineIcon = getInlineEl(deviceId, 'alarmBtnIcon');
+        const inlineLabel = getInlineEl(deviceId, 'alarmBtnLabel');
         if (inlineBtn) {
           if (state.isActive) inlineBtn.classList.add('is-active');
           else inlineBtn.classList.remove('is-active');
           if (inlineIcon && typeof ICONS !== 'undefined') {
             inlineIcon.innerHTML = state.isActive ? ICONS.ALARM_ON : ICONS.ALARM_OFF;
+          }
+          if (inlineLabel) {
+            inlineLabel.textContent = state.isActive ? 'DEACTIVATE ALARM' : 'ACTIVATE ALARM';
           }
         }
         if (typeof inlineDeviceStates !== 'undefined') {
@@ -456,6 +520,7 @@ function initWebSocket() {
     // If on device detail page, update the button to match server state
     const alarmBtn = document.getElementById('manualAlarmBtn');
     const alarmIconWrap = document.getElementById('alarmBtnIcon');
+    const alarmLabelEl = document.getElementById('alarmBtnLabel');
     if (alarmBtn && typeof activeDevice !== 'undefined' && activeDevice) {
       const currentId = activeDevice.acesId || '';
       const deviceState = states[currentId];
@@ -467,6 +532,9 @@ function initWebSocket() {
         }
         if (alarmIconWrap && typeof ICONS !== 'undefined') {
           alarmIconWrap.innerHTML = deviceState.isActive ? ICONS.ALARM_ON : ICONS.ALARM_OFF;
+        }
+        if (alarmLabelEl) {
+          alarmLabelEl.textContent = deviceState.isActive ? 'DEACTIVATE ALARM' : 'ACTIVATE ALARM';
         }
         if (typeof manualAlarmActive !== 'undefined') {
           manualAlarmActive = deviceState.isActive;
@@ -497,6 +565,16 @@ function initWebSocket() {
       showToast('BFP contact number synced: ' + data.number, 'info');
     } else {
       showToast('BFP contact number cleared', 'info');
+    }
+  });
+
+  // Receive authoritative BFP number from server on connect
+  socket.on('sync-bfp-number', (data) => {
+    const num = data.number || '';
+    console.log('📞 Synced BFP number from server:', num || '(none)');
+    localStorage.setItem('globalBFPContactNumber', num);
+    if (typeof updateBFPNumberFromSync === 'function') {
+      updateBFPNumberFromSync(num);
     }
   });
 
@@ -660,6 +738,12 @@ function initWebSocket() {
           // Not on dashboard page, that's fine
         }
       }
+
+      // Update side nav dot — if sensor data is arriving, device is online
+      const sideNavDot = document.querySelector(`.side-nav-device-item[data-device-name="${device.name}"] .side-nav-device-dot`);
+      if (sideNavDot) {
+        sideNavDot.classList.toggle('online', !!device.online);
+      }
       
       // If transitioning from critical/warning → safe, save immediately (skip throttle)
       // so a page refresh won't show stale danger state
@@ -739,10 +823,11 @@ function initWebSocket() {
       }
       
       // Show toast notification on any page
-      let message = alertType + ' DETECTED';
-      if (data.type === 'heat') message += ` on ${device.name}! Temperature: ${data.temperature.toFixed(1)}°C`;
-      else if (data.type === 'gas') message += ` on ${device.name}! Gas level: ${data.gas} ppm`;
-      else if (data.type === 'fire') message += ` on ${device.name}!`;
+      let message = '';
+      if (data.type === 'heat') message = `HIGH TEMPERATURE on ${device.name}! ${data.temperature.toFixed(1)}°C`;
+      else if (data.type === 'gas') message = `CRITICAL GAS LEAK on ${device.name}! ${data.gas} ppm`;
+      else if (data.type === 'fire') message = `FIRE DETECTED on ${device.name}!`;
+      else message = `${alertType} DETECTED on ${device.name}!`;
       
       showAlertToast(data.deviceId, message, 'danger', 5000);
     } else {
@@ -810,9 +895,16 @@ function initWebSocket() {
       }
       
       // Show toast notification on any page
-      let message = data.type === 'heat-warning'
-        ? `High temperature on ${device.name}: ${data.temperature.toFixed(1)}°C`
-        : `Elevated gas on ${device.name}: ${data.gas} ppm`;
+      let message = '';
+      if (data.type === 'heat-warning') {
+        message = `High temperature on ${device.name}: ${data.temperature.toFixed(1)}°C`;
+      } else if (data.type === 'smoke-warning') {
+        message = `Smoke warning on ${device.name}: ${data.gas} ppm`;
+      } else if (data.type === 'gas-warning') {
+        message = `Gas leak warning on ${device.name}: ${data.gas} ppm`;
+      } else {
+        message = `Warning on ${device.name}: ${data.type}`;
+      }
       
       showAlertToast(data.deviceId, message, 'warning', 4000);
     } else {

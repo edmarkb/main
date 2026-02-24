@@ -96,7 +96,7 @@ if (!window.systemEventLogs) {
 }
 
 // 2. ACTIVITY LOG LOGIC
-function addDeviceLog(message, type = 'info', postToBackend = false) {
+function addDeviceLog(message, type = 'info', postToBackend = false, eventType = null) {
     const logList = document.getElementById('deviceLogList');
     if (!logList) return;
 
@@ -125,7 +125,7 @@ function addDeviceLog(message, type = 'info', postToBackend = false) {
     const temp = (activeDevice && activeDevice.temperature != null) ? activeDevice.temperature : 0;
     const hum = (activeDevice && activeDevice.humidity != null) ? activeDevice.humidity : 0;
     const gasVal = (activeDevice && activeDevice.gas != null) ? activeDevice.gas : 0;
-    addToSystemEventLog(message, type, activeDevice ? activeDevice.name : 'Unknown Device', temp, hum, gasVal, postToBackend);
+    addToSystemEventLog(message, eventType || type, activeDevice ? activeDevice.name : 'Unknown Device', temp, hum, gasVal, postToBackend);
 
     // Update this line inside your addDeviceLog function
 logEntry.innerHTML = `
@@ -220,10 +220,11 @@ function checkEvents(temp, hum, gas, fire) {
     if (isFire) currentState = "FIRE";
     else if (temp >= 42 && gas >= 600) currentState = "FIRE";
     else if (temp >= 42) currentState = "HEAT";
-    else if (gas >= 600) currentState = "GAS";
+    else if (gas >= 600) currentState = "GAS_CRITICAL";
     // Warning conditions (elevated but not critical)
     else if (temp >= 38) currentState = "HEAT_WARNING";
     else if (gas >= 450) currentState = "GAS_WARNING";
+    else if (gas >= 300) currentState = "SMOKE_WARNING";
 
     if (currentState !== lastAlertState) {
         // Backend handles alert logging - frontend only updates local UI
@@ -231,12 +232,14 @@ function checkEvents(temp, hum, gas, fire) {
             addDeviceLog("Fire condition detected by flame sensor.", "danger");
         } else if (currentState === "HEAT") {
             addDeviceLog(`Temperature threshold exceeded. Current value: ${temp.toFixed(1)}°C`, "danger");
-        } else if (currentState === "GAS") {
-            addDeviceLog(`Gas concentration exceeded safe limit. Current value: ${gas} ppm`, "danger");
+        } else if (currentState === "GAS_CRITICAL") {
+            addDeviceLog(`Critical gas leak detected. Current value: ${gas} ppm`, "danger");
         } else if (currentState === "HEAT_WARNING") {
             addDeviceLog(`High temperature detected. Current value: ${temp.toFixed(1)}°C`, "warning");
         } else if (currentState === "GAS_WARNING") {
-            addDeviceLog(`Elevated gas concentration detected. Current value: ${gas} ppm`, "warning");
+            addDeviceLog(`Gas leak warning. Current value: ${gas} ppm`, "warning");
+        } else if (currentState === "SMOKE_WARNING") {
+            addDeviceLog(`Smoke warning. Current value: ${gas} ppm`, "warning");
         } else if (currentState === "SAFE" && lastAlertState !== "SAFE") {
             addDeviceLog("System returned to normal parameters.", "info");
         }
@@ -256,7 +259,7 @@ function updateDetailUI() {
     const tempBox = document.getElementById('tempBox');
     const gasBox = document.getElementById('gasBox');
 
-    banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning');
+    banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning', 'banner-gas-warning', 'banner-smoke-warning');
     [tempBox, gasBox].forEach(box => box && box.classList.remove('danger', 'warning'));
 
     let isEmergency = false;
@@ -265,7 +268,7 @@ function updateDetailUI() {
     // Check for actual fire sensor OR combined high temp + gas
     const isFire = fire === true || fire === 1 || fire === "true";
 
-    // Threshold Checks with Icon Swapping (Priority: Fire > CombinedFire > Gas > Heat > Warnings > Safe)
+    // Threshold Checks with Icon Swapping (Priority: Fire > CombinedFire > CriticalGas > Heat > GasWarning > SmokeWarning > HeatWarning > Safe)
     if (isFire) {
         banner.classList.add('banner-danger');
         bannerText.innerText = "FIRE DETECTED";
@@ -282,7 +285,7 @@ function updateDetailUI() {
         isEmergency = true;
     } else if (gas >= 600) {
         banner.classList.add('banner-danger');
-        bannerText.innerText = "SMOKE / GAS DETECTED";
+        bannerText.innerText = "CRITICAL GAS LEAK DETECTED";
         bannerIcon.innerHTML = ICONS.SMOKE;
         if(gasBox) gasBox.classList.add('danger');
         isEmergency = true;
@@ -292,15 +295,21 @@ function updateDetailUI() {
         bannerIcon.innerHTML = ICONS.HEAT;
         if(tempBox) tempBox.classList.add('danger');
         isEmergency = true;
+    } else if (gas >= 450) {
+        banner.classList.add('banner-gas-warning');
+        bannerText.innerText = "GAS LEAK WARNING";
+        bannerIcon.innerHTML = ICONS.SMOKE_WARN;
+        if(gasBox) gasBox.classList.add('warning');
+        isWarning = true;
     } else if (temp >= 38) {
         banner.classList.add('banner-warning');
         bannerText.innerText = "ELEVATED TEMPERATURE";
         bannerIcon.innerHTML = ICONS.HEAT_WARN;
         if(tempBox) tempBox.classList.add('warning');
         isWarning = true;
-    } else if (gas >= 450) {
-        banner.classList.add('banner-warning');
-        bannerText.innerText = "ELEVATED GAS LEVEL";
+    } else if (gas >= 300) {
+        banner.classList.add('banner-smoke-warning');
+        bannerText.innerText = "SMOKE WARNING";
         bannerIcon.innerHTML = ICONS.SMOKE_WARN;
         if(gasBox) gasBox.classList.add('warning');
         isWarning = true;
@@ -386,9 +395,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const alarmBtn = document.getElementById('manualAlarmBtn');
         const bfpBtn = document.getElementById('bfpBtn');
+        const alarmLabel = document.getElementById('alarmBtnLabel');
         
         if(alarmBtn) {
             manualAlarmActive ? alarmBtn.classList.add('is-active') : alarmBtn.classList.remove('is-active');
+        }
+        if(alarmLabel) {
+            alarmLabel.textContent = manualAlarmActive ? 'DEACTIVATE ALARM' : 'ACTIVATE ALARM';
         }
         if(bfpBtn) bfpBtn.classList.remove('is-active'); 
 
@@ -552,10 +565,12 @@ window.toggleManualAlarm = function() {
     const isOverride = !manualAlarmActive && prevSource === 'auto';
     
     const alarmIconWrap = document.getElementById('alarmBtnIcon');
+    const alarmLabel = document.getElementById('alarmBtnLabel');
     if (manualAlarmActive) {
         addDeviceLog("MANUAL OVERRIDE: Siren activated.", "danger", true);
         if(alarmBtn) alarmBtn.classList.add('is-active');
         if(alarmIconWrap) alarmIconWrap.innerHTML = ICONS.ALARM_ON;
+        if(alarmLabel) alarmLabel.textContent = 'DEACTIVATE ALARM';
         localStorage.setItem(`sirenSource_${acesId}`, 'manual');
         // Sync siren state to other devices + backend
         if (typeof emitAlarmStateChanged === 'function') {
@@ -568,6 +583,7 @@ window.toggleManualAlarm = function() {
         addDeviceLog(logMsg, "info", true);
         if(alarmBtn) alarmBtn.classList.remove('is-active');
         if(alarmIconWrap) alarmIconWrap.innerHTML = ICONS.ALARM_OFF;
+        if(alarmLabel) alarmLabel.textContent = 'ACTIVATE ALARM';
         localStorage.setItem(`sirenSource_${acesId}`, 'manual');
         // Sync siren state to other devices + backend
         if (typeof emitAlarmStateChanged === 'function') {
@@ -696,9 +712,10 @@ function initAllInlineDevices() {
     if (isFire) initialAlertState = "FIRE";
     else if (device.temperature >= 42 && device.gas >= 600) initialAlertState = "FIRE";
     else if (device.temperature >= 42) initialAlertState = "HEAT";
-    else if (device.gas >= 600) initialAlertState = "GAS";
+    else if (device.gas >= 600) initialAlertState = "GAS_CRITICAL";
     else if (device.temperature >= 38) initialAlertState = "HEAT_WARNING";
     else if (device.gas >= 450) initialAlertState = "GAS_WARNING";
+    else if (device.gas >= 300) initialAlertState = "SMOKE_WARNING";
 
     const state = {
       lastAlertState: initialAlertState,
@@ -713,13 +730,16 @@ function initAllInlineDevices() {
     // Set initial alarm button state
     const alarmBtn = getInlineEl(device.acesId, 'manualAlarmBtn');
     const alarmIcon = getInlineEl(device.acesId, 'alarmBtnIcon');
+    const alarmLabel = getInlineEl(device.acesId, 'alarmBtnLabel');
     if (alarmBtn && alarmIcon) {
       if (state.manualAlarmActive) {
         alarmBtn.classList.add('is-active');
         alarmIcon.innerHTML = ICONS.ALARM_ON;
+        if (alarmLabel) alarmLabel.textContent = 'DEACTIVATE ALARM';
       } else {
         alarmBtn.classList.remove('is-active');
         alarmIcon.innerHTML = ICONS.ALARM_OFF;
+        if (alarmLabel) alarmLabel.textContent = 'ACTIVATE ALARM';
       }
     }
 
@@ -751,7 +771,7 @@ function updateInlineDetailUI(acesId) {
 
   const { temperature: temp, humidity: hum, gas, fire } = device;
 
-  banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning');
+  banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning', 'banner-gas-warning', 'banner-smoke-warning');
   [tempBox, gasBox].forEach(box => box && box.classList.remove('danger', 'warning'));
 
   const isFire = fire === true || fire === 1 || fire === "true";
@@ -770,7 +790,7 @@ function updateInlineDetailUI(acesId) {
     if (gasBox) gasBox.classList.add('danger');
   } else if (gas >= 600) {
     banner.classList.add('banner-danger');
-    bannerText.innerText = "SMOKE / GAS DETECTED";
+    bannerText.innerText = "CRITICAL GAS LEAK DETECTED";
     bannerIcon.innerHTML = ICONS.SMOKE;
     if (gasBox) gasBox.classList.add('danger');
   } else if (temp >= 42) {
@@ -778,14 +798,19 @@ function updateInlineDetailUI(acesId) {
     bannerText.innerText = "HIGH TEMPERATURE ALERT";
     bannerIcon.innerHTML = ICONS.HEAT;
     if (tempBox) tempBox.classList.add('danger');
+  } else if (gas >= 450) {
+    banner.classList.add('banner-gas-warning');
+    bannerText.innerText = "GAS LEAK WARNING";
+    bannerIcon.innerHTML = ICONS.SMOKE_WARN;
+    if (gasBox) gasBox.classList.add('warning');
   } else if (temp >= 38) {
     banner.classList.add('banner-warning');
     bannerText.innerText = "ELEVATED TEMPERATURE";
     bannerIcon.innerHTML = ICONS.HEAT_WARN;
     if (tempBox) tempBox.classList.add('warning');
-  } else if (gas >= 450) {
-    banner.classList.add('banner-warning');
-    bannerText.innerText = "ELEVATED GAS LEVEL";
+  } else if (gas >= 300) {
+    banner.classList.add('banner-smoke-warning');
+    bannerText.innerText = "SMOKE WARNING";
     bannerIcon.innerHTML = ICONS.SMOKE_WARN;
     if (gasBox) gasBox.classList.add('warning');
   } else {
@@ -808,6 +833,12 @@ function updateInlineDetailUI(acesId) {
     statusEl.textContent = device.online ? "ONLINE" : "OFFLINE";
     statusEl.className = `device-status ${device.online ? 'online' : 'offline'}`;
   }
+
+  // Push live data to trend chart (desktop bento view) — only when device is online
+  if (typeof window.pushTrendData === 'function' && device.online) {
+    window.pushTrendData(acesId, temp ?? 0, hum ?? 0, gas ?? 0);
+    window.drawTrendChart(acesId);
+  }
 }
 
 // Check events for inline device
@@ -821,21 +852,24 @@ function checkInlineEvents(acesId, temp, hum, gas, fire) {
   if (isFire) currentState = "FIRE";
   else if (temp >= 42 && gas >= 600) currentState = "FIRE";
   else if (temp >= 42) currentState = "HEAT";
-  else if (gas >= 600) currentState = "GAS";
+  else if (gas >= 600) currentState = "GAS_CRITICAL";
   else if (temp >= 38) currentState = "HEAT_WARNING";
   else if (gas >= 450) currentState = "GAS_WARNING";
+  else if (gas >= 300) currentState = "SMOKE_WARNING";
 
   if (currentState !== state.lastAlertState) {
     if (currentState === "FIRE") {
       addInlineDeviceLog(acesId, "Fire condition detected by flame sensor.", "danger");
     } else if (currentState === "HEAT") {
       addInlineDeviceLog(acesId, `Temperature threshold exceeded. Current value: ${temp.toFixed(1)}°C`, "danger");
-    } else if (currentState === "GAS") {
-      addInlineDeviceLog(acesId, `Gas concentration exceeded safe limit. Current value: ${gas} ppm`, "danger");
+    } else if (currentState === "GAS_CRITICAL") {
+      addInlineDeviceLog(acesId, `Critical gas leak detected. Current value: ${gas} ppm`, "danger");
     } else if (currentState === "HEAT_WARNING") {
       addInlineDeviceLog(acesId, `High temperature detected. Current value: ${temp.toFixed(1)}°C`, "warning");
     } else if (currentState === "GAS_WARNING") {
-      addInlineDeviceLog(acesId, `Elevated gas concentration detected. Current value: ${gas} ppm`, "warning");
+      addInlineDeviceLog(acesId, `Gas leak warning. Current value: ${gas} ppm`, "warning");
+    } else if (currentState === "SMOKE_WARNING") {
+      addInlineDeviceLog(acesId, `Smoke warning. Current value: ${gas} ppm`, "warning");
     } else if (currentState === "SAFE" && state.lastAlertState !== "SAFE") {
       addInlineDeviceLog(acesId, "System returned to normal parameters.", "info");
     }
@@ -845,7 +879,7 @@ function checkInlineEvents(acesId, temp, hum, gas, fire) {
 }
 
 // Add log entry for inline device
-function addInlineDeviceLog(acesId, message, type, postToBackend) {
+function addInlineDeviceLog(acesId, message, type, postToBackend, eventType) {
   if (typeof type === 'undefined') type = 'info';
   if (typeof postToBackend === 'undefined') postToBackend = false;
 
@@ -881,7 +915,7 @@ function addInlineDeviceLog(acesId, message, type, postToBackend) {
     const temp = (device.temperature != null) ? device.temperature : 0;
     const hum = (device.humidity != null) ? device.humidity : 0;
     const gasVal = (device.gas != null) ? device.gas : 0;
-    addToSystemEventLog(message, type, device.name, temp, hum, gasVal, postToBackend);
+    addToSystemEventLog(message, eventType || type, device.name, temp, hum, gasVal, postToBackend);
   }
 
   // Render log entry
@@ -1048,6 +1082,7 @@ function toggleInlineManualAlarm(acesId) {
   state.manualAlarmActive = !state.manualAlarmActive;
   const alarmBtn = getInlineEl(acesId, 'manualAlarmBtn');
   const alarmIcon = getInlineEl(acesId, 'alarmBtnIcon');
+  const alarmLabel = getInlineEl(acesId, 'alarmBtnLabel');
 
   const prevSource = localStorage.getItem(`sirenSource_${acesId}`) || 'manual';
   const isOverride = !state.manualAlarmActive && prevSource === 'auto';
@@ -1056,6 +1091,7 @@ function toggleInlineManualAlarm(acesId) {
     addInlineDeviceLog(acesId, "MANUAL OVERRIDE: Siren activated.", "danger", true);
     if (alarmBtn) alarmBtn.classList.add('is-active');
     if (alarmIcon) alarmIcon.innerHTML = ICONS.ALARM_ON;
+    if (alarmLabel) alarmLabel.textContent = 'DEACTIVATE ALARM';
     localStorage.setItem(`sirenSource_${acesId}`, 'manual');
     if (typeof emitAlarmStateChanged === 'function') {
       emitAlarmStateChanged(device.name, true, acesId, 'manual');
@@ -1067,6 +1103,7 @@ function toggleInlineManualAlarm(acesId) {
     addInlineDeviceLog(acesId, logMsg, "info", true);
     if (alarmBtn) alarmBtn.classList.remove('is-active');
     if (alarmIcon) alarmIcon.innerHTML = ICONS.ALARM_OFF;
+    if (alarmLabel) alarmLabel.textContent = 'ACTIVATE ALARM';
     localStorage.setItem(`sirenSource_${acesId}`, 'manual');
     if (typeof emitAlarmStateChanged === 'function') {
       emitAlarmStateChanged(device.name, false, acesId, 'manual');
