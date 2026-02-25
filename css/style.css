@@ -3289,6 +3289,308 @@ body {
 }
 
 /* ============================================================
+   MODAL V2 — Modern Redesign
+   ============================================================ */
+
+/* V2 styles override old modal-content when .modal-v2 is present */
+.modal-v2 {
+  background: var(--card-bg) !important;
+  border-radius: 16px !important;
+  padding: 28px 24px 20px !important;
+  max-width: 400px !important;
+  width: 92% !important;
+  text-align: center !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+  border: none !important;
+  gap: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+.modal-v2-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.modal-v2-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.modal-v2-icon.primary {
+  background: rgba(65, 195, 143, 0.12);
+  color: var(--primary-accent, #41c38f);
+}
+
+.modal-v2-icon.danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.modal-v2-title {
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif !important;
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
+  color: var(--text-primary) !important;
+  margin: 0 0 6px !important;
+  text-align: center !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  text-shadow: none !important;
+}
+
+.modal-v2-msg {
+  font-size: 0.82rem !important;
+  color: var(--text-secondary) !important;
+  margin: 0 0 20px !important;
+  line-height: 1.55 !important;
+  text-align: center !important;
+  opacity: 1 !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+}
+
+.modal-v2-msg strong {
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+}
+
+/* Preserve colored inline spans for siren/BFP messages */
+.modal-v2-msg .text-engage {
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+.modal-v2-msg .text-deactivate {
+  color: #41c38f !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+.modal-v2-input {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  border: 2px solid transparent !important;
+  border-radius: 12px !important;
+  background: var(--app-bg) !important;
+  color: var(--text-primary) !important;
+  font-size: 0.9rem !important;
+  font-family: inherit !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  outline: none !important;
+  margin: 0 0 16px !important;
+}
+
+.modal-v2-input:focus {
+  border-color: var(--primary-accent, #41c38f) !important;
+  box-shadow: 0 0 0 3px rgba(65, 195, 143, 0.15) !important;
+}
+
+.modal-v2-input::placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 0.6 !important;
+}
+
+.modal-v2-actions {
+  display: flex !important;
+  gap: 10px !important;
+  width: 100% !important;
+  justify-content: stretch !important;
+}
+
+.modal-v2-btn {
+  flex: 1 !important;
+  padding: 10px 16px !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, transform 0.1s ease !important;
+  box-shadow: none !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.modal-v2-btn:active {
+  transform: scale(0.97) !important;
+}
+
+.modal-v2-btn.cancel {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: var(--text-secondary) !important;
+}
+
+.modal-v2-btn.cancel:hover {
+  background: rgba(0, 0, 0, 0.10) !important;
+}
+
+.modal-v2-btn.confirm {
+  background: var(--primary-accent, #41c38f) !important;
+  color: #fff !important;
+}
+
+.modal-v2-btn.confirm:hover {
+  background: #36a87a !important;
+}
+
+.modal-v2-btn.danger {
+  background: #ef4444 !important;
+  color: #fff !important;
+}
+
+.modal-v2-btn.danger:hover {
+  background: #dc2626 !important;
+}
+
+/* Dark mode overrides for v2 modal */
+.dark-mode .modal-v2 {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.dark-mode .modal-v2-icon.primary {
+  background: rgba(65, 195, 143, 0.18) !important;
+  color: #5ddba8 !important;
+}
+
+.dark-mode .modal-v2-icon.danger {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #f87171 !important;
+}
+
+.dark-mode .modal-v2-title {
+  color: #f1f5f9 !important;
+}
+
+.dark-mode .modal-v2-msg {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .modal-v2-msg strong {
+  color: #e2e8f0 !important;
+}
+
+.dark-mode .modal-v2-msg .text-engage {
+  color: #f87171 !important;
+}
+
+.dark-mode .modal-v2-msg .text-deactivate {
+  color: #5ddba8 !important;
+}
+
+.dark-mode .modal-v2-msg .text-change {
+  color: #60a5fa !important;
+}
+
+.dark-mode .modal-v2-input {
+  background: var(--app-bg) !important;
+  border: 2px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f1f5f9 !important;
+}
+
+.dark-mode .modal-v2-input:focus {
+  border-color: #5ddba8 !important;
+  box-shadow: 0 0 0 3px rgba(93, 219, 168, 0.15) !important;
+}
+
+.dark-mode .modal-v2-input::placeholder {
+  color: #64748b !important;
+}
+
+.dark-mode .modal-v2-btn.cancel {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #94a3b8 !important;
+}
+
+.dark-mode .modal-v2-btn.cancel:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .modal-v2-btn.confirm {
+  background: #34d399 !important;
+  color: #022c22 !important;
+}
+
+.dark-mode .modal-v2-btn.confirm:hover {
+  background: #2dc08a !important;
+}
+
+.dark-mode .modal-v2-btn.danger {
+  background: #f87171 !important;
+  color: #1c0606 !important;
+}
+
+.dark-mode .modal-v2-btn.danger:hover {
+  background: #ef4444 !important;
+}
+
+.dark-mode .modal-v2 .input-group input {
+  border: 2px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.dark-mode .modal-v2 .input-group input:focus {
+  border-color: #5ddba8 !important;
+  box-shadow: 0 0 0 3px rgba(93, 219, 168, 0.15) !important;
+}
+
+/* Hardware status indicator inside v2 modal */
+.modal-v2 .hardware-status {
+  margin-bottom: 12px;
+}
+
+/* Discovery container inside v2 modal */
+.modal-v2 .discovery-container {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+/* Input group inside v2 modal */
+.modal-v2 .input-group {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.modal-v2 .input-group input {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  border: 2px solid transparent !important;
+  border-radius: 12px !important;
+  background: var(--app-bg) !important;
+  color: var(--text-primary) !important;
+  font-size: 0.9rem !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+  outline: none !important;
+  margin: 0 !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.modal-v2 .input-group input:focus {
+  border-color: var(--primary-accent, #41c38f) !important;
+  box-shadow: 0 0 0 3px rgba(65, 195, 143, 0.15) !important;
+}
+
+.modal-v2 .input-group input::placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 0.6 !important;
+}
+
+/* ============================================================
    SIDE NAVIGATION BAR (Desktop/Tablet >= 768px)
    ============================================================ */
 
@@ -3589,6 +3891,7 @@ body {
     cursor: pointer;
     border: none;
     background: none;
+    position: relative;
   }
 
   .side-nav-link svg {
@@ -5181,6 +5484,7 @@ body {
     box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.06), -4px -4px 8px rgba(255, 255, 255, 0.8);
     box-sizing: border-box;
     flex-wrap: wrap;
+    transition: padding 0.3s ease;
 }
 
 .toolbar-filters {
@@ -5789,6 +6093,38 @@ body {
     }
 }
 
+/* Tablet / narrow desktop with side nav (769px – 1340px) — stack toolbar to prevent overflow */
+@media (min-width: 769px) and (max-width: 1340px) {
+    .logs-sticky-header .logs-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+
+    .logs-sticky-header .toolbar-filters {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .logs-sticky-header .toolbar-actions {
+        margin-left: 0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .logs-sticky-header .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .logs-sticky-header .filter-select {
+        flex: 1;
+    }
+}
+
 /* ============================================================
    REPORT GENERATION STYLES
    ============================================================ */
@@ -6101,3 +6437,802 @@ body {
   }
 }
 
+/* ============================================================
+   SETTINGS PAGE STYLES
+   ============================================================ */
+
+.settings-page {
+  padding: 20px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Setup Required Banner */
+.settings-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.settings-banner svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.settings-banner strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.settings-banner p {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.settings-banner-warning {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: #b45309;
+}
+
+.dark-mode .settings-banner-warning {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+/* Section Layout — unified card container */
+.settings-section {
+  margin-bottom: 20px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.06), -4px -4px 8px rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+}
+
+.dark-mode .settings-section {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.settings-section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 20px 14px;
+  margin: 0;
+}
+
+.settings-section-header[data-collapsible] {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.2s ease;
+}
+
+.settings-section-header[data-collapsible]:hover {
+  background: rgba(65, 195, 143, 0.04);
+}
+
+.dark-mode .settings-section-header[data-collapsible]:hover {
+  background: rgba(65, 195, 143, 0.06);
+}
+
+.settings-section-header[data-collapsible]:active {
+  background: rgba(65, 195, 143, 0.08);
+}
+
+.settings-section-header > svg:first-child {
+  width: 22px;
+  height: 22px;
+  color: var(--primary-accent, #41c38f);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.settings-chevron {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  margin-left: auto;
+  color: var(--text-secondary);
+  background: rgba(0,0,0,0.04);
+  border-radius: 50%;
+  padding: 3px;
+  transition: transform 0.25s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.dark-mode .settings-chevron {
+  background: rgba(255,255,255,0.06);
+}
+
+.settings-section-header[data-collapsible]:hover .settings-chevron {
+  color: var(--primary-accent, #41c38f);
+  background: rgba(65, 195, 143, 0.12);
+}
+
+.settings-section-header.expanded .settings-chevron {
+  transform: rotate(180deg);
+}
+
+.settings-section-title {
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.settings-section-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.25s ease, margin 0.3s ease;
+}
+
+.settings-section-header.expanded .settings-section-subtitle {
+  max-height: 120px;
+  opacity: 1;
+  margin-top: 4px;
+}
+
+/* Card — now nested inside the section container */
+.settings-card {
+  background: none;
+  border-radius: 0;
+  padding: 4px 20px 20px;
+  box-shadow: none;
+}
+
+.dark-mode .settings-card {
+  box-shadow: none;
+}
+
+/* Fields */
+.settings-field {
+  margin-bottom: 20px;
+}
+
+.settings-field:last-of-type {
+  margin-bottom: 24px;
+}
+
+.settings-label {
+  display: block;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.settings-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: var(--app-bg);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+.settings-input:focus {
+  border-color: var(--primary-accent, #41c38f);
+  box-shadow: 0 0 0 3px rgba(65, 195, 143, 0.15);
+}
+
+.settings-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.settings-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+.settings-hint {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.settings-hint-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+.settings-hint-row .settings-hint {
+  margin-top: 0;
+}
+
+.settings-char-count {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.settings-char-count.char-count-warn {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+/* SMS char badge */
+.sms-char-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+.sms-char-badge.ok {
+  background: rgba(65, 195, 143, 0.15);
+  color: #2ecc71;
+}
+.sms-char-badge.warn {
+  background: rgba(241, 196, 15, 0.15);
+  color: #f39c12;
+}
+.sms-char-badge.over {
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+}
+
+/* Actions */
+.settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.settings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.settings-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.settings-btn-primary {
+  background: var(--primary-accent, #41c38f);
+  color: #fff;
+}
+
+.settings-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.settings-btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.settings-save-status {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.settings-save-status.status-success {
+  color: #22c55e;
+}
+
+.settings-save-status.status-error {
+  color: #ef4444;
+}
+
+/* SMS Preview */
+.sms-preview-card {
+  background: none;
+}
+
+.dark-mode .sms-preview-card {
+  border-color: transparent;
+}
+
+.sms-preview-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.dark-mode .sms-preview-label {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.sms-preview-label svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+.sms-preview-body {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.82rem;
+  line-height: 1.8;
+  color: var(--text-primary);
+  background: var(--app-bg);
+  border: 1.5px dashed rgba(0, 0, 0, 0.10);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+
+.dark-mode .sms-preview-body {
+  background: rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.sms-preview-placeholder {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-family: inherit;
+}
+
+.sms-line {
+  margin-bottom: 2px;
+}
+
+.sms-label {
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  margin-top: 2px;
+}
+
+.sms-msg {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.sms-divider {
+  border-top: 1px dashed rgba(0, 0, 0, 0.10);
+  margin: 14px 0;
+}
+
+.dark-mode .sms-divider {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.sms-alert {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.sms-urgent {
+  margin-top: 8px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+/* Appearance — Toggle Switch */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.settings-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-row-label {
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.settings-row-desc {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+/* Theme icon toggle button */
+.settings-theme-icon-btn {
+  background: none;
+  border: 2px solid var(--border-color, rgba(0,0,0,0.08));
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--text-primary);
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+.settings-theme-icon-btn:hover {
+  background: rgba(0,0,0,0.05);
+  border-color: var(--primary-accent, #41c38f);
+}
+.dark-mode .settings-theme-icon-btn:hover {
+  background: rgba(255,255,255,0.08);
+}
+.settings-theme-icon-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .settings-page {
+    padding: 15px;
+  }
+
+  .settings-section {
+    border-radius: 14px;
+  }
+
+  .settings-section-header {
+    padding: 14px 16px;
+  }
+
+  .settings-card {
+    padding: 0 16px 16px;
+  }
+
+  .settings-section-header > svg:first-child {
+    width: 20px;
+    height: 20px;
+  }
+
+  .settings-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ---- Alert Contacts Inline Section ---- */
+.settings-contacts-add {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  align-items: flex-start;
+}
+
+.settings-contacts-add .settings-input {
+  flex: 1;
+  margin: 0;
+}
+
+.settings-contacts-add .settings-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Override old modal neumorphic styles when button is in settings */
+.settings-contacts-add #addNumberBtn {
+  background: var(--primary-accent, #41c38f);
+  color: #fff;
+  box-shadow: none;
+  flex: unset;
+}
+
+.settings-contacts-empty {
+  list-style: none;
+  padding: 1.2rem;
+  text-align: center;
+  color: var(--text-secondary, #888);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* numbersList inside settings card */
+.settings-card #numbersList {
+  margin: 0;
+  max-height: none;
+}
+
+@media (max-width: 480px) {
+  .settings-contacts-add {
+    flex-direction: column;
+  }
+
+  .settings-contacts-add .settings-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ================================================
+   Settings Confirmation Dialog
+   ================================================ */
+.settings-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  padding: 20px;
+}
+
+.settings-confirm-overlay.visible {
+  opacity: 1;
+}
+
+.settings-confirm-dialog {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 28px 24px 20px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  transform: scale(0.92) translateY(10px);
+  transition: transform 0.2s ease;
+}
+
+.settings-confirm-overlay.visible .settings-confirm-dialog {
+  transform: scale(1) translateY(0);
+}
+
+.settings-confirm-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.settings-confirm-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.settings-confirm-icon.primary {
+  background: rgba(65, 195, 143, 0.12);
+  color: var(--primary-accent, #41c38f);
+}
+
+.settings-confirm-icon.danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.settings-confirm-title {
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+}
+
+.settings-confirm-msg {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 0 0 20px;
+  line-height: 1.55;
+}
+
+.settings-confirm-msg strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.settings-confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.settings-confirm-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.settings-confirm-btn:active {
+  transform: scale(0.97);
+}
+
+.settings-confirm-btn.cancel {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-secondary);
+}
+
+.settings-confirm-btn.cancel:hover {
+  background: rgba(0, 0, 0, 0.10);
+}
+
+.settings-confirm-btn.confirm {
+  background: var(--primary-accent, #41c38f);
+  color: #fff;
+}
+
+.settings-confirm-btn.confirm:hover {
+  background: #36a87a;
+}
+
+.settings-confirm-btn.danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.settings-confirm-btn.danger:hover {
+  background: #dc2626;
+}
+
+/* Dark mode overrides */
+.dark-mode .settings-confirm-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .settings-confirm-dialog {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dark-mode .settings-confirm-icon.primary {
+  background: rgba(65, 195, 143, 0.18);
+  color: #5ddba8;
+}
+
+.dark-mode .settings-confirm-icon.danger {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+}
+
+.dark-mode .settings-confirm-title {
+  color: #f1f5f9;
+}
+
+.dark-mode .settings-confirm-msg {
+  color: #94a3b8;
+}
+
+.dark-mode .settings-confirm-msg strong {
+  color: #e2e8f0;
+}
+
+.dark-mode .settings-confirm-btn.cancel {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
+.dark-mode .settings-confirm-btn.cancel:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #cbd5e1;
+}
+
+.dark-mode .settings-confirm-btn.confirm {
+  background: #34d399;
+  color: #022c22;
+}
+
+.dark-mode .settings-confirm-btn.confirm:hover {
+  background: #2dc08a;
+}
+
+.dark-mode .settings-confirm-btn.danger {
+  background: #f87171;
+  color: #1c0606;
+}
+
+.dark-mode .settings-confirm-btn.danger:hover {
+  background: #ef4444;
+}
+
+/* ============================================================
+   SETTINGS NAV ALERT DOT
+   ============================================================ */
+.settings-alert-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  min-height: 10px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 2px solid var(--bg-primary, #ffffff);
+  box-sizing: border-box;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  animation: settings-dot-pulse 2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes settings-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+}
+
+/* Bottom nav: position dot on top-right of the icon */
+.bottom-nav-item .settings-alert-dot {
+  top: 4px;
+  right: calc(50% - 18px);
+}
+
+/* Side nav expanded: position dot at top-right of "Settings" text */
+.side-nav-link .settings-alert-dot {
+  top: 2px;
+  left: auto;
+  right: -2px;
+}
+
+/* Side nav collapsed: top-right of icon */
+.side-nav.collapsed .side-nav-link .settings-alert-dot {
+  top: 2px;
+  left: auto;
+  right: 2px;
+}
+
+/* Dark mode: adjust border color */
+.dark-mode .settings-alert-dot {
+  border-color: var(--bg-primary, #1a1a1a);
+}

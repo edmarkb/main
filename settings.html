@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings | ACES IoT</title>
+  <script>
+    if (localStorage.getItem('acesTheme') === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+<script>
+  if (localStorage.getItem('acesTheme') === 'dark') {
+    document.body.classList.add('dark-mode');
+  }
+</script>
+
+<!-- Side Navigation (Desktop/Tablet) -->
+<aside class="side-nav collapsed" id="sideNav">
+  <div class="side-nav-header">
+    <img src="assets/icons/aceslogo2.svg" alt="ACES Logo" class="side-nav-logo">
+    <div class="side-nav-title">ACES IOT<br><span class="side-nav-subtitle">DASHBOARD</span></div>
+    <button class="side-nav-toggle" id="sideNavToggle" title="Expand" data-tooltip="Expand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+  </div>
+
+  <nav class="side-nav-links">
+    <a href="index.html" class="side-nav-link" data-tooltip="Dashboard">
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520ZM120-120v-240h320v240H120Z"/></svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="logs.html" class="side-nav-link" data-tooltip="Logs">
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
+      <span>Logs</span>
+    </a>
+    <a href="settings.html" class="side-nav-link active" data-tooltip="Settings">
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>
+      <span>Settings</span>
+      <span class="settings-alert-dot" style="display:none;"></span>
+    </a>
+  </nav>
+
+</aside>
+
+<script>
+// Side nav collapse toggle
+(function() {
+  const sideNav = document.getElementById('sideNav');
+  const toggleBtn = document.getElementById('sideNavToggle');
+  if (!sideNav || !toggleBtn) return;
+  sideNav.style.transition = 'none';
+  document.body.style.transition = 'none';
+  const saved = localStorage.getItem('sideNavCollapsed');
+  const isCollapsed = saved === null ? true : saved === 'true';
+  if (isCollapsed) { sideNav.classList.add('collapsed'); document.body.classList.add('side-nav-collapsed'); toggleBtn.setAttribute('data-tooltip','Expand'); toggleBtn.title='Expand'; }
+  else { sideNav.classList.remove('collapsed'); document.body.classList.remove('side-nav-collapsed'); toggleBtn.setAttribute('data-tooltip','Collapse'); toggleBtn.title='Collapse'; }
+  requestAnimationFrame(function() { requestAnimationFrame(function() { sideNav.style.transition = ''; document.body.style.transition = ''; }); });
+  toggleBtn.addEventListener('click', () => {
+    const willCollapse = !sideNav.classList.contains('collapsed');
+    sideNav.classList.toggle('collapsed', willCollapse);
+    document.body.classList.toggle('side-nav-collapsed', willCollapse);
+    localStorage.setItem('sideNavCollapsed', willCollapse);
+    toggleBtn.setAttribute('data-tooltip', willCollapse ? 'Expand' : 'Collapse');
+    toggleBtn.title = willCollapse ? 'Expand' : 'Collapse';
+  });
+})();
+
+// Sidebar collapsed tooltip
+(function() {
+  let tip = null;
+  function show(el) {
+    const sideNav = document.getElementById('sideNav');
+    if (!sideNav || !sideNav.classList.contains('collapsed')) return;
+    const text = el.getAttribute('data-tooltip');
+    if (!text) return;
+    if (!tip) { tip = document.createElement('div'); tip.className = 'side-nav-tooltip'; document.body.appendChild(tip); }
+    tip.textContent = text;
+    const rect = el.getBoundingClientRect();
+    tip.style.left = (rect.right + 10) + 'px';
+    tip.style.top = (rect.top + rect.height / 2) + 'px';
+    tip.style.transform = 'translateY(-50%)';
+    tip.classList.add('visible');
+  }
+  function hide() { if (tip) tip.classList.remove('visible'); }
+  document.addEventListener('mouseover', function(e) {
+    const el = e.target.closest('[data-tooltip]');
+    if (el && el.closest('.side-nav')) show(el); else hide();
+  });
+  document.addEventListener('mouseout', function(e) {
+    const el = e.target.closest('[data-tooltip]');
+    if (el && el.closest('.side-nav')) hide();
+  });
+})();
+</script>
+
+<header class="neo-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <img src="assets/icons/aceslogo2.svg" alt="ACES Logo" class="header-logo">
+      <div class="header-title-group">
+        <a href="index.html" style="text-decoration: none; color: inherit;">
+          <h1>ACES IOT<span class="desktop-title-part"> DASHBOARD</span></h1>
+        </a>
+        <span class="mobile-subtitle">DASHBOARD</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="settings-page">
+  <!-- Setup Required Banner (hidden when configured) -->
+  <div class="settings-banner settings-banner-warning" id="setupBanner" style="display: none;">
+    <svg viewBox="0 -960 960 960" fill="currentColor" width="24" height="24"><path d="m40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm302-40q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm-40-120h80v-200h-80v200Zm40-100Z"/></svg>
+    <div>
+      <strong>Setup Required</strong>
+      <p>System address has not been configured. Please complete the fields below to enable emergency SMS alerts and BFP dispatch.</p>
+    </div>
+  </div>
+
+  <!-- System Configuration Section -->
+  <section class="settings-section">
+    <div class="settings-section-header" data-collapsible>
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-472Z"/></svg>
+      <div>
+        <h2 class="settings-section-title">System Configuration</h2>
+        <p class="settings-section-subtitle">Set the installation address and BFP contact number. Both are required for emergency SMS dispatch. <strong>Keep the address short</strong> — ACES supports max 160 characters per SMS.</p>
+      </div>
+      <svg class="settings-chevron" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-field">
+        <label for="fullAddress" class="settings-label">Full Address</label>
+        <textarea id="fullAddress" class="settings-input settings-textarea" placeholder="e.g., PUP Sta. Maria Campus, Bulacan" maxlength="60" rows="3"></textarea>
+        <div class="settings-hint-row" style="justify-content:flex-end">
+          <span class="settings-char-count" id="addrCharCount">0 / 60</span>
+        </div>
+      </div>
+
+      <div class="settings-field" style="margin-top: 6px;">
+        <label for="bfpNumber" class="settings-label">BFP Contact Number</label>
+        <input type="tel" id="bfpNumber" class="settings-input" placeholder="e.g., 09171234567" maxlength="11">
+        <div class="settings-hint-row" style="justify-content:space-between">
+          <span class="settings-hint">Local fire station number for BFP dispatch alerts.</span>
+          <span class="settings-char-count" id="bfpCharCount">0 / 11</span>
+        </div>
+      </div>
+
+      <div class="settings-actions">
+        <button id="saveConfigBtn" class="settings-btn settings-btn-primary" disabled>
+          <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v446-560 114Z"/></svg>
+          Save Configuration
+        </button>
+        <span id="saveStatus" class="settings-save-status"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SMS Preview Section -->
+  <section class="settings-section">
+    <div class="settings-section-header" data-collapsible>
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280L160-640v400h640v-400L480-440Zm0-80 320-200H160l320 200ZM160-640v-80 480-400Z"/></svg>
+      <div>
+        <h2 class="settings-section-title">SMS Preview</h2>
+        <p class="settings-section-subtitle">Preview how emergency SMS alerts will appear when sent to Alert Contacts and BFP.</p>
+      </div>
+      <svg class="settings-chevron" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>
+    </div>
+
+    <div class="settings-card sms-preview-card">
+      <div class="sms-preview-label">
+        <svg viewBox="0 -960 960 960" fill="currentColor" width="16" height="16"><path d="M798-120q-125 0-247-54.5T329-329Q229-429 174.5-551T120-798q0-18 12-30t30-12h162q14 0 25 9.5t13 22.5l26 140q2 16-1 27t-11 19l-97 98q20 37 47.5 71.5T387-387q31 31 65 57.5t72 48.5l94-94q9-9 23.5-13.5T670-393l138 28q14 4 23 14.5t9 23.5v162q0 18-12 30t-30 12ZM241-600l66-66-17-94h-89q5 41 14 81t26 79Zm358 358q39 17 79.5 27t81.5 13v-88l-94-19-67 67ZM241-600Zm358 358Z"/></svg>
+        SAMPLE ALERT MESSAGE
+      </div>
+      <div class="sms-preview-body" id="smsPreview">
+        <span class="sms-preview-placeholder">Enter an address above to see a preview.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alert Contacts Section -->
+  <section class="settings-section">
+    <div class="settings-section-header" data-collapsible>
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M200-246q54-53 125.5-83.5T480-360q83 0 154.5 30.5T760-246v-514H200v514Zm280-194q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm69-80h422q-44-39-99.5-59.5T480-280q-56 0-112.5 20.5T269-200Zm211-320q-25 0-42.5-17.5T420-580q0-25 17.5-42.5T480-640q25 0 42.5 17.5T540-580q0 25-17.5 42.5T480-520Zm0 17Z"/></svg>
+      <div>
+        <h2 class="settings-section-title">Alert Contacts</h2>
+        <p class="settings-section-subtitle">Phone numbers that receive emergency SMS alerts when fire is detected. Maximum 5 contacts.</p>
+      </div>
+      <svg class="settings-chevron" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>
+    </div>
+
+    <div class="settings-card">
+      <ul id="numbersList"></ul>
+      <div class="settings-contacts-add">
+        <input type="tel" id="newNumber" class="settings-input" placeholder="Enter 11-digit phone number" maxlength="11">
+        <button id="addNumberBtn" class="settings-btn settings-btn-primary">
+          <svg viewBox="0 -960 960 960" fill="currentColor" width="18" height="18"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+          Add Contact
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Appearance Section -->
+  <section class="settings-section">
+    <div class="settings-section-header" data-collapsible>
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-28 346-160H160v-186L28-480l132-134v-186h186l134-132 134 132h186v186l132 134-132 134v186H614L480-28Zm0-112 100-100h140v-140l100-100-100-100v-140H580L480-820 380-720H240v140L140-480l100 100v140h140l100 100Zm0-100q42 0 71-29t29-71q0-42-29-71t-71-29q-42 0-71 29t-29 71q0 42 29 71t71 29Zm0-60q-17 0-28.5-11.5T440-340q0-17 11.5-28.5T480-380q17 0 28.5 11.5T520-340q0 17-11.5 28.5T480-300Zm0-140Z"/></svg>
+      <div>
+        <h2 class="settings-section-title">Appearance</h2>
+        <p class="settings-section-subtitle">Customize the look and feel of the dashboard.</p>
+      </div>
+      <svg class="settings-chevron" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <span class="settings-row-label">Dark Mode</span>
+          <span class="settings-row-desc">Switch between light and dark theme.</span>
+        </div>
+        <button class="settings-theme-icon-btn" id="settingsThemeToggle">
+          <span id="settingsThemeIcon"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="bottom-nav" id="bottomNav">
+  <a href="index.html" class="bottom-nav-item">
+    <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520ZM120-120v-240h320v240H120Z"/></svg>
+    <span>Dashboard</span>
+  </a>
+  <a href="logs.html" class="bottom-nav-item">
+    <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
+    <span>Logs</span>
+  </a>
+  <a href="settings.html" class="bottom-nav-item active">
+    <svg viewBox="0 -960 960 960" fill="currentColor"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>
+    <span>Settings</span>
+    <span class="settings-alert-dot" style="display:none;"></span>
+  </a>
+</nav>
+
+  <script src="js/config.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/report.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/websocket-client.js"></script>
+</body>
+</html>

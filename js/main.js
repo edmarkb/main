@@ -146,7 +146,6 @@ function addNewDevice(acesId, name, url = "") {
 // 1. ADDED: Define the devices list (Pull from storage or start empty)
 
 const deviceGrid = document.getElementById("deviceGrid");
-let alertNumbers = JSON.parse(localStorage.getItem("alertNumbers")) || [];
 let currentEditingName = null;
 let deviceToDelete = null;
 
@@ -1494,125 +1493,6 @@ if (cancelDeleteBtn) {
   cancelDeleteBtn.onclick = () => { deleteModal.style.display = "none"; };
 }
 
-// ---------------- ALERT NUMBERS LOGIC ----------------
-const numModal = document.getElementById("numbersModal");
-const numbersList = document.getElementById("numbersList");
-const addNumberBtn = document.getElementById("addNumberBtn");
-const newNumberInput = document.getElementById("newNumber");
-const saveNumbersBtn = document.getElementById("saveNumbersBtn");
-
-// FIXED: Check for button existence to prevent crash
-const manageBtn = document.getElementById("manageNumbersBtn");
-if (manageBtn) {
-    manageBtn.onclick = () => { 
-      numModal.style.display = "flex"; 
-      // iOS fix: prevent background scroll when modal is open
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.width = "100%";
-      renderNumbers(); 
-    }
-}
-
-// Added for Drawer link
-function setBottomNavActive(selector) {
-  document.querySelectorAll('.bottom-nav-item').forEach(item => item.classList.remove('active'));
-  if (selector) {
-    const target = document.querySelector(selector);
-    if (target) target.classList.add('active');
-  }
-}
-
-function restoreBottomNavActive() {
-  document.querySelectorAll('.bottom-nav-item').forEach(item => item.classList.remove('active'));
-  // Restore active to the current page's nav item
-  const path = window.location.pathname;
-  document.querySelectorAll('.bottom-nav-item[href]').forEach(item => {
-    const href = item.getAttribute('href');
-    if (path.endsWith('device.html') && href === 'index.html') item.classList.add('active');
-    else if ((path.endsWith('index.html') || path === '/' || path.endsWith('/')) && href === 'index.html') item.classList.add('active');
-    else if (path.endsWith('logs.html') && href === 'logs.html') item.classList.add('active');
-  });
-}
-
-window.openAlertSettings = function() {
-  const modal = document.getElementById("numbersModal");
-  if (modal) {
-    modal.style.display = "flex";
-    // iOS fix: prevent background scroll when modal is open
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
-    // Highlight Alerts in bottom nav
-    setBottomNavActive('.bottom-nav-item[onclick*="openAlertSettings"]');
-    renderNumbers();
-  }
-};
-
-if (saveNumbersBtn) {
-  saveNumbersBtn.onclick = () => { 
-    numModal.style.display = "none"; 
-    // Restore body scroll
-    document.documentElement.style.overflow = "";
-    document.body.style.overflow = "";
-    document.body.style.position = "";
-    document.body.style.width = "";
-    // Restore original active nav item
-    restoreBottomNavActive();
-  };
-}
-
-function renderNumbers() {
-  numbersList.innerHTML = "";
-  alertNumbers.forEach((num, idx) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <span class="number-display">${num}</span>
-      <button class="delete-btn-modal" onclick="removeNumber(${idx})">Delete</button>
-    `;
-    numbersList.appendChild(li);
-  });
-}
-
-window.removeNumber = function(idx) {
-  alertNumbers.splice(idx, 1);
-  localStorage.setItem("alertNumbers", JSON.stringify(alertNumbers));
-  renderNumbers();
-  
-  // Sync to other devices
-  if (typeof emitAlertContactsChanged === 'function') {
-    emitAlertContactsChanged(alertNumbers);
-  }
-};
-
-if (addNumberBtn) {
-  addNumberBtn.onclick = () => {
-    let val = newNumberInput.value.replace(/\D/g, '');
-    if (val.length !== 11) return showToast("Please enter a valid 11-digit phone number", "error");
-    if (alertNumbers.includes(val)) return showToast("Number already exists", "warning");
-    if (alertNumbers.length >= 5) return showToast("Max 5 numbers allowed", "warning");
-
-    alertNumbers.push(val);
-    localStorage.setItem("alertNumbers", JSON.stringify(alertNumbers));
-    newNumberInput.value = "";
-    renderNumbers();
-    showToast("Number added successfully", "success");
-    
-    // Sync to other devices
-    if (typeof emitAlertContactsChanged === 'function') {
-      emitAlertContactsChanged(alertNumbers);
-    }
-  };
-}
-
-if (newNumberInput) {
-  newNumberInput.addEventListener('input', (e) => {
-    e.target.value = e.target.value.replace(/\D/g, '').substring(0, 11);
-  });
-}
-
 // Sensor data & device status now received via WebSocket events
 // No polling loop needed - updates happen in real-time
 
@@ -1626,93 +1506,20 @@ function toggleDrawer() {
 }
 
 // ---------------- THEME ----------------
-const darkModeBtn = document.getElementById("darkModeToggle");
-const themeIcon = document.getElementById("themeIcon");
-const sunSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M440-760v-160h80v160h-80Zm266 110-55-55 112-115 56 57-113 113Zm54 210v-80h160v80H760ZM440-40v-160h80v160h-80ZM254-652 140-763l57-56 113 113-56 54Zm508 512L651-255l54-54 114 110-57 59ZM40-440v-80h160v80H40Zm157 300-56-57 112-112 29 27 29 28-114 114Zm283-100q-100 0-170-70t-70-170q0-100 70-170t170-70q100 0 170 70t70 170q0 100-70 170t-170 70Z"/></svg>`;
-const moonSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M483-80q-84 0-157.5-32t-128-86.5Q143-253 111-326.5T79-484q0-146 93-257.5T409-880q-18 99 11 193.5T520-521q71 71 165.5 100T879-410q-26 144-138 237T483-80Z"/></svg>`;
-
-// 1. Initial Load Check: Apply saved theme from LocalStorage
+// Apply saved theme from LocalStorage
 function applySavedTheme() {
     const savedTheme = localStorage.getItem("acesTheme");
     const isDark = savedTheme === "dark";
     
     if (isDark) {
         document.documentElement.classList.add("dark-mode");
+        document.body.classList.add("dark-mode");
     } else {
         document.documentElement.classList.remove("dark-mode");
-    }
-    
-    // Update the header icon to match the theme
-    if (themeIcon) {
-        themeIcon.innerHTML = isDark ? moonSVG : sunSVG;
-    }
-    // Update the bottom nav icon and label
-    const bottomNavIcon = document.getElementById("bottomNavThemeIcon");
-    if (bottomNavIcon) {
-        bottomNavIcon.innerHTML = isDark ? moonSVG : sunSVG;
-    }
-    const bottomNavLabel = document.getElementById("bottomNavThemeLabel");
-    if (bottomNavLabel) {
-        bottomNavLabel.textContent = isDark ? "Dark" : "Light";
-    }
-    // Update side nav theme icon and label
-    const sideNavIcon = document.getElementById("sideNavThemeIcon");
-    if (sideNavIcon) {
-        sideNavIcon.innerHTML = isDark ? moonSVG : sunSVG;
-    }
-    const sideNavLabel = document.getElementById("sideNavThemeLabel");
-    if (sideNavLabel) {
-        sideNavLabel.textContent = isDark ? "Dark Mode" : "Light Mode";
+        document.body.classList.remove("dark-mode");
     }
 }
 
-// Shared toggle function for both header and bottom nav
-function toggleTheme() {
-    const isDark = document.documentElement.classList.toggle("dark-mode");
-    localStorage.setItem("acesTheme", isDark ? "dark" : "light");
-    
-    // Update header icon
-    if (themeIcon) {
-        themeIcon.innerHTML = isDark ? moonSVG : sunSVG;
-    }
-    // Update bottom nav icon and label
-    const bottomNavIcon = document.getElementById("bottomNavThemeIcon");
-    if (bottomNavIcon) {
-        bottomNavIcon.innerHTML = isDark ? moonSVG : sunSVG;
-    }
-    const bottomNavLabel = document.getElementById("bottomNavThemeLabel");
-    if (bottomNavLabel) {
-        bottomNavLabel.textContent = isDark ? "Dark" : "Light";
-    }
-    // Update side nav theme icon and label
-    const sideNavIcon = document.getElementById("sideNavThemeIcon");
-    if (sideNavIcon) {
-        sideNavIcon.innerHTML = isDark ? moonSVG : sunSVG;
-    }
-    const sideNavLabel = document.getElementById("sideNavThemeLabel");
-    if (sideNavLabel) {
-        sideNavLabel.textContent = isDark ? "Dark Mode" : "Light Mode";
-    }
-}
-
-// 2. Click Logic: Header toggle
-if (darkModeBtn) {
-    darkModeBtn.onclick = toggleTheme;
-}
-
-// 3. Click Logic: Bottom nav toggle
-const bottomNavThemeBtn = document.getElementById("bottomNavThemeToggle");
-if (bottomNavThemeBtn) {
-    bottomNavThemeBtn.onclick = toggleTheme;
-}
-
-// 4. Click Logic: Side nav toggle
-const sideNavThemeBtn = document.getElementById("sideNavThemeToggle");
-if (sideNavThemeBtn) {
-    sideNavThemeBtn.onclick = toggleTheme;
-}
-
-// 3. Trigger initial check
 applySavedTheme();
 
 // Backend handles all event logging automatically (24/7)

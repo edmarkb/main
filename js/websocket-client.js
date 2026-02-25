@@ -566,6 +566,7 @@ function initWebSocket() {
     } else {
       showToast('BFP contact number cleared', 'info');
     }
+    updateSettingsIndicator();
   });
 
   // Receive authoritative BFP number from server on connect
@@ -576,6 +577,7 @@ function initWebSocket() {
     if (typeof updateBFPNumberFromSync === 'function') {
       updateBFPNumberFromSync(num);
     }
+    updateSettingsIndicator();
   });
 
   // BFP dispatch notification for all devices
@@ -603,6 +605,7 @@ function initWebSocket() {
     }
     
     showToast('Alert contacts updated', 'info');
+    updateSettingsIndicator();
   });
 
   // Receive authoritative alert contacts from server on connect/reconnect
@@ -625,6 +628,7 @@ function initWebSocket() {
         renderNumbers();
       }
     }
+    updateSettingsIndicator();
   });
 
   // ============================================================
@@ -1048,6 +1052,51 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============================================================
+// SETTINGS NAV INDICATOR — Shows dot when setup incomplete
+// Runs on ALL pages (this file loads globally)
+// ============================================================
+function updateSettingsIndicator() {
+  // Check BFP number
+  const hasBfp = !!(localStorage.getItem('globalBFPContactNumber') || '').trim();
+  
+  // Check alert contacts
+  let hasContacts = false;
+  try {
+    const contacts = JSON.parse(localStorage.getItem('alertNumbers') || '[]');
+    hasContacts = Array.isArray(contacts) && contacts.length > 0;
+  } catch (e) { hasContacts = false; }
+  
+  // Check address (async — fetch from API)
+  if (typeof API_CONFIG !== 'undefined' && API_CONFIG.ENABLE_API) {
+    fetch(getApiUrl('/api/system-config'))
+      .then(r => r.ok ? r.json() : { success: false })
+      .then(data => {
+        const hasAddress = !!(data.success && data.configured && data.config && data.config.fullAddress);
+        const complete = hasAddress && hasBfp && hasContacts;
+        toggleSettingsDots(!complete);
+      })
+      .catch(() => {
+        // If API fails, assume address not set
+        toggleSettingsDots(true);
+      });
+  } else {
+    // No API — just check local items
+    toggleSettingsDots(!hasBfp || !hasContacts);
+  }
+}
+
+function toggleSettingsDots(show) {
+  document.querySelectorAll('.settings-alert-dot').forEach(dot => {
+    dot.style.display = show ? 'block' : 'none';
+  });
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', () => {
+  updateSettingsIndicator();
+});
+
+// ============================================================
 // APP RESUME SYNC — Handles mobile tab switch / app reopen
 // When user leaves and returns, sync from the database to catch
 // any changes made while they were away (e.g. device removed)
@@ -1057,6 +1106,8 @@ document.addEventListener('visibilitychange', () => {
     console.log('📱 App resumed — syncing devices from server...');
     // Re-sync from database (source of truth)
     syncDevicesFromAPI();
+    // Refresh settings indicator
+    updateSettingsIndicator();
     // If WebSocket disconnected while in background, reconnect
     if (socket && !socket.connected) {
       console.log('🔄 WebSocket disconnected while in background, reconnecting...');

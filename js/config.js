@@ -28,6 +28,10 @@ const API_CONFIG = {
 
     // Events endpoints (backend handles logging automatically)
     LOG_EVENT: '/api/events',
+
+    // System configuration endpoints
+    GET_SYSTEM_CONFIG: '/api/system-config',
+    UPDATE_SYSTEM_CONFIG: '/api/system-config',
   },
   
   // Timeout for API calls (ms)

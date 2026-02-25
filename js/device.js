@@ -7,8 +7,10 @@
     const savedTheme = localStorage.getItem("acesTheme");
     if (savedTheme === "dark") {
         document.documentElement.classList.add("dark-mode");
+        document.body.classList.add("dark-mode");
     } else {
         document.documentElement.classList.remove("dark-mode");
+        document.body.classList.remove("dark-mode");
     }
 })();
 
@@ -476,76 +478,78 @@ window.triggerValidation = function(type) {
         }, 150);
     } 
     
-  // --- CASE: BFP DISPATCH (Two-Step Setup & Confirmation) ---
+  // --- CASE: BFP DISPATCH ---
     else if (type === 'bfp') {
-        if (!bfpContactNumber) {
-            if(numInput) {
-                numInput.style.display = 'block';
-                numInput.value = "";
-                numInput.focus();
-                
-                // Real-time restriction: prevent letters and limit to 11 chars
-                numInput.oninput = function() {
-                    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
-                };
-            }
-            
-            setTimeout(() => {
-                showCustomModal("BFP SETUP", "ENTER LOCAL BFP CONTACT NUMBER (NUMBERS ONLY, MAX 11):", 
-                () => { // ON SAVE
-                    const val = numInput.value.trim();
-                    // Validation: Must be at least 7 digits to be a real number
-                    if (val && val.length >= 7) { 
-                        bfpContactNumber = val;
-                        saveGlobalBFPNumber(); // Save globally and sync via WebSocket
-                        numInput.style.display = 'none';
-                        window.triggerValidation('bfp'); 
-                    } else {
-                        showToast("Please enter a valid phone number (7-11 digits)", "error");
-                        // We don't hide the modal so they can fix it
-                        if(btnElement) btnElement.classList.remove('is-active');
-                    }
-                }, 
-                () => { // ON CANCEL
-                    if(numInput) numInput.style.display = 'none';
-                    if(btnElement) btnElement.classList.remove('is-active');
-                });
-            }, 150);
-        } 
-        // ... rest of Step 2 logic remains the same
-        // STEP 2: Final Validation with Change Number Option
-        else {
-    if(numInput) numInput.style.display = 'none';
-    const title = "FIRE DISPATCH";
-    // Added a small Pencil Icon (✎) and removed underline style
-    const message = `CONFIRM ALERT TO BFP AT:<br>
-                     <span class="text-engage" style="font-size: 1.2rem; display: block; margin: 10px 0;">${bfpContactNumber}</span>
-                     <span onclick="window.changeBfpNumber()" class="text-change">
-                        <span style="font-size: 0.9rem; margin-right: 4px;">✎</span> CHANGE NUMBER
-                     </span>`;
-    
-    setTimeout(() => {
-        showCustomModal(title, message, 
-        () => { 
-            window.sendBFPAlert();
-            if(btnElement) btnElement.classList.remove('is-active');
-        }, 
-        () => { if(btnElement) btnElement.classList.remove('is-active'); });
-    }, 150);
+      (async () => {
+        // Check system configuration (address + BFP number required)
+        let configOk = true;
+        try {
+          const configUrl = getApiUrl(API_CONFIG.ENDPOINTS.GET_SYSTEM_CONFIG);
+          const resp = await fetch(configUrl);
+          const configData = await resp.json();
+          if (!configData.success || !configData.configured) configOk = false;
+        } catch (err) {
+          console.warn('Could not verify system config:', err);
         }
+
+        // Re-read BFP number from localStorage (may have been updated from settings)
+        bfpContactNumber = localStorage.getItem(getGlobalBFPKey()) || "";
+
+        if (!configOk || !bfpContactNumber) {
+          if (btnElement) btnElement.classList.remove('is-active');
+          if (numInput) numInput.style.display = 'none';
+          const missing = [];
+          if (!configOk) missing.push('<span class="text-engage">ADDRESS</span>');
+          if (!bfpContactNumber) missing.push('<span class="text-engage">BFP CONTACT NUMBER</span>');
+          showCustomModal(
+            "SETUP REQUIRED",
+            `SYSTEM CONFIGURATION IS NOT COMPLETE.<br><br>PLEASE GO TO <span class='text-engage'>SETTINGS</span> AND CONFIGURE YOUR ${missing.join(' AND ')} BEFORE DISPATCHING BFP ALERTS.`,
+            () => { window.location.href = 'settings.html'; },
+            () => {}
+          );
+          return;
+        }
+
+        // All configured — show dispatch confirmation
+        if (numInput) numInput.style.display = 'none';
+        const title = "FIRE DISPATCH";
+        const message = `CONFIRM ALERT TO BFP AT:<br>
+                       <span class="text-engage" style="font-size: 1.2rem; display: block; margin: 10px 0;">${bfpContactNumber}</span>
+                       <span onclick="window.changeBfpNumber()" class="text-change">
+                          <span style="font-size: 0.9rem; margin-right: 4px;">✎</span> CHANGE NUMBER
+                       </span>`;
+
+        showCustomModal(title, message,
+          () => {
+            // Second confirmation — final warning before dispatch
+            setTimeout(() => {
+              showCustomModal(
+                "⚠️ FINAL CONFIRMATION",
+                `THIS ACTION WILL SEND AN <span class="text-engage">EMERGENCY ALERT</span> TO THE BUREAU OF FIRE PROTECTION.<br><br>This cannot be undone. False alarms may have serious consequences.<br><br>ARE YOU SURE YOU WANT TO PROCEED?`,
+                () => {
+                  window.sendBFPAlert();
+                  if (btnElement) btnElement.classList.remove('is-active');
+                },
+                () => { if (btnElement) btnElement.classList.remove('is-active'); }
+              );
+              // Style the confirm button as danger
+              const confirmBtn = document.getElementById('modalConfirm');
+              if (confirmBtn) {
+                confirmBtn.classList.remove('confirm');
+                confirmBtn.classList.add('danger');
+              }
+            }, 200);
+          },
+          () => { if (btnElement) btnElement.classList.remove('is-active'); }
+        );
+      })();
     }
 };
 
-// Global function to reset BFP number and restart setup
+// Global function to change BFP number — redirect to settings
 window.changeBfpNumber = function() {
-    bfpContactNumber = "";
-    localStorage.removeItem(getGlobalBFPKey()); // Clear global BFP from storage
-    // Sync the cleared BFP number to all devices
-    if (typeof emitGlobalBFPNumberChanged === 'function') {
-      emitGlobalBFPNumberChanged("");
-    }
     document.getElementById('customModal').style.display = 'none';
-    window.triggerValidation('bfp');
+    window.location.href = 'settings.html';
 };
 
 // Actual Logic for Alarm/Siren
@@ -1000,41 +1004,36 @@ window.triggerInlineValidation = function(type, acesId) {
       );
     }, 150);
   } else if (type === 'bfp') {
-    const globalBfpNumber = localStorage.getItem('globalBFPContactNumber') || '';
-
-    if (!globalBfpNumber) {
-      if (numInput) {
-        numInput.style.display = 'block';
-        numInput.value = "";
-        numInput.focus();
-        numInput.oninput = function() {
-          this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
-        };
+    // Check system configuration (address + BFP number required)
+    (async () => {
+      let configOk = true;
+      try {
+        const configUrl = getApiUrl(API_CONFIG.ENDPOINTS.GET_SYSTEM_CONFIG);
+        const resp = await fetch(configUrl);
+        const configData = await resp.json();
+        if (!configData.success || !configData.configured) configOk = false;
+      } catch (err) {
+        console.warn('Could not verify system config:', err);
       }
 
-      setTimeout(() => {
-        showCustomModal("BFP SETUP", "ENTER LOCAL BFP CONTACT NUMBER (NUMBERS ONLY, MAX 11):",
-          () => {
-            const val = numInput.value.trim();
-            if (val && val.length >= 7) {
-              localStorage.setItem('globalBFPContactNumber', val);
-              if (typeof emitGlobalBFPNumberChanged === 'function') {
-                emitGlobalBFPNumberChanged(val);
-              }
-              numInput.style.display = 'none';
-              triggerInlineValidation('bfp', acesId);
-            } else {
-              showToast("Please enter a valid phone number (7-11 digits)", "error");
-              if (bfpBtn) bfpBtn.classList.remove('is-active');
-            }
-          },
-          () => {
-            if (numInput) numInput.style.display = 'none';
-            if (bfpBtn) bfpBtn.classList.remove('is-active');
-          }
+      const globalBfpNumber = localStorage.getItem('globalBFPContactNumber') || '';
+
+      if (!configOk || !globalBfpNumber) {
+        if (bfpBtn) bfpBtn.classList.remove('is-active');
+        if (numInput) numInput.style.display = 'none';
+        const missing = [];
+        if (!configOk) missing.push('<span class="text-engage">ADDRESS</span>');
+        if (!globalBfpNumber) missing.push('<span class="text-engage">BFP CONTACT NUMBER</span>');
+        showCustomModal(
+          "SETUP REQUIRED",
+          `SYSTEM CONFIGURATION IS NOT COMPLETE.<br><br>PLEASE GO TO <span class='text-engage'>SETTINGS</span> AND CONFIGURE YOUR ${missing.join(' AND ')} BEFORE DISPATCHING BFP ALERTS.`,
+          () => { window.location.href = 'settings.html'; },
+          () => {}
         );
-      }, 150);
-    } else {
+        return;
+      }
+
+      // All configured — show dispatch confirmation
       if (numInput) numInput.style.display = 'none';
       const title = "FIRE DISPATCH";
       const message = `CONFIRM ALERT TO BFP AT:<br>
@@ -1043,27 +1042,37 @@ window.triggerInlineValidation = function(type, acesId) {
           <span style="font-size: 0.9rem; margin-right: 4px;">✎</span> CHANGE NUMBER
         </span>`;
 
-      setTimeout(() => {
-        showCustomModal(title, message,
-          () => {
-            sendInlineBFPAlert(acesId);
-            if (bfpBtn) bfpBtn.classList.remove('is-active');
-          },
-          () => { if (bfpBtn) bfpBtn.classList.remove('is-active'); }
-        );
-      }, 150);
-    }
+      showCustomModal(title, message,
+        () => {
+          // Second confirmation — final warning before dispatch
+          setTimeout(() => {
+            showCustomModal(
+              "⚠️ FINAL CONFIRMATION",
+              `THIS ACTION WILL SEND AN <span class="text-engage">EMERGENCY ALERT</span> TO THE BUREAU OF FIRE PROTECTION.<br><br>This cannot be undone. False alarms may have serious consequences.<br><br>ARE YOU SURE YOU WANT TO PROCEED?`,
+              () => {
+                sendInlineBFPAlert(acesId);
+                if (bfpBtn) bfpBtn.classList.remove('is-active');
+              },
+              () => { if (bfpBtn) bfpBtn.classList.remove('is-active'); }
+            );
+            // Style the confirm button as danger
+            const confirmBtn = document.getElementById('modalConfirm');
+            if (confirmBtn) {
+              confirmBtn.classList.remove('confirm');
+              confirmBtn.classList.add('danger');
+            }
+          }, 200);
+        },
+        () => { if (bfpBtn) bfpBtn.classList.remove('is-active'); }
+      );
+    })();
   }
 };
 
-// Change BFP number for inline mode
+// Change BFP number — redirect to settings
 window.changeInlineBfpNumber = function(acesId) {
-  localStorage.removeItem('globalBFPContactNumber');
-  if (typeof emitGlobalBFPNumberChanged === 'function') {
-    emitGlobalBFPNumberChanged("");
-  }
   document.getElementById('customModal').style.display = 'none';
-  triggerInlineValidation('bfp', acesId);
+  window.location.href = 'settings.html';
 };
 
 // Toggle manual alarm for inline device

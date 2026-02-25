@@ -6,17 +6,20 @@
     <title>Device Detail - ACES IOT</title>
     <script>
       // Apply dark mode immediately to prevent flash
-      if (localStorage.getItem('darkMode') === 'true') {
+      if (localStorage.getItem('acesTheme') === 'dark') {
         document.documentElement.classList.add('dark-mode');
       }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="css/style.css?v=2">
 </head>
 <body class="device-detail-page">
 <script>
   // Immediately apply dark mode to body
-  if (localStorage.getItem('darkMode') === 'true') {
+  if (localStorage.getItem('acesTheme') === 'dark') {
     document.body.classList.add('dark-mode');
   }
 </script>
@@ -81,7 +84,7 @@
 <body class="device-detail-page">
 <script>
   // Immediately apply dark mode to body
-  if (localStorage.getItem('darkMode') === 'true') {
+  if (localStorage.getItem('acesTheme') === 'dark') {
     document.body.classList.add('dark-mode');
   }
 </script>
@@ -105,18 +108,13 @@
       <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
       <span>Logs</span>
     </a>
-    <a href="#" class="side-nav-link" onclick="openAlertSettings(); return false;" data-tooltip="Alerts">
-      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M200-246q54-53 125.5-83.5T480-360q83 0 154.5 30.5T760-246v-514H200v514Zm280-194q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm69-80h422q-44-39-99.5-59.5T480-280q-56 0-112.5 20.5T269-200Zm211-320q-25 0-42.5-17.5T420-580q0-25 17.5-42.5T480-640q25 0 42.5 17.5T540-580q0 25-17.5 42.5T480-520Zm0 17Z"/></svg>
-      <span>Alerts</span>
+    <a href="settings.html" class="side-nav-link" data-tooltip="Settings">
+      <svg viewBox="0 -960 960 960" fill="currentColor"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>
+      <span>Settings</span>
+      <span class="settings-alert-dot" style="display:none;"></span>
     </a>
   </nav>
 
-  <div class="side-nav-footer">
-    <button class="side-nav-theme-toggle" id="sideNavThemeToggle" data-tooltip="Theme">
-      <span id="sideNavThemeIcon"></span>
-      <span id="sideNavThemeLabel">Theme</span>
-    </button>
-  </div>
 </aside>
 
 <script>
@@ -300,48 +298,32 @@
     </div>
 
     <div id="customModal" class="modal-overlay">
-    <div class="modal-content modal-card">
-        <div class="modal-lcd-well">
-            <h3 id="modalTitle">SYSTEM CONFIRMATION</h3>
-            
-            <p id="modalMessage">ARE YOU SURE YOU WANT TO PROCEED?</p>
-            
-            <input type="text" id="bfpNumberInput" placeholder="ENTER BFP NUMBER..." autocomplete="off" inputmode="numeric">
+    <div class="modal-content modal-v2">
+        <div class="modal-v2-icon danger" id="customModalIcon">
+            <svg viewBox="0 -960 960 960" fill="currentColor"><path d="m40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm302-40q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm-40-120h80v-200h-80v200Zm40-100Z"/></svg>
         </div>
-        
-        <div class="modal-actions">
-            <button id="modalCancel" class="modal-btn-neu">CANCEL</button>
-            <button id="modalConfirm" class="modal-btn-neu confirm-red">PROCEED</button>
+        <h3 id="modalTitle" class="modal-v2-title">SYSTEM CONFIRMATION</h3>
+        <p id="modalMessage" class="modal-v2-msg">ARE YOU SURE YOU WANT TO PROCEED?</p>
+        <input type="text" id="bfpNumberInput" class="modal-v2-input" placeholder="Enter BFP number..." autocomplete="off" inputmode="numeric" style="display: none;">
+        <div class="modal-v2-actions">
+            <button id="modalCancel" class="modal-v2-btn cancel">Cancel</button>
+            <button id="modalConfirm" class="modal-v2-btn danger">Proceed</button>
         </div>
     </div>
 </div>
 
     <div id="clearDeviceLogsModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content modal-card">
-        <div class="modal-lcd-well">
-            <h3 id="clearDeviceLogsTitle">CLEAR CONSOLE</h3>
-            <p id="clearDeviceLogsMessage">ARE YOU SURE YOU WANT TO CLEAR THE CURRENT SESSION LOGS?</p>
+    <div class="modal-content modal-v2">
+        <div class="modal-v2-icon danger">
+            <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
         </div>
-        <div class="modal-actions">
-            <button id="clearDeviceLogsCancel" class="modal-btn-neu">CANCEL</button>
-            <button id="clearDeviceLogsConfirm" class="modal-btn-neu confirm-red">CLEAR</button>
+        <h3 id="clearDeviceLogsTitle" class="modal-v2-title">Clear Console</h3>
+        <p id="clearDeviceLogsMessage" class="modal-v2-msg">Are you sure you want to clear the current session logs?</p>
+        <div class="modal-v2-actions">
+            <button id="clearDeviceLogsCancel" class="modal-v2-btn cancel">Cancel</button>
+            <button id="clearDeviceLogsConfirm" class="modal-v2-btn danger">Clear</button>
         </div>
     </div>
-</div>
-
-<!-- Alert Contacts Modal -->
-<div id="numbersModal" class="modal">
-  <div class="modal-content">
-    <h2>Alert Contacts</h2>
-    <ul id="numbersList"></ul>
-    <div class="input-group" style="margin-top: 20px;">
-      <input type="tel" id="newNumber" placeholder="Enter phone number" maxlength="11">
-    </div>
-    <div class="modal-button-row">
-      <button id="saveNumbersBtn" class="modal-btn cancel-style">Close</button>
-      <button id="addNumberBtn" class="modal-btn save-style">Add</button>
-    </div>
-  </div>
 </div>
 
 <!-- Mobile Bottom Navigation -->
@@ -350,18 +332,15 @@
     <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520ZM120-120v-240h320v240H120Z"/></svg>
     <span>Dashboard</span>
   </a>
-  <a href="#" class="bottom-nav-item" onclick="openAlertSettings(); return false;">
-    <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M200-246q54-53 125.5-83.5T480-360q83 0 154.5 30.5T760-246v-514H200v514Zm280-194q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm69-80h422q-44-39-99.5-59.5T480-280q-56 0-112.5 20.5T269-200Zm211-320q-25 0-42.5-17.5T420-580q0-25 17.5-42.5T480-640q25 0 42.5 17.5T540-580q0 25-17.5 42.5T480-520Zm0 17Z"/></svg>
-    <span>Alerts</span>
-  </a>
   <a href="logs.html" class="bottom-nav-item">
     <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
     <span>Logs</span>
   </a>
-  <button class="bottom-nav-item" id="bottomNavThemeToggle">
-    <span id="bottomNavThemeIcon"></span>
-    <span id="bottomNavThemeLabel">Theme</span>
-  </button>
+  <a href="settings.html" class="bottom-nav-item">
+    <svg viewBox="0 -960 960 960" fill="currentColor"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>
+    <span>Settings</span>
+    <span class="settings-alert-dot" style="display:none;"></span>
+  </a>
 </nav>
 
     <script src="js/config.js"></script>
