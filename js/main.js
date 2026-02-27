@@ -1312,7 +1312,7 @@ function addDevicePrompt() {
   }
   deviceNameInput.style.display = "none";
   deviceNameInput.parentElement.style.display = "none";
-  deviceModal.style.display = "flex";
+  openModal(deviceModal);
   const discoveredDevices = new Map();
   const handleDeviceFound = (device) => {
     // Check by acesId since we no longer use direct ESP32 URLs
@@ -1389,7 +1389,7 @@ window.editDevice = function(name) {
   deviceNameInput.style.display = "block";
   deviceNameInput.parentElement.style.display = "block";
   deviceNameInput.value = name;
-  deviceModal.style.display = "flex";
+  openModal(deviceModal);
 };
 
 if (confirmDeviceBtn) {
@@ -1429,14 +1429,14 @@ if (confirmDeviceBtn) {
       addNewDevice(acesId, newName, url);
     }
 
-    deviceModal.style.display = "none";
+    closeModal(deviceModal);
     renderDevices();
   };
 }
 
 if (cancelDeviceBtn) {
   cancelDeviceBtn.onclick = () => { 
-    deviceModal.style.display = "none";
+    closeModal(deviceModal);
     // Reset modal state
     confirmDeviceBtn.style.display = "block";
     confirmDeviceBtn.disabled = false;
@@ -1455,7 +1455,7 @@ const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
 window.removeDevice = function(name) {
   deviceToDelete = name;
   document.getElementById("deleteWarningText").textContent = `Are you sure you want to remove "${name}"?`;
-  deleteModal.style.display = "flex";
+  openModal(deleteModal);
 };
 
 if (confirmDeleteBtn) {
@@ -1485,12 +1485,12 @@ if (confirmDeleteBtn) {
       
       renderDevices();
     }
-    deleteModal.style.display = "none";
+    closeModal(deleteModal);
   };
 }
 
 if (cancelDeleteBtn) {
-  cancelDeleteBtn.onclick = () => { deleteModal.style.display = "none"; };
+  cancelDeleteBtn.onclick = () => { closeModal(deleteModal); };
 }
 
 // Sensor data & device status now received via WebSocket events

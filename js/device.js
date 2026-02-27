@@ -430,17 +430,19 @@ function showCustomModal(title, message, onConfirm, onCancel) {
     const cancelBtn = document.getElementById('modalCancel');
 
     titleEl.innerText = title;
-    messageEl.innerHTML = message; 
-    modal.style.display = 'flex';
+    messageEl.innerHTML = message;
+    // Reset confirm button to default style
+    confirmBtn.className = 'modal-v2-btn danger';
+    openModal(modal);
 
     confirmBtn.onclick = () => {
         onConfirm();
-        modal.style.display = 'none';
+        closeModal(modal);
     };
 
     cancelBtn.onclick = () => {
         if (onCancel) onCancel();
-        modal.style.display = 'none';
+        closeModal(modal);
     };
 }
 
@@ -548,8 +550,9 @@ window.triggerValidation = function(type) {
 
 // Global function to change BFP number — redirect to settings
 window.changeBfpNumber = function() {
-    document.getElementById('customModal').style.display = 'none';
-    window.location.href = 'settings.html';
+    closeModal(document.getElementById('customModal'), () => {
+        window.location.href = 'settings.html';
+    });
 };
 
 // Actual Logic for Alarm/Siren
@@ -658,14 +661,14 @@ window.clearDeviceLogs = function() {
     const clearDeviceLogsCancel = document.getElementById('clearDeviceLogsCancel');
     const clearDeviceLogsConfirm = document.getElementById('clearDeviceLogsConfirm');
     
-    clearDeviceLogsModal.style.display = 'flex';
+    openModal(clearDeviceLogsModal);
     
     clearDeviceLogsCancel.onclick = () => {
-        clearDeviceLogsModal.style.display = 'none';
+        closeModal(clearDeviceLogsModal);
     };
     
     clearDeviceLogsConfirm.onclick = async () => {
-        clearDeviceLogsModal.style.display = 'none';
+        closeModal(clearDeviceLogsModal);
         
         // ONLY clear device activity logs (localStorage) - do NOT call API or clear system event logs
         deviceActivityLogs = []; // Clear from memory
@@ -685,7 +688,7 @@ window.clearDeviceLogs = function() {
     
     clearDeviceLogsModal.addEventListener('click', (e) => {
         if (e.target === clearDeviceLogsModal) {
-            clearDeviceLogsModal.style.display = 'none';
+            closeModal(clearDeviceLogsModal);
         }
     });
 };
@@ -1071,8 +1074,9 @@ window.triggerInlineValidation = function(type, acesId) {
 
 // Change BFP number — redirect to settings
 window.changeInlineBfpNumber = function(acesId) {
-  document.getElementById('customModal').style.display = 'none';
-  window.location.href = 'settings.html';
+  closeModal(document.getElementById('customModal'), () => {
+    window.location.href = 'settings.html';
+  });
 };
 
 // Toggle manual alarm for inline device
@@ -1193,12 +1197,12 @@ window.clearInlineDeviceLogs = function(acesId) {
   const cancelBtn = document.getElementById('clearDeviceLogsCancel');
   const confirmBtn = document.getElementById('clearDeviceLogsConfirm');
 
-  clearModal.style.display = 'flex';
+  openModal(clearModal);
 
-  cancelBtn.onclick = () => { clearModal.style.display = 'none'; };
+  cancelBtn.onclick = () => { closeModal(clearModal); };
 
   confirmBtn.onclick = () => {
-    clearModal.style.display = 'none';
+    closeModal(clearModal);
 
     const state = inlineDeviceStates.get(acesId);
     if (state) {
@@ -1213,7 +1217,7 @@ window.clearInlineDeviceLogs = function(acesId) {
   };
 
   clearModal.addEventListener('click', (e) => {
-    if (e.target === clearModal) clearModal.style.display = 'none';
+    if (e.target === clearModal) closeModal(clearModal);
   });
 };
 

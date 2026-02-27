@@ -2390,6 +2390,11 @@ header {
   body {
     padding-bottom: 70px;
   }
+
+  /* Prevent mobile browser auto-zoom on input focus (requires >= 16px) */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
 }
 
 /* --- MOBILE (PIXEL 7) OVERRIDE --- */
@@ -2493,6 +2498,13 @@ header {
     padding-bottom: calc(6px + env(safe-area-inset-bottom));
     justify-content: space-around;
     align-items: center;
+
+    /* Android fix: force GPU layer so fixed positioning survives URL bar resize */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform;
   }
 
   .bottom-nav-item {
@@ -3163,6 +3175,29 @@ body {
     z-index: 10000;                 
     align-items: center;
     justify-content: center;
+}
+
+/* --- SMOOTH MODAL TRANSITIONS (Matching Settings Page) --- */
+.modal-overlay,
+.modal {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.modal-overlay.visible,
+.modal.visible {
+    opacity: 1;
+}
+
+.modal-overlay > .modal-content,
+.modal > .modal-content {
+    transform: scale(0.92) translateY(10px);
+    transition: transform 0.2s ease;
+}
+
+.modal-overlay.visible > .modal-content,
+.modal.visible > .modal-content {
+    transform: scale(1) translateY(0);
 }
 
 /* --- THE MODAL CARD (The Box) --- */

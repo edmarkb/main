@@ -298,15 +298,15 @@ const clearLogsConfirm = document.getElementById("clearLogsConfirm");
 
 if (clearLogsBtn && clearLogsModal) {
   clearLogsBtn.addEventListener("click", () => {
-    clearLogsModal.style.display = "flex";
+    openModal(clearLogsModal);
   });
 
   clearLogsCancel.addEventListener("click", () => {
-    clearLogsModal.style.display = "none";
+    closeModal(clearLogsModal);
   });
 
   clearLogsConfirm.addEventListener("click", async () => {
-    clearLogsModal.style.display = "none";
+    closeModal(clearLogsModal);
     // ONLY clear the frontend display, NOT the database
     // Database keeps the logs as a backup/archive
     window.systemEventLogs = []; // Clear from memory
@@ -319,7 +319,7 @@ if (clearLogsBtn && clearLogsModal) {
 
   clearLogsModal.addEventListener("click", (e) => {
     if (e.target === clearLogsModal) {
-      clearLogsModal.style.display = "none";
+      closeModal(clearLogsModal);
     }
   });
 }

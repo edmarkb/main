@@ -139,7 +139,29 @@ function showToast(message, type = 'info', duration = 3000) {
   return toast;
 }
 
+// ============================================================
+// MODAL ANIMATION HELPERS (Smooth open/close transitions)
+// ============================================================
+
+function openModal(modal) {
+  if (!modal) return;
+  // Cancel any pending close animation
+  if (modal._closeTimer) { clearTimeout(modal._closeTimer); modal._closeTimer = null; }
+  modal.style.display = 'flex';
+  requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('visible')));
+}
+
+function closeModal(modal, callback) {
+  if (!modal) return;
+  modal.classList.remove('visible');
+  modal._closeTimer = setTimeout(() => {
+    modal.style.display = 'none';
+    modal._closeTimer = null;
+    if (callback) callback();
+  }, 200);
+}
+
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { API_CONFIG, getApiUrl, apiCall, showToast };
+  module.exports = { API_CONFIG, getApiUrl, apiCall, showToast, openModal, closeModal };
 }
