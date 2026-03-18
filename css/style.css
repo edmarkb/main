@@ -326,6 +326,54 @@
   animation: dark-deep-sunken-pulse 1.5s infinite ease-in-out;
 }
 
+.dark-mode .status-banner.banner-offline {
+  opacity: 0.6;
+  box-shadow: inset 10px 10px 20px rgba(0, 0, 0, 0.4),
+              inset -10px -10px 20px rgba(255, 255, 255, 0.02) !important;
+}
+
+.dark-mode .status-banner.banner-offline #bannerText,
+.dark-mode .status-banner.banner-offline [data-role="bannerText"] {
+  color: #64748b !important;
+  text-shadow: none !important;
+}
+
+.dark-mode .status-banner.banner-offline #bannerIcon svg,
+.dark-mode .status-banner.banner-offline [data-role="bannerIcon"] svg {
+  fill: #64748b !important;
+}
+
+.dark-mode .status-banner.banner-reconnect {
+  animation: dark-reconnect-pulse 1s ease-in-out 3;
+}
+
+.dark-mode .status-banner.banner-reconnect #bannerText,
+.dark-mode .status-banner.banner-reconnect [data-role="bannerText"] {
+  color: #4ade80 !important;
+  text-shadow: 0 0 20px rgba(74, 222, 128, 0.5) !important;
+  animation: reconnect-text-glow-dark 1s ease-in-out 3;
+}
+
+@keyframes dark-reconnect-pulse {
+  0%, 100% {
+    box-shadow:
+      inset 10px 10px 20px rgba(0, 0, 0, 0.4),
+      inset -10px -10px 20px rgba(255, 255, 255, 0.03),
+      inset 0 0 20px rgba(74, 222, 128, 0.05) !important;
+  }
+  50% {
+    box-shadow:
+      inset 10px 10px 20px rgba(0, 0, 0, 0.4),
+      inset -10px -10px 20px rgba(255, 255, 255, 0.03),
+      inset 0 0 50px rgba(74, 222, 128, 0.18) !important;
+  }
+}
+
+@keyframes reconnect-text-glow-dark {
+  0%, 100% { text-shadow: 0 0 15px rgba(74, 222, 128, 0.3); }
+  50% { text-shadow: 0 0 30px rgba(74, 222, 128, 0.7); }
+}
+
 @keyframes dark-deep-sunken-warning-pulse {
   0%, 100% {
     box-shadow:
@@ -2642,6 +2690,73 @@ body {
     text-shadow: 0 0 15px rgba(64, 192, 87, 0.5);
 }
 
+/* OFFLINE STATE: Grayed out, muted appearance */
+.status-banner.banner-offline {
+    box-shadow: 
+        inset 10px 10px 20px rgba(0, 0, 0, 0.06), 
+        inset -10px -10px 20px rgba(255, 255, 255, 0.7),
+        inset 0 0 20px rgba(148, 163, 184, 0.05);
+    opacity: 0.7;
+}
+
+.status-banner.banner-offline #bannerText,
+.status-banner.banner-offline [data-role="bannerText"] {
+    color: #94a3b8;
+    text-shadow: none;
+}
+
+.status-banner.banner-offline #bannerIcon svg,
+.status-banner.banner-offline [data-role="bannerIcon"] svg {
+    fill: #94a3b8;
+}
+
+/* RECONNECT STATE: Green pulse celebration */
+.status-banner.banner-reconnect {
+    animation: reconnect-pulse 1s ease-in-out 3;
+}
+
+.status-banner.banner-reconnect #bannerText,
+.status-banner.banner-reconnect [data-role="bannerText"] {
+    color: #22c55e;
+    text-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+    animation: reconnect-text-glow 1s ease-in-out 3;
+}
+
+.status-banner.banner-reconnect #bannerIcon svg,
+.status-banner.banner-reconnect [data-role="bannerIcon"] svg {
+    fill: #22c55e;
+    animation: reconnect-icon-spin 1s ease-in-out 1;
+}
+
+@keyframes reconnect-pulse {
+    0%, 100% {
+        box-shadow:
+            inset 10px 10px 20px rgba(0, 0, 0, 0.08),
+            inset -10px -10px 20px rgba(255, 255, 255, 0.8),
+            inset 0 0 20px rgba(34, 197, 94, 0.05);
+    }
+    50% {
+        box-shadow:
+            inset 10px 10px 20px rgba(0, 0, 0, 0.08),
+            inset -10px -10px 20px rgba(255, 255, 255, 0.8),
+            inset 0 0 50px rgba(34, 197, 94, 0.15);
+    }
+}
+
+@keyframes reconnect-text-glow {
+    0%, 100% {
+        text-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+    }
+    50% {
+        text-shadow: 0 0 30px rgba(34, 197, 94, 0.8);
+    }
+}
+
+@keyframes reconnect-icon-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-360deg); }
+}
+
 /* WARNING STATE: Yellow Pulsing Light */
 .status-banner.banner-warning {
     animation: deep-sunken-warning-pulse 2s infinite ease-in-out;
@@ -4040,6 +4155,66 @@ body {
     gap: 2px;
   }
 
+  /* Empty state — no devices added */
+  .side-nav-device-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px 20px;
+    text-align: center;
+    gap: 6px;
+  }
+
+  .side-nav-empty-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(148, 163, 184, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+  }
+
+  .side-nav-empty-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--text-secondary);
+    opacity: 0.5;
+  }
+
+  .side-nav-empty-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    letter-spacing: 0.3px;
+  }
+
+  .side-nav-empty-hint {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    opacity: 0.45;
+    font-weight: 500;
+  }
+
+  .dark-mode .side-nav-empty-icon {
+    background: rgba(148, 163, 184, 0.08);
+  }
+
+  .dark-mode .side-nav-empty-icon svg {
+    opacity: 0.35;
+  }
+
+  .dark-mode .side-nav-empty-title {
+    opacity: 0.5;
+  }
+
+  .dark-mode .side-nav-empty-hint {
+    opacity: 0.3;
+  }
+
   .side-nav-device-item {
     display: flex;
     align-items: center;
@@ -4103,11 +4278,68 @@ body {
     flex-shrink: 0;
   }
 
-  /* --- Footer (Theme Toggle) --- */
+  /* --- Footer (Credit) --- */
   .side-nav-footer {
-    padding: 12px 12px 8px;
+    padding: 14px 16px 16px;
     border-top: 1px solid rgba(0, 0, 0, 0.06);
     margin-top: auto;
+  }
+
+  .side-nav-credit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-align: center;
+  }
+
+  .side-nav-credit-line {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    opacity: 0.45;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  .side-nav-credit-sub {
+    font-size: 0.58rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    opacity: 0.3;
+    letter-spacing: 0.3px;
+  }
+
+  .side-nav.collapsed .side-nav-footer {
+    padding: 10px 4px 12px;
+  }
+
+  .side-nav.collapsed .side-nav-credit-line,
+  .side-nav.collapsed .side-nav-credit-sub {
+    display: none;
+  }
+
+  .side-nav.collapsed .side-nav-credit::after {
+    content: '\00A9';
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    opacity: 0.35;
+  }
+
+  .dark-mode .side-nav-footer {
+    border-top-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .dark-mode .side-nav-credit-line {
+    opacity: 0.3;
+  }
+
+  .dark-mode .side-nav-credit-sub {
+    opacity: 0.2;
+  }
+
+  .dark-mode .side-nav.collapsed .side-nav-credit::after {
+    opacity: 0.2;
   }
 
   .side-nav-theme-toggle {
@@ -4835,6 +5067,17 @@ body {
     text-shadow: 0 0 25px rgba(255, 71, 87, 0.7) !important;
 }
 
+.device-inline-detail .bento-banner .status-banner.banner-offline [data-role="bannerText"] {
+    color: #94a3b8 !important;
+    text-shadow: none !important;
+}
+
+.device-inline-detail .bento-banner .status-banner.banner-reconnect [data-role="bannerText"] {
+    color: #22c55e !important;
+    text-shadow: 0 0 20px rgba(34, 197, 94, 0.6) !important;
+    animation: reconnect-text-glow 1s ease-in-out 3;
+}
+
 /* --- Row 1: Right — Sensor Cards --- */
 .device-inline-detail .bento-sensors {
     grid-column: 2;
@@ -4880,7 +5123,7 @@ body {
 }
 
 .device-inline-detail .bento-sensors .sensor-value {
-    font-size: clamp(1.4rem, 3.5vh, 3.6rem) !important;
+    font-size: clamp(2rem, 6vh, 5rem) !important;
     font-family: 'SevenSegment', monospace !important;
     width: 100% !important;
     text-align: center !important;
@@ -4890,18 +5133,18 @@ body {
 }
 
 .device-inline-detail .bento-sensors .sensor-icon svg {
-    width: clamp(18px, 2.5vh, 38px) !important;
+    width: clamp(20px, 3.5vh, 48px) !important;
     height: auto !important;
 }
 
 .device-inline-detail .bento-sensors .sensor-label {
-    font-size: clamp(0.55rem, 1.2vh, 1rem) !important;
+    font-size: clamp(0.65rem, 1.8vh, 1.2rem) !important;
     font-weight: 800 !important;
     margin-top: clamp(2px, 0.5vh, 6px) !important;
 }
 
 .device-inline-detail .bento-sensors .sensor-unit {
-    font-size: clamp(0.6rem, 1.2vh, 1.3rem) !important;
+    font-size: clamp(0.7rem, 2vh, 1.8rem) !important;
     font-weight: 600 !important;
 }
 
@@ -6716,6 +6959,21 @@ body {
 .settings-char-count.char-count-warn {
   color: #e74c3c;
   font-weight: 600;
+}
+
+/* Address validation warning */
+.settings-addr-warning {
+  display: block;
+  font-size: 0.72rem;
+  color: #e74c3c;
+  font-weight: 600;
+  margin-top: 4px;
+  line-height: 1.4;
+  animation: addr-warn-flash 0.3s ease;
+}
+@keyframes addr-warn-flash {
+  0% { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 /* SMS char badge */

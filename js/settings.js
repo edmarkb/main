@@ -88,6 +88,12 @@ async function saveSystemConfig() {
   const address = addressInput.value.trim();
   const bfpNum = bfpInput.value.replace(/\D/g, '');
 
+  // Validate address — no special characters (SMS safe)
+  if (address && ADDRESS_STRIP.test(address)) {
+    showSaveStatus('Address contains special characters. Remove them first.', 'error');
+    return;
+  }
+
   // Validate BFP number if provided — must be 7-11 digits
   if (bfpNum && (bfpNum.length < 7 || bfpNum.length > 11)) {
     showSaveStatus('BFP number must be 7-11 digits', 'error');
@@ -290,12 +296,52 @@ function updateSMSPreview() {
 }
 
 // ================================================================
+// ADDRESS VALIDATION — GSM 7-bit safe characters only (SIM800L)
+// The SIM800L uses GSM 03.38 encoding: 160 chars/SMS.
+// ANY character outside this charset forces UCS-2 = only 70 chars/SMS.
+// Allowlist: common address characters that are in the GSM 7-bit table.
+//   Letters, digits, space, . , - ' # / ( ) ñ Ñ
+// ================================================================
+const ADDRESS_ALLOWED = /^[a-zA-Z0-9\s.,\-'#\/ñÑ()]*$/;
+const ADDRESS_STRIP = /[^a-zA-Z0-9\s.,\-'#\/ñÑ()]/g;
+const addrWarning = document.getElementById('addrValidationWarn');
+
+function validateAddress() {
+  const raw = addressInput.value;
+  const stripped = raw.replace(ADDRESS_STRIP, '');
+  if (raw !== stripped) {
+    // Replace with cleaned value, preserving cursor
+    const pos = addressInput.selectionStart - (raw.length - stripped.length);
+    addressInput.value = stripped;
+    addressInput.setSelectionRange(Math.max(0, pos), Math.max(0, pos));
+    // Flash warning
+    if (addrWarning) {
+      addrWarning.textContent = 'Special characters are not allowed (SMS limit).';
+      addrWarning.style.display = 'block';
+      clearTimeout(addrWarning._hideTimer);
+      addrWarning._hideTimer = setTimeout(() => { addrWarning.style.display = 'none'; }, 3000);
+    }
+  }
+}
+
+// ================================================================
 // INPUT LISTENERS
 // ================================================================
 addressInput.addEventListener('input', () => {
+  validateAddress();
   updateSaveBtn();
   updateSMSPreview();
   updateCharCounters();
+});
+
+// Also block on paste
+addressInput.addEventListener('paste', () => {
+  setTimeout(() => {
+    validateAddress();
+    updateSaveBtn();
+    updateSMSPreview();
+    updateCharCounters();
+  }, 0);
 });
 
 // BFP input: restrict to digits only, max 11

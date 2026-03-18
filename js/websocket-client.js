@@ -6,6 +6,48 @@ let socket = null;
 let isWebSocketReady = false;
 
 // ============================================================
+// RECONNECT BANNER — "DEVICE CAME BACK ONLINE" transition
+// Shows briefly when a device reconnects, then settles to normal state.
+// ============================================================
+const RECONNECT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#22c55e"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-692v-148h80v280H520v-80h168q-32-56-87.5-88T480-760q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>`;
+
+function showReconnectBanner(acesId, mode) {
+  let banner, bannerText, bannerIcon;
+
+  if (mode === 'inline') {
+    // Inline (desktop bento) — uses data-role attributes
+    const container = document.querySelector(`.device-inline-detail[data-aces-id="${acesId}"]`);
+    if (!container) return;
+    banner = container.querySelector('[data-role="statusBanner"]');
+    bannerText = container.querySelector('[data-role="bannerText"]');
+    bannerIcon = container.querySelector('[data-role="bannerIcon"]');
+  } else {
+    // Detail page (device.html) — uses IDs
+    banner = document.getElementById('statusBanner');
+    bannerText = document.getElementById('bannerText');
+    bannerIcon = document.getElementById('bannerIcon');
+  }
+
+  if (!banner || !bannerText || !bannerIcon) return;
+
+  // Show reconnect state
+  banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning', 'banner-gas-warning', 'banner-smoke-warning', 'banner-offline');
+  banner.classList.add('banner-reconnect');
+  bannerText.innerText = "DEVICE BACK ONLINE";
+  bannerIcon.innerHTML = RECONNECT_ICON;
+
+  // After 3 seconds, transition back to real state
+  setTimeout(() => {
+    banner.classList.remove('banner-reconnect');
+    if (mode === 'inline') {
+      if (typeof updateInlineDetailUI === 'function') updateInlineDetailUI(acesId);
+    } else {
+      if (typeof updateDetailUI === 'function') updateDetailUI();
+    }
+  }, 3000);
+}
+
+// ============================================================
 // SYNC DEVICES FROM REST API (Database is source of truth)
 // Reusable: called on connect, reconnect, and app resume
 // ============================================================
@@ -34,20 +76,10 @@ function syncDevicesFromAPI() {
             local.name = name;
             changed = true;
           }
-          // Always update online status from server (source of truth)
-          const serverOnline = sd.online || false;
-          if (local.online !== serverOnline) {
-            local.online = serverOnline;
-            changed = true;
-          }
-          // Zero out sensor values when offline
-          if (!serverOnline) {
-            local.temperature = 0;
-            local.humidity = 0;
-            local.gas = 0;
-            local.fire = false;
-            changed = true;
-          }
+          // NOTE: GET /api/devices does NOT return an online field.
+          // Online status is managed exclusively by WebSocket events
+          // (device-status-changed, sync-devices) so we never reset it here.
+          // This prevents the offline→online flicker on page navigation.
         } else {
           const newDev = new Device(id, name, sd.espUrl || '');
           newDev.temperature = sd.temperature;
@@ -92,8 +124,8 @@ function syncDevicesFromAPI() {
           temperature: d.temperature,
           humidity: d.humidity,
           gas: d.gas,
-          flame: d.flame,
-          online: d.online
+          flame: d.flame
+          // NOTE: online status NOT sent — watchdog is source of truth
         })));
       }
     })
@@ -181,7 +213,8 @@ function initWebSocket() {
     
     console.log(`📋 Received ${deviceList.length} devices from server`);
     
-    let updated = false;
+    let structureChanged = false; // Device added/removed/renamed — needs full re-render
+    let sensorUpdated = false;    // Only sensor values changed — update in-place
     
     // Build a set of server device IDs to detect locally-deleted devices
     const serverIds = new Set();
@@ -202,13 +235,21 @@ function initWebSocket() {
         if (serverDevice.flame != null) localDevice.flame = serverDevice.flame;
         if (serverDevice.online != null) {
           localDevice.online = serverDevice.online;
+          // Zero sensor values when device is offline
+          if (!serverDevice.online) {
+            localDevice.temperature = 0;
+            localDevice.humidity = 0;
+            localDevice.gas = 0;
+            localDevice.fire = false;
+          }
         }
         // Update name if server has a different (authoritative) name
         if (name && localDevice.name !== name) {
           console.log(`✏️ Server renamed ${localDevice.name} → ${name}`);
           localDevice.name = name;
+          structureChanged = true; // Rename needs full re-render
         }
-        updated = true;
+        sensorUpdated = true;
       } else {
         // Device exists on server but not locally — add it
         const newDev = new Device(id, name, serverDevice.espUrl || '');
@@ -218,7 +259,7 @@ function initWebSocket() {
         newDev.fire = serverDevice.fire || serverDevice.flame;
         newDev.online = serverDevice.online || false;
         devices.push(newDev);
-        updated = true;
+        structureChanged = true; // New device needs full re-render
         console.log(`➕ Added missing device from server: ${name} (${id})`);
       }
     });
@@ -230,14 +271,42 @@ function initWebSocket() {
     devices = devices.filter(d => serverIds.has(d.acesId));
     if (devices.length < before) {
       console.log(`🗑️ Removed ${before - devices.length} local device(s) not on server`);
-      updated = true;
+      structureChanged = true; // Removed device needs full re-render
     }
     
-    if (updated) {
+    if (structureChanged || sensorUpdated) {
       saveDevices();
+    }
+
+    if (structureChanged) {
+      // Full re-render only when device list structure changed (add/remove/rename)
       if (typeof renderDevices === 'function') {
         renderDevices();
       }
+    } else if (sensorUpdated) {
+      // Sensor-only updates: update in-place WITHOUT destroying the DOM.
+      // This prevents the siren button from being rebuilt (which could confuse users
+      // who just toggled the siren and are waiting for the physical response).
+      const isDesktop = window.innerWidth >= 768;
+      devices.forEach(d => {
+        if (isDesktop && typeof updateInlineDetailUI === 'function') {
+          updateInlineDetailUI(d.acesId);
+        } else {
+          // Mobile: find existing tile and update sensor values + status
+          const tile = document.querySelector(`.device-tile[data-name="${d.name}"]`);
+          if (tile) {
+            if (typeof updateSensorValues === 'function') {
+              updateSensorValues(tile, d);
+            }
+            // Update online/offline badge on mobile tile
+            const statusEl = tile.querySelector('.device-status');
+            if (statusEl) {
+              statusEl.textContent = d.online ? 'Online' : 'Offline';
+              statusEl.className = `device-status ${d.online ? 'online' : 'offline'}`;
+            }
+          }
+        }
+      });
     }
     // Always refresh side nav dots after sync
     devices.forEach(d => {
@@ -362,9 +431,13 @@ function initWebSocket() {
       // Check if inline detail mode (desktop)
       const inlineContainer = document.querySelector(`.device-inline-detail[data-aces-id="${device.acesId}"]`);
       if (inlineContainer) {
-        // Update inline detail in-place (no full re-render needed)
-        if (typeof updateInlineDetailUI === 'function') {
-          updateInlineDetailUI(device.acesId);
+        // Show reconnect transition banner if device came back online
+        if (!wasOnline && device.online) {
+          showReconnectBanner(device.acesId, 'inline');
+        } else {
+          if (typeof updateInlineDetailUI === 'function') {
+            updateInlineDetailUI(device.acesId);
+          }
         }
         // Log status change in inline activity log
         if (wasOnline !== device.online) {
@@ -388,8 +461,13 @@ function initWebSocket() {
       
       // Update device detail page if viewing this device (device.html)
       if (typeof activeDevice !== 'undefined' && activeDevice && activeDevice.acesId === device.acesId) {
-        if (typeof updateDetailUI === 'function') {
-          updateDetailUI();
+        // Show reconnect transition banner if device came back online
+        if (!wasOnline && device.online) {
+          showReconnectBanner(device.acesId, 'detail');
+        } else {
+          if (typeof updateDetailUI === 'function') {
+            updateDetailUI();
+          }
         }
         // Log status change in device activity log
         if (wasOnline !== device.online) {
@@ -416,35 +494,35 @@ function initWebSocket() {
     const source = data.source || 'manual';
     if (!acesId) { console.warn('alarm-state-changed: missing acesId', data); return; }
 
-    // Update UI if on device detail page for this device
+    // Update UI if on device detail page AND this event is for the device we're viewing
+    // (Without this guard, activating ACES-1 would visually activate the button on ACES-2/3 pages too)
+    const currentDeviceAcesId = (typeof activeDevice !== 'undefined' && activeDevice)
+      ? (activeDevice.acesId || '') : '';
+    const isCurrentDevice = currentDeviceAcesId && currentDeviceAcesId === acesId;
+
     const alarmBtn = document.getElementById('manualAlarmBtn');
-    if (alarmBtn) {
+    if (alarmBtn && isCurrentDevice) {
       console.log(`🔔 Siren update for ${data.deviceName}: ${data.isActive ? 'ACTIVE' : 'INACTIVE'} [${source}]`);
       if (data.isActive) {
         alarmBtn.classList.add('is-active');
       } else {
         alarmBtn.classList.remove('is-active');
       }
-    }
 
-    // Update the alarm icon if on device detail page
-    const alarmIconWrap = document.getElementById('alarmBtnIcon');
-    if (alarmIconWrap && typeof ICONS !== 'undefined') {
-      alarmIconWrap.innerHTML = data.isActive ? ICONS.ALARM_ON : ICONS.ALARM_OFF;
-    }
+      // Update the alarm icon
+      const alarmIconWrap = document.getElementById('alarmBtnIcon');
+      if (alarmIconWrap && typeof ICONS !== 'undefined') {
+        alarmIconWrap.innerHTML = data.isActive ? ICONS.ALARM_ON : ICONS.ALARM_OFF;
+      }
 
-    // Update the alarm label text if on device detail page
-    const alarmLabelEl = document.getElementById('alarmBtnLabel');
-    if (alarmLabelEl) {
-      alarmLabelEl.textContent = data.isActive ? 'DEACTIVATE ALARM' : 'ACTIVATE ALARM';
-    }
+      // Update the alarm label text
+      const alarmLabelEl = document.getElementById('alarmBtnLabel');
+      if (alarmLabelEl) {
+        alarmLabelEl.textContent = data.isActive ? 'DEACTIVATE ALARM' : 'ACTIVATE ALARM';
+      }
 
-    // Update the manualAlarmActive variable if on device detail page
-    if (typeof manualAlarmActive !== 'undefined') {
-      // Only update if this event is for the device we're currently viewing
-      const currentDeviceAcesId = (typeof activeDevice !== 'undefined' && activeDevice) 
-        ? (activeDevice.acesId || '') : '';
-      if (!currentDeviceAcesId || currentDeviceAcesId === acesId) {
+      // Update the manualAlarmActive variable
+      if (typeof manualAlarmActive !== 'undefined') {
         manualAlarmActive = data.isActive;
       }
     }
@@ -476,6 +554,12 @@ function initWebSocket() {
         const state = inlineDeviceStates.get(acesId);
         if (state) state.manualAlarmActive = data.isActive;
       }
+    }
+
+    // Defensive: force ALL inline alarm buttons to match their correct state
+    // Prevents cross-device button state leaking
+    if (typeof syncAllInlineAlarmButtons === 'function') {
+      syncAllInlineAlarmButtons();
     }
 
     // Show toast with appropriate message
@@ -515,6 +599,11 @@ function initWebSocket() {
           if (inlineState) inlineState.manualAlarmActive = state.isActive;
         }
       }
+    }
+
+    // Defensive: force ALL inline buttons to correct state after full sync
+    if (typeof syncAllInlineAlarmButtons === 'function') {
+      syncAllInlineAlarmButtons();
     }
 
     // If on device detail page, update the button to match server state
@@ -970,14 +1059,40 @@ function emitDeviceStatusChanged(deviceName, status) {
 }
 
 // Call this when manual alarm/siren state changes
+// Uses Socket.IO acknowledgment + auto-retry to handle WiFi hiccups.
 function emitAlarmStateChanged(deviceName, isActive, acesId, source) {
+  console.log(`🔧 emitAlarmStateChanged: device=${deviceName}, active=${isActive}, acesId=${acesId}, source=${source}, socketOk=${!!(socket && isWebSocketReady)}`);
   if (socket && isWebSocketReady) {
-    socket.emit('alarm-state-changed', {
+    const payload = {
       deviceName: deviceName,
       isActive: isActive,
       acesId: acesId,
       source: source || 'manual'
+    };
+
+    let acked = false;
+
+    // Emit with Socket.IO ack callback — server confirms receipt
+    socket.emit('alarm-state-changed', payload, function(response) {
+      acked = true;
+      if (response && response.success) {
+        console.log(`✅ alarm-state-changed ACK from server for ${acesId} (isActive=${response.isActive})`);
+      } else {
+        console.warn(`⚠️ alarm-state-changed: server returned error for ${acesId}:`, response);
+      }
     });
+
+    // Auto-retry after 2s if no ack (covers WiFi micro-drops / socket buffer delays)
+    setTimeout(function() {
+      if (!acked && socket && isWebSocketReady) {
+        console.warn(`⚠️ alarm-state-changed: No ACK within 2s — retrying for ${acesId}`);
+        socket.emit('alarm-state-changed', payload);
+      }
+    }, 2000);
+
+    console.log(`🔧 alarm-state-changed emitted to server (awaiting ACK) ✓`);
+  } else {
+    console.error(`🔧 FAILED: socket=${!!socket}, isWebSocketReady=${isWebSocketReady}`);
   }
 }
 

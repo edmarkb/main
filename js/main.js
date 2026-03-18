@@ -2,7 +2,7 @@ class Device {
   constructor(acesId, name, espUrl) {
     this.acesId = acesId;         // Hardware ID: ACES-1, ACES-2, ACES-3
     this.name = name;             // User's custom label (lab name)
-    this.espUrl = espUrl;         // e.g., http://192.168.100.70/data
+    this.espUrl = espUrl;         // e.g., http://192.168.8.x/data (ESP32 DHCP address on Huawei WiFi)
 
     this.temperature = null;
     this.humidity = null;
@@ -55,13 +55,14 @@ if (deviceData !== null) {
             const id = d.acesId || d.deviceId || 'ACES-1';
             const name = d.name || d.labName;
             const dev = new Device(id, name, d.espUrl);
-            // Always start offline — server/API will confirm true status
-            // Sensor values zeroed until confirmed online with fresh data
-            dev.temperature = 0;
-            dev.humidity = 0;
-            dev.gas = 0;
-            dev.fire = false;
-            dev.online = false;
+            // Restore cached values from localStorage so the UI is seamless
+            // across page navigations. Server will correct stale data within seconds.
+            dev.online = d.online || false;
+            // If offline, always show zeroed values (no stale data)
+            dev.temperature = dev.online ? (d.temperature || 0) : 0;
+            dev.humidity = dev.online ? (d.humidity || 0) : 0;
+            dev.gas = dev.online ? (d.gas || 0) : 0;
+            dev.fire = dev.online ? (d.fire || false) : false;
             dev.lastResponse = d.lastResponse;
             return dev;
         });
@@ -274,7 +275,10 @@ function renderDevices() {
       card.setAttribute('data-name', device.name);
       card.setAttribute('data-aces-id', device.acesId);
       const statusClass = device.online ? "online" : "offline";
-      const alarmOn = localStorage.getItem(`manualAlarm_${device.acesId}`) === 'true';
+      // Always render alarm button as OFF initially.
+      // Server's sync-siren-state (via WebSocket) will correct it within ~1s if siren is actually ON.
+      // This prevents stale localStorage from causing phantom siren activation.
+      const alarmOn = false;
 
       card.innerHTML = `
         <div class="bento-title-bar">
@@ -479,6 +483,65 @@ function renderDevices() {
   }
 }
 
+// ---------------- CUSTOM SMOOTH SCROLL (ignores prefers-reduced-motion) ----------------
+function smoothScrollToElement(element, duration, onComplete) {
+  const scrollParent = findScrollParent(element);
+  const targetRect = element.getBoundingClientRect();
+  const parentRect = scrollParent === document.documentElement || scrollParent === document.body
+    ? { top: 0, height: window.innerHeight }
+    : scrollParent.getBoundingClientRect();
+
+  // Calculate the scroll offset to center the element in view
+  const scrollTop = scrollParent.scrollTop || window.pageYOffset;
+  const targetCenter = targetRect.top - parentRect.top + scrollTop + (targetRect.height / 2);
+  const viewportCenter = parentRect.height / 2;
+  const targetScrollTop = targetCenter - viewportCenter;
+
+  const startScrollTop = scrollParent === document.documentElement || scrollParent === document.body
+    ? (window.pageYOffset || document.documentElement.scrollTop)
+    : scrollParent.scrollTop;
+
+  const distance = targetScrollTop - startScrollTop;
+  const startTime = performance.now();
+
+  // Ease-in-out cubic for a natural glide feel
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function step(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easedProgress = easeInOutCubic(progress);
+    const newScrollTop = startScrollTop + (distance * easedProgress);
+
+    if (scrollParent === document.documentElement || scrollParent === document.body) {
+      window.scrollTo(0, newScrollTop);
+    } else {
+      scrollParent.scrollTop = newScrollTop;
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else if (onComplete) {
+      onComplete();
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function findScrollParent(el) {
+  let parent = el.parentElement;
+  while (parent) {
+    const style = getComputedStyle(parent);
+    if (/(auto|scroll)/.test(style.overflow + style.overflowY)) {
+      return parent;
+    }
+    parent = parent.parentElement;
+  }
+  return document.documentElement;
+}
+
 // ---------------- SIDE NAV DEVICE LIST ----------------
 function populateSideNavDevices() {
   const list = document.getElementById('sideNavDeviceList');
@@ -486,7 +549,14 @@ function populateSideNavDevices() {
   list.innerHTML = '';
 
   if (typeof devices === 'undefined' || !devices.length) {
-    list.innerHTML = '<li class="side-nav-device-empty">No devices added</li>';
+    list.innerHTML = `
+      <li class="side-nav-device-empty">
+        <div class="side-nav-empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M791-55 325-521q-2 10-3.5 20t-1.5 21q0 36 14.5 66.5T374-360l-57 57q-35-33-56-78.5T240-480q0-28 6-54t17-49l-59-59q-21 36-32.5 76.5T160-480q0 69 27 129t74 104l-57 57q-57-55-90.5-129.5T80-480q0-62 17-117t49-103l-91-91 57-57 736 736-57 57Zm23-205-58-58q21-35 32.5-76t11.5-86q0-134-93-227t-227-93q-45 0-85.5 11.5T318-756l-58-58q48-32 103.5-49T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 61-17 116.5T814-260ZM697-377l-62-62q2-10 3.5-20t1.5-21q0-66-47-113t-113-47q-11 0-21 1.5t-20 3.5l-62-62q23-11 49-17t54-6q100 0 170 70t70 170q0 28-6 54t-17 49Z"/></svg>
+        </div>
+        <span class="side-nav-empty-title">No devices added</span>
+        <span class="side-nav-empty-hint">Tap + to scan and connect</span>
+      </li>`;
     return;
   }
 
@@ -509,7 +579,26 @@ function populateSideNavDevices() {
       // Scroll to the device tile in main content with smooth animation
       const tile = document.querySelector(`.device-tile[data-name="${device.name}"]`);
       if (tile) {
-        tile.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Temporarily disable scroll-snap so smooth scrolling isn't overridden
+        const grid = tile.closest('.device-grid');
+        if (grid) {
+          grid.style.scrollSnapType = 'none';
+        }
+        // Disable snap on ALL tiles to prevent snap interference
+        document.querySelectorAll('.device-inline-detail').forEach(t => {
+          t.style.scrollSnapAlign = 'none';
+        });
+
+        // Custom smooth scroll (works even when OS disables animations / prefers-reduced-motion)
+        smoothScrollToElement(tile, 700, () => {
+          // Re-enable scroll-snap after scroll completes
+          if (grid) {
+            grid.style.scrollSnapType = '';
+          }
+          document.querySelectorAll('.device-inline-detail').forEach(t => {
+            t.style.scrollSnapAlign = '';
+          });
+        });
 
         // Add a brief highlight flash on the tile
         tile.style.transition = 'box-shadow 0.3s ease, transform 0.3s ease';
@@ -1436,14 +1525,16 @@ if (confirmDeviceBtn) {
 
 if (cancelDeviceBtn) {
   cancelDeviceBtn.onclick = () => { 
-    closeModal(deviceModal);
-    // Reset modal state
-    confirmDeviceBtn.style.display = "block";
-    confirmDeviceBtn.disabled = false;
-    deviceNameInput.style.display = "block";
-    deviceNameInput.parentElement.style.display = "block";
-    const discoveryContainer = document.getElementById("discoveryContainer");
-    if (discoveryContainer) discoveryContainer.style.display = "none";
+    closeModal(deviceModal, () => {
+      // Reset modal state AFTER close animation finishes
+      // (prevents the "Enter Lab Name" input from flashing during fade-out)
+      confirmDeviceBtn.style.display = "block";
+      confirmDeviceBtn.disabled = false;
+      deviceNameInput.style.display = "block";
+      deviceNameInput.parentElement.style.display = "block";
+      const discoveryContainer = document.getElementById("discoveryContainer");
+      if (discoveryContainer) discoveryContainer.style.display = "none";
+    });
   };
 }
 
@@ -1464,11 +1555,8 @@ if (confirmDeleteBtn) {
       // Find device to get its ID for clearing localStorage
       const device = devices.find(d => d.name === deviceToDelete);
       if (device) {
-        // Determine ACES ID from espUrl (safe check)
-        let acesId = 'ACES-1';
-        if (device.espUrl && device.espUrl.includes('192.168.100.70')) acesId = 'ACES-1';
-        else if (device.espUrl && device.espUrl.includes('192.168.100.71')) acesId = 'ACES-2';
-        else if (device.espUrl && device.espUrl.includes('192.168.100.72')) acesId = 'ACES-3';
+        // Use the device's acesId directly (no hardcoded IP mapping needed)
+        const acesId = device.acesId || 'ACES-1';
         
         // Clear device-specific logs and BFP number from localStorage
         localStorage.removeItem(`deviceActivityLogs_${acesId}`);

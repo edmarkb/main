@@ -22,6 +22,8 @@ const ICONS = {
     SMOKE: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#ef4444"><path d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q25-92 100-149t170-57q117 0 198.5 81.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm0-80h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-83 0-141.5 58.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41Zm220-240Zm0 160q17 0 28.5-11.5T520-360q0-17-11.5-28.5T480-400q-17 0-28.5 11.5T440-360q0 17 11.5 28.5T480-320Zm-40-140h80v-180h-80v180Z"/></svg>`,
     HEAT_WARN: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#f59e0b"><path d="M320-120q-83 0-141.5-58.5T120-320q0-48 21-89.5t59-70.5v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q38 29 59 70.5t21 89.5q0 83-58.5 141.5T320-120Zm0-80q50 0 85-35t35-85q0-29-12.5-54T392-416l-32-24v-280q0-17-11.5-28.5T320-760q-17 0-28.5 11.5T280-720v280l-32 24q-23 17-35.5 42T200-320q0 50 35 85t85 35Zm0-120Zm400-200q-17 0-28.5-11.5T680-560q0-17 11.5-28.5T720-600q17 0 28.5 11.5T760-560q0 17-11.5 28.5T720-520Zm-40-120v-200h80v200h-80Z"/></svg>`,
     SMOKE_WARN: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#f59e0b"><path d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q25-92 100-149t170-57q117 0 198.5 81.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm0-80h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-83 0-141.5 58.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41Zm220-240Zm0 160q17 0 28.5-11.5T520-360q0-17-11.5-28.5T480-400q-17 0-28.5 11.5T440-360q0 17 11.5 28.5T480-320Zm-40-140h80v-180h-80v180Z"/></svg>`,
+    OFFLINE: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#94a3b8"><path d="M791-55 325-521q-2 10-3.5 20t-1.5 21q0 36 14.5 66.5T374-360l-57 57q-35-33-56-78.5T240-480q0-28 6-54t17-49l-59-59q-21 36-32.5 76.5T160-480q0 69 27 129t74 104l-57 57q-57-55-90.5-129.5T80-480q0-62 17-117t49-103l-91-91 57-57 736 736-57 57Zm23-205-58-58q21-35 32.5-76t11.5-86q0-134-93-227t-227-93q-45 0-85.5 11.5T318-756l-58-58q48-32 103.5-49T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 61-17 116.5T814-260ZM697-377l-62-62q2-10 3.5-20t1.5-21q0-66-47-113t-113-47q-11 0-21 1.5t-20 3.5l-62-62q23-11 49-17t54-6q100 0 170 70t70 170q0 28-6 54t-17 49Z"/></svg>`,
+    RECONNECT: `<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#22c55e"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-692v-148h80v280H520v-80h168q-32-56-87.5-88T480-760q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>`,
     ALARM_OFF: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M160-200h640v-80H160v80Zm160-240h80v-120q0-33 23.5-56.5T480-640v-80q-66 0-113 47t-47 113v120Zm160 160Zm-200-80h400v-200q0-83-58.5-141.5T480-760q-83 0-141.5 58.5T280-560v200ZM160-120q-33 0-56.5-23.5T80-200v-80q0-33 23.5-56.5T160-360h40v-200q0-117 81.5-198.5T480-840q117 0 198.5 81.5T760-560v200h40q33 0 56.5 23.5T880-280v80q0 33-23.5 56.5T800-120H160Zm320-240Z"/></svg>`,
     ALARM_ON: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 512 512" width="24px" fill="currentColor"><path d="M416.001,405.331V266.67c0-88.225-71.776-160.001-160-160.001c-88.225,0-160.002,71.776-160.002,160.001v138.662 c-29.409,0.001-53.335,23.926-53.335,53.333v42.666c0,5.892,4.777,10.669,10.669,10.669h405.332 c5.892,0,10.669-4.776,10.669-10.669v-42.666C469.334,429.257,445.408,405.331,416.001,405.331z M117.337,266.67 c0-76.459,62.206-138.663,138.664-138.663S394.663,190.21,394.663,266.67v138.662H266.67v-97.346 c18.382-4.75,32.001-21.472,32.001-41.317c0-23.528-19.141-42.669-42.669-42.669c-23.528,0-42.668,19.141-42.668,42.669 c0,19.845,13.619,36.568,32,41.317v97.346H117.337V266.67z M256.001,288c-11.762,0-21.331-9.569-21.331-21.33 c0-11.762,9.569-21.332,21.331-21.332c11.762,0,21.332,9.57,21.332,21.332C277.333,278.431,267.763,288,256.001,288z M447.996,490.663H64.002v-31.998c0-17.643,14.356-31.995,32.001-31.995h319.998c17.642,0,31.995,14.354,31.995,31.995V490.663z"/><path d="M69.336,266.67c0-5.892-4.776-10.669-10.669-10.669H10.669C4.776,256.001,0,260.777,0,266.67s4.776,10.669,10.669,10.669 h47.999C64.561,277.339,69.336,272.562,69.336,266.67z"/><path d="M148.096,101.109c1.976,3.423,5.563,5.336,9.25,5.336c1.809,0,3.644-0.461,5.324-1.431 c5.103-2.946,6.851-9.471,3.905-14.573l-23.998-41.569c-2.947-5.103-9.472-6.851-14.573-3.905 c-5.103,2.946-6.851,9.471-3.905,14.573L148.096,101.109z"/><path d="M256.001,80.008c5.892,0,10.669-4.776,10.669-10.669v-58.67C266.67,4.776,261.893,0,256.001,0 c-5.891,0-10.669,4.776-10.669,10.669v58.669C245.332,75.232,250.11,80.008,256.001,80.008z"/><path d="M28.966,147.909l50.805,29.334c1.68,0.97,3.515,1.431,5.325,1.431c3.687,0,7.273-1.914,9.249-5.335 c2.947-5.103,1.198-11.628-3.905-14.573l-50.805-29.334c-5.101-2.945-11.627-1.197-14.573,3.905 C22.114,138.437,23.863,144.963,28.966,147.909z"/><path d="M426.904,178.673c1.809,0,3.644-0.461,5.325-1.431l50.807-29.334c5.102-2.946,6.851-9.471,3.905-14.573 c-2.947-5.103-9.472-6.852-14.573-3.905l-50.807,29.334c-5.103,2.946-6.851,9.471-3.905,14.573 C419.63,176.76,423.216,178.673,426.904,178.673z"/><path d="M349.331,105.014c1.68,0.97,3.514,1.431,5.324,1.431c3.688,0,7.274-1.914,9.25-5.336l23.999-41.568 c2.947-5.103,1.197-11.628-3.905-14.573c-5.102-2.946-11.627-1.198-14.573,3.905L345.426,90.44 C342.481,95.544,344.228,102.069,349.331,105.014z"/><path d="M501.331,256.001h-48.001c-5.892,0-10.669,4.776-10.669,10.669s4.776,10.669,10.669,10.669h48.001 c5.89,0,10.669-4.776,10.669-10.669S507.223,256.001,501.331,256.001z"/></svg>`,
     BFP: `<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M280-120q-50 0-85-35t-35-85h-40q-33 0-56.5-23.5T40-320v-200h440v-160q0-33 23.5-56.5T560-760h80v-40q0-17 11.5-28.5T680-840h40q17 0 28.5 11.5T760-800v40h22q26 0 47 15t29 40l58 172q2 6 3 12.5t1 13.5v267H800q0 50-35 85t-85 35q-50 0-85-35t-35-85H400q0 50-35 85t-85 35Zm0-80q17 0-28.5-11.5T320-240q0-17-11.5-28.5T280-280q-17 0-28.5 11.5T240-240q0 17 11.5 28.5T280-200Zm400 0q17 0-28.5-11.5T720-240q0-17-11.5-28.5T680-280q-17 0-28.5 11.5T640-240q0 17 11.5 28.5T680-200ZM120-440v120h71q17-19 40-29.5t49-10.5q26 0 49 10.5t40 29.5h111v-120H120Zm440 120h31q17-19 40-29.5t49-10.5q26 0 49 10.5t40 29.5h71v-120H560v120Zm0-200h276l-54-160H560v160ZM40-560v-60h40v-80H40v-60h400v60h-40v80h40v60H40Zm100-60h70v-80h-70v80Zm130 0h70v-80h-70v80Zm210 180H120h360Zm80 0h280-280Z"/></svg>`
@@ -261,17 +263,20 @@ function updateDetailUI() {
     const tempBox = document.getElementById('tempBox');
     const gasBox = document.getElementById('gasBox');
 
-    banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning', 'banner-gas-warning', 'banner-smoke-warning');
+    banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning', 'banner-gas-warning', 'banner-smoke-warning', 'banner-offline', 'banner-reconnect');
     [tempBox, gasBox].forEach(box => box && box.classList.remove('danger', 'warning'));
 
     let isEmergency = false;
     let isWarning = false;
 
+    // OFFLINE STATE — takes priority over all sensor states
+    if (!activeDevice.online) {
+        banner.classList.add('banner-offline');
+        bannerText.innerText = "SYSTEM OFFLINE";
+        bannerIcon.innerHTML = ICONS.OFFLINE;
+    }
     // Check for actual fire sensor OR combined high temp + gas
-    const isFire = fire === true || fire === 1 || fire === "true";
-
-    // Threshold Checks with Icon Swapping (Priority: Fire > CombinedFire > CriticalGas > Heat > GasWarning > SmokeWarning > HeatWarning > Safe)
-    if (isFire) {
+    else if ((fire === true || fire === 1 || fire === "true")) {
         banner.classList.add('banner-danger');
         bannerText.innerText = "FIRE DETECTED";
         bannerIcon.innerHTML = ICONS.FIRE;
@@ -320,7 +325,6 @@ function updateDetailUI() {
         bannerText.innerText = "SYSTEM SAFE";
         bannerIcon.innerHTML = ICONS.SAFE;
     }
-
 
 
     // Update Values
@@ -375,11 +379,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Load global BFP number (shared across all devices)
         loadGlobalBFPNumber();
         
-        // Load saved alarm state from localStorage
-        const savedAlarmState = localStorage.getItem(`manualAlarm_${deviceId}`);
-        if (savedAlarmState === 'true') {
-          manualAlarmActive = true;
-        }
+        // DON'T load alarm state from localStorage — wait for server sync.
+        // Stale localStorage values caused phantom siren activation on page load.
+        // Server's sync-siren-state (via WebSocket) will set the correct state within ~1s.
+        manualAlarmActive = false;
         
         document.getElementById('detDeviceName').textContent = activeDevice.name;
         
@@ -708,6 +711,34 @@ function getInlineEl(acesId, role) {
   return container.querySelector(`[data-role="${role}"]`);
 }
 
+// Defensive: Force ALL inline alarm buttons to match their correct per-device state.
+// This prevents any cross-device visual leaking (e.g. ACES-2/3 buttons going sunken
+// when only ACES-1's siren was toggled).
+function syncAllInlineAlarmButtons() {
+  if (typeof devices === 'undefined') return;
+  devices.forEach(device => {
+    const id = device.acesId;
+    const state = inlineDeviceStates.get(id);
+    const isActive = state ? state.manualAlarmActive : false;
+    const btn = getInlineEl(id, 'manualAlarmBtn');
+    const icon = getInlineEl(id, 'alarmBtnIcon');
+    const label = getInlineEl(id, 'alarmBtnLabel');
+    if (btn) {
+      if (isActive) {
+        btn.classList.add('is-active');
+      } else {
+        btn.classList.remove('is-active');
+      }
+    }
+    if (icon && typeof ICONS !== 'undefined') {
+      icon.innerHTML = isActive ? ICONS.ALARM_ON : ICONS.ALARM_OFF;
+    }
+    if (label) {
+      label.textContent = isActive ? 'DEACTIVATE ALARM' : 'ACTIVATE ALARM';
+    }
+  });
+}
+
 // Initialize all inline device views (called after renderDevices on desktop)
 function initAllInlineDevices() {
   if (typeof devices === 'undefined') return;
@@ -724,10 +755,21 @@ function initAllInlineDevices() {
     else if (device.gas >= 450) initialAlertState = "GAS_WARNING";
     else if (device.gas >= 300) initialAlertState = "SMOKE_WARNING";
 
+    let savedLogs = [];
+    try {
+      savedLogs = JSON.parse(localStorage.getItem(`deviceActivityLogs_${device.acesId}`)) || [];
+    } catch (e) {
+      console.warn(`⚠️ Corrupt activity logs for ${device.acesId}, resetting:`, e.message);
+      localStorage.removeItem(`deviceActivityLogs_${device.acesId}`);
+    }
+    // Preserve existing alarm state if device was already initialized
+    // (renderDevices → initAllInlineDevices can be called repeatedly on sensor updates;
+    //  we must NOT wipe the alarm state the user just toggled)
+    const existingState = inlineDeviceStates.get(device.acesId);
     const state = {
-      lastAlertState: initialAlertState,
-      manualAlarmActive: localStorage.getItem(`manualAlarm_${device.acesId}`) === 'true',
-      deviceActivityLogs: JSON.parse(localStorage.getItem(`deviceActivityLogs_${device.acesId}`)) || []
+      lastAlertState: existingState ? existingState.lastAlertState : initialAlertState,
+      manualAlarmActive: existingState ? existingState.manualAlarmActive : false,
+      deviceActivityLogs: existingState ? existingState.deviceActivityLogs : savedLogs
     };
     inlineDeviceStates.set(device.acesId, state);
 
@@ -778,12 +820,17 @@ function updateInlineDetailUI(acesId) {
 
   const { temperature: temp, humidity: hum, gas, fire } = device;
 
-  banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning', 'banner-gas-warning', 'banner-smoke-warning');
+  banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning', 'banner-gas-warning', 'banner-smoke-warning', 'banner-offline', 'banner-reconnect');
   [tempBox, gasBox].forEach(box => box && box.classList.remove('danger', 'warning'));
 
   const isFire = fire === true || fire === 1 || fire === "true";
 
-  if (isFire) {
+  // OFFLINE STATE — takes priority over all sensor states
+  if (!device.online) {
+    banner.classList.add('banner-offline');
+    bannerText.innerText = "SYSTEM OFFLINE";
+    bannerIcon.innerHTML = ICONS.OFFLINE;
+  } else if (isFire) {
     banner.classList.add('banner-danger');
     bannerText.innerText = "FIRE DETECTED";
     bannerIcon.innerHTML = ICONS.FIRE;
@@ -971,15 +1018,16 @@ function renderInlineSavedLogs(acesId) {
 
 // Trigger validation for inline device (siren/BFP)
 window.triggerInlineValidation = function(type, acesId) {
+  console.log(`🔧 triggerInlineValidation: type=${type}, acesId='${acesId}'`);
   if (typeof devices === 'undefined') return;
   const device = devices.find(d => d.acesId === acesId);
-  if (!device) return;
+  if (!device) { console.error(`🔧 triggerInlineValidation BAIL: device not found for '${acesId}'`); return; }
 
   const alarmBtn = getInlineEl(acesId, 'manualAlarmBtn');
   const bfpBtn = getInlineEl(acesId, 'bfpBtn');
   const numInput = document.getElementById('bfpNumberInput');
   const state = inlineDeviceStates.get(acesId);
-  if (!state) return;
+  if (!state) { console.error(`🔧 triggerInlineValidation BAIL: no state for '${acesId}'. Map keys:`, [...inlineDeviceStates.keys()]); return; }
 
   // Apply is-active to the correct button based on type
   const activeBtn = type === 'alarm' ? alarmBtn : bfpBtn;
@@ -1081,16 +1129,25 @@ window.changeInlineBfpNumber = function(acesId) {
 
 // Toggle manual alarm for inline device
 function toggleInlineManualAlarm(acesId) {
+  console.log(`🔧 toggleInlineManualAlarm called for: ${acesId}`);
   if (typeof isWebSocketReady === 'undefined' || !isWebSocketReady) {
+    console.warn(`🔧 BAIL: WebSocket not ready (isWebSocketReady=${typeof isWebSocketReady !== 'undefined' ? isWebSocketReady : 'undefined'})`);
     showToast("Server not connected. Please wait and try again.", "error");
     return;
   }
 
   const state = inlineDeviceStates.get(acesId);
-  if (!state) return;
+  if (!state) {
+    console.error(`🔧 BAIL: No inlineDeviceState for '${acesId}'. Map keys:`, [...inlineDeviceStates.keys()]);
+    return;
+  }
 
   const device = (typeof devices !== 'undefined') ? devices.find(d => d.acesId === acesId) : null;
-  if (!device) return;
+  if (!device) {
+    console.error(`🔧 BAIL: No device found for '${acesId}'. Device acesIds:`, devices.map(d => d.acesId));
+    return;
+  }
+  console.log(`🔧 State before toggle: manualAlarmActive=${state.manualAlarmActive}`);
 
   state.manualAlarmActive = !state.manualAlarmActive;
   const alarmBtn = getInlineEl(acesId, 'manualAlarmBtn');
@@ -1124,6 +1181,11 @@ function toggleInlineManualAlarm(acesId) {
   }
 
   localStorage.setItem(`manualAlarm_${acesId}`, state.manualAlarmActive ? 'true' : 'false');
+  console.log(`🔧 Toggle complete: ${acesId} → manualAlarmActive=${state.manualAlarmActive}, btn=${!!alarmBtn}`);
+
+  // Defensive: force ALL buttons to reflect their correct per-device state
+  // This prevents other devices' buttons from visually leaking into active state
+  syncAllInlineAlarmButtons();
 }
 
 // Send BFP alert for inline device
