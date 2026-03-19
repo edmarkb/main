@@ -99,6 +99,128 @@ if (!window.systemEventLogs) {
     window.systemEventLogs = [];
 }
 
+// ============================================================
+// HYSTERESIS STATE MACHINE — Prevents flickering alerts
+// ============================================================
+// Stores per-device alert state with debounce timers
+const deviceAlertStates = new Map();
+
+// Hysteresis thresholds: different values for entering vs exiting alerts
+const HYSTERESIS_THRESHOLDS = {
+    fire: {
+        enter: true,        // Fire = true to enter alert
+        exit: false,        // Only clear when = false
+        debounceMs: 2000    // Wait 2 seconds of "safe" before clearing banner
+    },
+    heat: {
+        enter: 42,          // Enter at 42°C
+        exit: 40,           // Exit only at 40°C (or below)
+        debounceMs: 1500
+    },
+    gas: {
+        enter: 600,         // Enter at 600 ppm
+        exit: 550,          // Exit at 550 ppm (below)
+        debounceMs: 1500
+    },
+    gasWarning: {
+        enter: 450,         // Warning at 450 ppm
+        exit: 420,          // Exit at 420 ppm
+        debounceMs: 1200
+    },
+    smokeWarning: {
+        enter: 300,         // Smoke warning at 300 ppm
+        exit: 280,          // Exit at 280 ppm
+        debounceMs: 1200
+    },
+    tempWarning: {
+        enter: 38,          // Temperature warning at 38°C
+        exit: 36,           // Exit at 36°C (or below)
+        debounceMs: 1200
+    }
+};
+
+// Initialize or get device alert state
+function getDeviceAlertState(deviceId) {
+    if (!deviceAlertStates.has(deviceId)) {
+        deviceAlertStates.set(deviceId, {
+            currentState: 'SAFE',
+            pendingState: null,
+            debounceTimer: null
+        });
+    }
+    return deviceAlertStates.get(deviceId);
+}
+
+// Evaluate raw sensor state without hysteresis (what thresholds are currently crossed)
+function evaluateRawState(temp, gas, fire) {
+    if (fire === true || fire === 1 || fire === "true") return 'FIRE';
+    if (temp >= HYSTERESIS_THRESHOLDS.heat.enter && gas >= HYSTERESIS_THRESHOLDS.gas.enter) return 'FIRE';
+    if (gas >= HYSTERESIS_THRESHOLDS.gas.enter) return 'CRITICAL_GAS';
+    if (temp >= HYSTERESIS_THRESHOLDS.heat.enter) return 'CRITICAL_HEAT';
+    if (gas >= HYSTERESIS_THRESHOLDS.gasWarning.enter) return 'GAS_WARNING';
+    if (temp >= HYSTERESIS_THRESHOLDS.tempWarning.enter) return 'TEMP_WARNING';
+    if (gas >= HYSTERESIS_THRESHOLDS.smokeWarning.enter) return 'SMOKE_WARNING';
+    return 'SAFE';
+}
+
+// Apply hysteresis logic: decide if we should actually transition state
+function applyHysteresis(deviceId, rawState, currentState) {
+    // Entering an alert: do it immediately (no debounce)
+    if (rawState !== 'SAFE' && currentState === 'SAFE') {
+        return rawState;  // Transition to alert immediately
+    }
+    
+    // Exiting an alert: require debounce period to stay safe
+    if (rawState === 'SAFE' && currentState !== 'SAFE') {
+        return currentState;  // Stay in current alert state for now
+    }
+    
+    // Same state: no change
+    return currentState;
+}
+
+// Update alert state with debounce support (called when sensor data changes)
+function updateAlertStateWithDebounce(deviceId, temp, gas, fire) {
+    const state = getDeviceAlertState(deviceId);
+    const rawState = evaluateRawState(temp, gas, fire);
+    const currentState = state.currentState;
+    
+    // Clear any pending debounce timer if sensor goes back into alert
+    if (rawState !== 'SAFE' && state.debounceTimer) {
+        clearTimeout(state.debounceTimer);
+        state.debounceTimer = null;
+        state.pendingState = null;
+    }
+    
+    // Check if we should transition
+    const nextState = applyHysteresis(deviceId, rawState, currentState);
+    
+    // If entering an alert state: immediate transition
+    if (rawState !== 'SAFE' && currentState === 'SAFE') {
+        state.currentState = nextState;
+        state.pendingState = null;
+        if (state.debounceTimer) {
+            clearTimeout(state.debounceTimer);
+            state.debounceTimer = null;
+        }
+    }
+    // If exiting an alert (rawState is SAFE but we're still in alert): set up debounce
+    else if (rawState === 'SAFE' && currentState !== 'SAFE' && !state.debounceTimer) {
+        state.pendingState = 'SAFE';
+        state.debounceTimer = setTimeout(() => {
+            state.currentState = 'SAFE';
+            state.pendingState = null;
+            state.debounceTimer = null;
+            // Trigger UI update for both detail and inline views
+            if (typeof updateDetailUI === 'function') updateDetailUI();
+            if (typeof updateAllInlineDetails === 'function') updateAllInlineDetails();
+        }, 2000);  // Use standard 2-second debounce before clearing alert
+    }
+    // No change: stay in current state
+    
+    return state.currentState;
+}
+
 // 2. ACTIVITY LOG LOGIC
 function addDeviceLog(message, type = 'info', postToBackend = false, eventType = null) {
     const logList = document.getElementById('deviceLogList');
@@ -274,58 +396,55 @@ function updateDetailUI() {
         banner.classList.add('banner-offline');
         bannerText.innerText = "SYSTEM OFFLINE";
         bannerIcon.innerHTML = ICONS.OFFLINE;
-    }
-    // Check for actual fire sensor OR combined high temp + gas
-    else if ((fire === true || fire === 1 || fire === "true")) {
-        banner.classList.add('banner-danger');
-        bannerText.innerText = "FIRE DETECTED";
-        bannerIcon.innerHTML = ICONS.FIRE;
-        if(tempBox) tempBox.classList.add('danger');
-        if(gasBox) gasBox.classList.add('danger');
-        isEmergency = true;
-    } else if (temp >= 42 && gas >= 600) {
-        banner.classList.add('banner-danger');
-        bannerText.innerText = "FIRE DETECTED";
-        bannerIcon.innerHTML = ICONS.FIRE;
-        if(tempBox) tempBox.classList.add('danger');
-        if(gasBox) gasBox.classList.add('danger');
-        isEmergency = true;
-    } else if (gas >= 600) {
-        banner.classList.add('banner-danger');
-        bannerText.innerText = "CRITICAL GAS LEAK DETECTED";
-        bannerIcon.innerHTML = ICONS.SMOKE;
-        if(gasBox) gasBox.classList.add('danger');
-        isEmergency = true;
-    } else if (temp >= 42) {
-        banner.classList.add('banner-danger');
-        bannerText.innerText = "HIGH TEMPERATURE ALERT";
-        bannerIcon.innerHTML = ICONS.HEAT;
-        if(tempBox) tempBox.classList.add('danger');
-        isEmergency = true;
-    } else if (gas >= 450) {
-        banner.classList.add('banner-gas-warning');
-        bannerText.innerText = "GAS LEAK WARNING";
-        bannerIcon.innerHTML = ICONS.SMOKE_WARN;
-        if(gasBox) gasBox.classList.add('warning');
-        isWarning = true;
-    } else if (temp >= 38) {
-        banner.classList.add('banner-warning');
-        bannerText.innerText = "ELEVATED TEMPERATURE";
-        bannerIcon.innerHTML = ICONS.HEAT_WARN;
-        if(tempBox) tempBox.classList.add('warning');
-        isWarning = true;
-    } else if (gas >= 300) {
-        banner.classList.add('banner-smoke-warning');
-        bannerText.innerText = "SMOKE WARNING";
-        bannerIcon.innerHTML = ICONS.SMOKE_WARN;
-        if(gasBox) gasBox.classList.add('warning');
-        isWarning = true;
     } else {
-        banner.classList.add('banner-safe');
-        bannerText.innerText = "SYSTEM SAFE";
-        bannerIcon.innerHTML = ICONS.SAFE;
+        // Apply hysteresis logic for online devices
+        const alertState = updateAlertStateWithDebounce(activeDevice.acesId || activeDevice.id, temp, gas, fire);
+        
+        // Render UI based on hysteresis-controlled state (not raw sensor values)
+        if (alertState === 'FIRE') {
+            banner.classList.add('banner-danger');
+            bannerText.innerText = "FIRE DETECTED";
+            bannerIcon.innerHTML = ICONS.FIRE;
+            if(tempBox) tempBox.classList.add('danger');
+            if(gasBox) gasBox.classList.add('danger');
+            isEmergency = true;
+        } else if (alertState === 'CRITICAL_HEAT') {
+            banner.classList.add('banner-danger');
+            bannerText.innerText = "HIGH TEMPERATURE ALERT";
+            bannerIcon.innerHTML = ICONS.HEAT;
+            if(tempBox) tempBox.classList.add('danger');
+            isEmergency = true;
+        } else if (alertState === 'CRITICAL_GAS') {
+            banner.classList.add('banner-danger');
+            bannerText.innerText = "CRITICAL GAS LEAK DETECTED";
+            bannerIcon.innerHTML = ICONS.SMOKE;
+            if(gasBox) gasBox.classList.add('danger');
+            isEmergency = true;
+        } else if (alertState === 'GAS_WARNING') {
+            banner.classList.add('banner-gas-warning');
+            bannerText.innerText = "GAS LEAK WARNING";
+            bannerIcon.innerHTML = ICONS.SMOKE_WARN;
+            if(gasBox) gasBox.classList.add('warning');
+            isWarning = true;
+        } else if (alertState === 'TEMP_WARNING') {
+            banner.classList.add('banner-warning');
+            bannerText.innerText = "ELEVATED TEMPERATURE";
+            bannerIcon.innerHTML = ICONS.HEAT_WARN;
+            if(tempBox) tempBox.classList.add('warning');
+            isWarning = true;
+        } else if (alertState === 'SMOKE_WARNING') {
+            banner.classList.add('banner-smoke-warning');
+            bannerText.innerText = "SMOKE WARNING";
+            bannerIcon.innerHTML = ICONS.SMOKE_WARN;
+            if(gasBox) gasBox.classList.add('warning');
+            isWarning = true;
+        } else {
+            // SAFE state
+            banner.classList.add('banner-safe');
+            bannerText.innerText = "SYSTEM SAFE";
+            bannerIcon.innerHTML = ICONS.SAFE;
+        }
     }
-
 
     // Update Values
     document.getElementById('detTemp').textContent = (temp ?? 0).toFixed(1);
@@ -739,6 +858,14 @@ function syncAllInlineAlarmButtons() {
   });
 }
 
+// Update all inline device UI elements (called after hysteresis debounce completes)
+function updateAllInlineDetails() {
+  if (typeof devices === 'undefined') return;
+  devices.forEach(device => {
+    updateInlineDetailUI(device.acesId);
+  });
+}
+
 // Initialize all inline device views (called after renderDevices on desktop)
 function initAllInlineDevices() {
   if (typeof devices === 'undefined') return;
@@ -823,54 +950,53 @@ function updateInlineDetailUI(acesId) {
   banner.classList.remove('banner-safe', 'banner-danger', 'banner-warning', 'banner-gas-warning', 'banner-smoke-warning', 'banner-offline', 'banner-reconnect');
   [tempBox, gasBox].forEach(box => box && box.classList.remove('danger', 'warning'));
 
-  const isFire = fire === true || fire === 1 || fire === "true";
-
   // OFFLINE STATE — takes priority over all sensor states
   if (!device.online) {
     banner.classList.add('banner-offline');
     bannerText.innerText = "SYSTEM OFFLINE";
     bannerIcon.innerHTML = ICONS.OFFLINE;
-  } else if (isFire) {
-    banner.classList.add('banner-danger');
-    bannerText.innerText = "FIRE DETECTED";
-    bannerIcon.innerHTML = ICONS.FIRE;
-    if (tempBox) tempBox.classList.add('danger');
-    if (gasBox) gasBox.classList.add('danger');
-  } else if (temp >= 42 && gas >= 600) {
-    banner.classList.add('banner-danger');
-    bannerText.innerText = "FIRE DETECTED";
-    bannerIcon.innerHTML = ICONS.FIRE;
-    if (tempBox) tempBox.classList.add('danger');
-    if (gasBox) gasBox.classList.add('danger');
-  } else if (gas >= 600) {
-    banner.classList.add('banner-danger');
-    bannerText.innerText = "CRITICAL GAS LEAK DETECTED";
-    bannerIcon.innerHTML = ICONS.SMOKE;
-    if (gasBox) gasBox.classList.add('danger');
-  } else if (temp >= 42) {
-    banner.classList.add('banner-danger');
-    bannerText.innerText = "HIGH TEMPERATURE ALERT";
-    bannerIcon.innerHTML = ICONS.HEAT;
-    if (tempBox) tempBox.classList.add('danger');
-  } else if (gas >= 450) {
-    banner.classList.add('banner-gas-warning');
-    bannerText.innerText = "GAS LEAK WARNING";
-    bannerIcon.innerHTML = ICONS.SMOKE_WARN;
-    if (gasBox) gasBox.classList.add('warning');
-  } else if (temp >= 38) {
-    banner.classList.add('banner-warning');
-    bannerText.innerText = "ELEVATED TEMPERATURE";
-    bannerIcon.innerHTML = ICONS.HEAT_WARN;
-    if (tempBox) tempBox.classList.add('warning');
-  } else if (gas >= 300) {
-    banner.classList.add('banner-smoke-warning');
-    bannerText.innerText = "SMOKE WARNING";
-    bannerIcon.innerHTML = ICONS.SMOKE_WARN;
-    if (gasBox) gasBox.classList.add('warning');
   } else {
-    banner.classList.add('banner-safe');
-    bannerText.innerText = "SYSTEM SAFE";
-    bannerIcon.innerHTML = ICONS.SAFE;
+    // Apply hysteresis logic for online devices
+    const alertState = updateAlertStateWithDebounce(acesId, temp, gas, fire);
+    
+    // Render UI based on hysteresis-controlled state
+    if (alertState === 'FIRE') {
+      banner.classList.add('banner-danger');
+      bannerText.innerText = "FIRE DETECTED";
+      bannerIcon.innerHTML = ICONS.FIRE;
+      if (tempBox) tempBox.classList.add('danger');
+      if (gasBox) gasBox.classList.add('danger');
+    } else if (alertState === 'CRITICAL_HEAT') {
+      banner.classList.add('banner-danger');
+      bannerText.innerText = "HIGH TEMPERATURE ALERT";
+      bannerIcon.innerHTML = ICONS.HEAT;
+      if (tempBox) tempBox.classList.add('danger');
+    } else if (alertState === 'CRITICAL_GAS') {
+      banner.classList.add('banner-danger');
+      bannerText.innerText = "CRITICAL GAS LEAK DETECTED";
+      bannerIcon.innerHTML = ICONS.SMOKE;
+      if (gasBox) gasBox.classList.add('danger');
+    } else if (alertState === 'GAS_WARNING') {
+      banner.classList.add('banner-gas-warning');
+      bannerText.innerText = "GAS LEAK WARNING";
+      bannerIcon.innerHTML = ICONS.SMOKE_WARN;
+      if (gasBox) gasBox.classList.add('warning');
+    } else if (alertState === 'TEMP_WARNING') {
+      banner.classList.add('banner-warning');
+      bannerText.innerText = "ELEVATED TEMPERATURE";
+      bannerIcon.innerHTML = ICONS.HEAT_WARN;
+      if (tempBox) tempBox.classList.add('warning');
+    } else if (alertState === 'SMOKE_WARNING') {
+      banner.classList.add('banner-smoke-warning');
+      bannerText.innerText = "SMOKE WARNING";
+      bannerIcon.innerHTML = ICONS.SMOKE_WARN;
+      if (gasBox) gasBox.classList.add('warning');
+    } else {
+      // SAFE state
+      banner.classList.add('banner-safe');
+      bannerText.innerText = "SYSTEM SAFE";
+      bannerIcon.innerHTML = ICONS.SAFE;
+    }
   }
 
   // Update sensor values
