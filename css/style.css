@@ -2664,13 +2664,13 @@ body {
 
 /* --- THE 7-SEGMENT DISPLAY --- */
 #bannerText {
-    font-family: 'Seven Segment', 'Courier New', Courier, monospace; 
+    font-family: 'Seven Segment', 'Courier New', Courier, monospace;
     font-weight: 900;
-    font-size: 2rem; 
+    font-size: 2rem;
     margin-top: 15px;
     text-transform: uppercase;
-    letter-spacing: 5px; 
-    
+    letter-spacing: 5px;
+
     /* Ensure text looks like it is "inside" the hole */
     background: transparent;
     padding: 0;
@@ -2843,19 +2843,103 @@ body {
     }
 }
 @keyframes neumorphic-danger-pulse {
-    0% { 
+    0% {
         box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light);
         transform: translateY(0);
     }
-    50% { 
+    50% {
         box-shadow: 0 0 50px rgba(255, 71, 87, 0.25), 15px 15px 30px var(--shadow-dark);
-        transform: translateY(-5px); 
+        transform: translateY(-5px);
     }
-    100% { 
+    100% {
         box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light);
         transform: translateY(0);
     }
 }
+
+/* ============================================================
+   SIREN COUNTDOWN TIMER (inside status banner - subtle note style)
+   ============================================================ */
+.siren-countdown-container {
+    margin-top: 16px;
+    padding: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.siren-countdown-text {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.siren-countdown-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    color: #94a3b8;
+}
+
+.siren-countdown-timer {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Roboto Mono', 'Fira Code', monospace;
+    color: #ef4444;
+    letter-spacing: 0.5px;
+}
+
+.siren-countdown-note {
+    margin-top: 3px;
+    font-size: 9px;
+    color: #94a3b8;
+    text-align: center;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* Dark mode adjustments */
+.dark-mode .siren-countdown-label {
+    color: #64748b;
+}
+
+.dark-mode .siren-countdown-timer {
+    color: #f87171;
+}
+
+.dark-mode .siren-countdown-note {
+    color: #64748b;
+}
+
+/* Desktop inline (bento) specific adjustments */
+.device-inline-detail .bento-banner .status-banner {
+    position: relative;
+}
+
+.device-inline-detail .siren-countdown-container {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    margin-top: 0;
+}
+
+.device-inline-detail .siren-countdown-label {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.device-inline-detail .siren-countdown-timer {
+    font-size: 15px;
+    letter-spacing: 1px;
+}
+
+.device-inline-detail .siren-countdown-note {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
 /* --- 2. THE SENSOR GRID & CARDS --- */
 .device-stats-grid {
     display: grid !important;
@@ -3738,6 +3822,18 @@ body {
 .modal-v2 .input-group input::placeholder {
   color: var(--text-secondary) !important;
   opacity: 0.6 !important;
+}
+
+/* Mobile: Prevent iOS auto-zoom on input focus (requires font-size >= 16px) */
+@media (max-width: 768px) {
+  .modal-v2-input,
+  .modal-v2 .input-group input,
+  .modal-content input,
+  .modal input[type="text"],
+  .modal input[type="tel"],
+  .modal input[type="number"] {
+    font-size: 16px !important;
+  }
 }
 
 /* ============================================================
@@ -5021,16 +5117,16 @@ body {
 }
 
 .device-inline-detail .bento-banner [data-role="bannerIcon"] svg {
-    width: clamp(40px, 7vh, 80px) !important;
-    height: clamp(40px, 7vh, 80px) !important;
+    width: clamp(50px, 8vh, 95px) !important;
+    height: clamp(50px, 8vh, 95px) !important;
     display: block !important;
 }
 
 .device-inline-detail .bento-banner [data-role="bannerText"] {
     font-family: 'Seven Segment', 'Courier New', Courier, monospace !important;
     font-weight: 900 !important;
-    font-size: clamp(1rem, 3vh, 2.2rem) !important;
-    letter-spacing: 5px !important;
+    font-size: clamp(1.3rem, 3.8vh, 2.8rem) !important;
+    letter-spacing: 7px !important;
     line-height: 1 !important;
     margin-top: clamp(8px, 1.5vh, 16px) !important;
     margin-bottom: 0 !important;

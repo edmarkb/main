@@ -531,6 +531,42 @@ function initWebSocket() {
     localStorage.setItem(`manualAlarm_${acesId}`, data.isActive ? 'true' : 'false');
     localStorage.setItem(`sirenSource_${acesId}`, source);
 
+    // Handle countdown timer data
+    // cooldownStartedAt = when conditions returned to safe (countdown begins)
+    // cooldownCancelled = critical condition returned, hide countdown
+    // IMPORTANT: Only use cooldownStartedAt, NOT activatedAt - countdown only shows during cooldown period
+    const countdownTime = data.cooldownStartedAt;
+
+    if (data.cooldownCancelled) {
+      // Critical condition returned during cooldown - hide countdown
+      localStorage.removeItem(`sirenActivatedAt_${acesId}`);
+      localStorage.removeItem(`sirenCooldownMs_${acesId}`);
+    } else if (source === 'auto' && data.isActive && countdownTime) {
+      // Cooldown started - store the countdown start time
+      localStorage.setItem(`sirenActivatedAt_${acesId}`, countdownTime.toString());
+      localStorage.setItem(`sirenCooldownMs_${acesId}`, (data.cooldownMs || 30000).toString());
+    } else if (!data.isActive) {
+      // Clear countdown data when siren is deactivated
+      localStorage.removeItem(`sirenActivatedAt_${acesId}`);
+      localStorage.removeItem(`sirenCooldownMs_${acesId}`);
+    }
+
+    // Trigger countdown timer update (mobile detail page)
+    // Pass null for countdownTime if cooldown was cancelled or not started yet (hides countdown)
+    // Note: No isCurrentDevice check - the function checks for DOM elements that only exist on detail page
+    if (typeof updateSirenCountdown === 'function') {
+      const effectiveTime = data.cooldownCancelled ? null : countdownTime;
+      console.log(`🎯 alarm-state-changed: Calling updateSirenCountdown with effectiveTime=${effectiveTime}, serverNow=${data.serverNow}`);
+      updateSirenCountdown(acesId, source, data.isActive, effectiveTime, data.cooldownMs, data.serverNow);
+    }
+
+    // Trigger countdown timer update (desktop inline view)
+    if (typeof updateInlineSirenCountdown === 'function') {
+      const effectiveTime = data.cooldownCancelled ? null : countdownTime;
+      console.log(`🎯 alarm-state-changed: Calling updateInlineSirenCountdown with effectiveTime=${effectiveTime}, serverNow=${data.serverNow}`);
+      updateInlineSirenCountdown(acesId, source, data.isActive, effectiveTime, data.cooldownMs, data.serverNow);
+    }
+
     // Update inline alarm button (desktop dashboard)
     if (typeof getInlineEl === 'function') {
       const inlineAlarmBtn = getInlineEl(acesId, 'manualAlarmBtn');
@@ -563,21 +599,56 @@ function initWebSocket() {
     }
 
     // Show toast with appropriate message
-    if (source === 'auto') {
+    if (data.cooldownCancelled) {
+      // Critical conditions returned during cooldown - siren stays on
+      showToast(`${data.deviceName} critical conditions re-detected`, 'danger');
+    } else if (data.cooldownStartedAt && data.isActive) {
+      // Cooldown started - conditions returned to safe, countdown begins
+      showToast(`${data.deviceName} conditions safe — siren will auto-off in 30s`, 'warning');
+    } else if (source === 'auto' && data.isActive && !data.cooldownStartedAt) {
+      // Initial auto-activation
       showToast(`${data.deviceName} siren auto-activated (critical condition)`, 'danger');
-    } else {
+    } else if (source === 'auto' && !data.isActive) {
+      // Siren deactivated (either after cooldown or manually)
+      showToast(`${data.deviceName} conditions safe — returning to monitoring mode`, 'success');
+    } else if (source !== 'auto') {
+      // Manual activation/deactivation
       showToast(`${data.deviceName} siren ${data.isActive ? 'activated' : 'deactivated'}`, 'warning');
     }
   });
 
   // Sync siren states for all devices on connect/reconnect (server is source of truth)
-  socket.on('sync-siren-state', (states) => {
-    if (!states) return;
-    console.log('🔔 Received siren states from server:', states);
+  socket.on('sync-siren-state', (payload) => {
+    if (!payload) return;
+    // Handle new structure: { states, cooldownMs, serverNow } or legacy: just states object
+    const states = payload.states || payload;
+    const cooldownMs = payload.cooldownMs || 30000;
+    const serverNow = payload.serverNow || Date.now();  // Fallback for legacy servers
+    console.log('🔔 Received siren states from server:', states, 'cooldownMs:', cooldownMs, 'serverNow:', serverNow);
 
     for (const [deviceId, state] of Object.entries(states)) {
       localStorage.setItem(`manualAlarm_${deviceId}`, state.isActive ? 'true' : 'false');
       localStorage.setItem(`sirenSource_${deviceId}`, state.source || 'manual');
+
+      // Use cooldownStartedAt if available (countdown only shows during cooldown period)
+      const countdownTime = state.cooldownStartedAt || state.activatedAt;
+
+      // Store siren countdown data for auto-activated sirens in cooldown
+      if (state.source === 'auto' && state.isActive && state.cooldownStartedAt) {
+        localStorage.setItem(`sirenActivatedAt_${deviceId}`, state.cooldownStartedAt.toString());
+        localStorage.setItem(`sirenCooldownMs_${deviceId}`, cooldownMs.toString());
+      } else if (!state.isActive || !state.cooldownStartedAt) {
+        // No countdown if siren is off OR cooldown hasn't started yet
+        localStorage.removeItem(`sirenActivatedAt_${deviceId}`);
+        localStorage.removeItem(`sirenCooldownMs_${deviceId}`);
+      }
+
+      // Trigger countdown timer update (desktop inline view)
+      // Only show countdown if cooldownStartedAt is set (conditions returned to safe)
+      if (typeof updateInlineSirenCountdown === 'function') {
+        console.log(`🎯 sync-siren-state: Calling updateInlineSirenCountdown with cooldownStartedAt=${state.cooldownStartedAt}, serverNow=${serverNow}`);
+        updateInlineSirenCountdown(deviceId, state.source || 'manual', state.isActive, state.cooldownStartedAt, cooldownMs, serverNow);
+      }
 
       // Update inline alarm buttons on desktop dashboard
       if (typeof getInlineEl === 'function') {
@@ -627,6 +698,12 @@ function initWebSocket() {
         }
         if (typeof manualAlarmActive !== 'undefined') {
           manualAlarmActive = deviceState.isActive;
+        }
+        // Trigger countdown timer update (mobile detail page)
+        // Only show countdown if cooldownStartedAt is set (conditions returned to safe)
+        if (typeof updateSirenCountdown === 'function') {
+          console.log(`🎯 sync-siren-state: Calling updateSirenCountdown with cooldownStartedAt=${deviceState.cooldownStartedAt}, serverNow=${serverNow}`);
+          updateSirenCountdown(currentId, deviceState.source || 'manual', deviceState.isActive, deviceState.cooldownStartedAt, cooldownMs, serverNow);
         }
       }
     }

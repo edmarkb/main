@@ -39,6 +39,358 @@ let isPolling = false;  // Prevent concurrent fetch requests
 let deviceActivityLogs = [];
 let currentDeviceId = null; // Track which device we're viewing
 
+// Siren countdown timer variables
+const detailSirenCountdownData = {};  // Store countdown data per device (detail page) to avoid race conditions
+const inlineSirenCountdownData = new Map(); // Store countdown data per device (inline view)
+const inlineSirenCountdownIntervals = new Map(); // Track countdown intervals per device for inline view
+
+// Format seconds to MM:SS display
+function formatCountdown(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Update mobile siren countdown timer (device detail page)
+// Called by websocket-client.js when alarm state changes
+// FIX: Uses relative timing from message receipt to avoid clock skew issues on mobile
+// FIX: Persists countdown state to localStorage so navigation doesn't reset the countdown
+window.updateSirenCountdown = function(acesId, source, isActive, activatedAt, cooldownMs, serverNow) {
+    const container = document.getElementById('sirenCountdownContainer');
+    const timerEl = document.getElementById('sirenCountdownTimer');
+
+    if (!container || !timerEl) return;
+
+    const now = Date.now();
+    const storageKey = `sirenCountdown_${acesId}`;  // Uses localStorage for cross-tab/cross-device sync
+    console.log(`📱 DETAIL updateSirenCountdown: activatedAt=${activatedAt}, now=${now}, serverNow=${serverNow}, diff=${activatedAt ? now - activatedAt : 'N/A'}ms`);
+
+    // Initialize or get countdown state for this device
+    if (!detailSirenCountdownData[acesId]) {
+        detailSirenCountdownData[acesId] = {
+            activatedAt: null,
+            cooldownMs: null,
+            intervalId: null,
+            lastUpdateTime: null,
+            localStartTime: null,      // When we received the message (local clock)
+            initialRemainingMs: null   // How much time was remaining when we received it
+        };
+        console.log(`📱 DETAIL: Created new state object for device ${acesId}`);
+    }
+    const state = detailSirenCountdownData[acesId];
+
+    // Only show countdown for auto-activated sirens that are currently active with cooldown time
+    // When siren stops (isActive: false), countdown stops immediately to stay in sync with backend/ESP32
+    // When activatedAt (cooldownStartedAt) is provided, backend confirmed conditions are safe
+    if (source !== 'auto' || !isActive || !activatedAt) {
+        console.log(`📱 DETAIL: Hiding countdown (source=${source}, isActive=${isActive}, activatedAt=${activatedAt})`);
+        // Hide countdown
+        container.style.display = 'none';
+        // Clear the interval if one exists
+        if (state.intervalId) {
+            console.log(`📱 DETAIL: Clearing countdown interval`);
+            clearInterval(state.intervalId);
+            state.intervalId = null;
+        }
+        state.activatedAt = null;
+        state.cooldownMs = null;
+        state.lastUpdateTime = null;
+        state.localStartTime = null;
+        state.initialRemainingMs = null;
+        // Clear localStorage when countdown ends
+        try { localStorage.removeItem(storageKey); } catch(e) {}
+        return;
+    }
+
+    // Additional safety: don't let older events override newer ones
+    // activatedAt from a more recent event should be >= previous one
+    if (state.lastUpdateTime && activatedAt < state.activatedAt) {
+        // Ignore older timestamps - don't override with stale data
+        console.log(`📱 DETAIL: Ignoring stale timestamp ${activatedAt}, current is ${state.activatedAt}`);
+        return;
+    }
+
+    // Update state only if this is a fresh event (more recent activatedAt)
+    if (state.activatedAt !== activatedAt || state.cooldownMs !== cooldownMs) {
+        console.log(`📱 DETAIL: Starting new countdown. Old: ${state.activatedAt}, New: ${activatedAt}`);
+
+        const cooldown = cooldownMs || 30000;
+        let initialRemaining;
+        let localStartTime;
+
+        // If we didn't restore from localStorage, calculate fresh using SERVER time
+        // FIX FOR CLOCK SKEW: Use serverNow (from server) to calculate elapsed time
+        // This eliminates clock skew issues between devices
+        if (serverNow && activatedAt) {
+            const serverElapsed = serverNow - activatedAt;  // Both are server timestamps - no skew!
+            initialRemaining = cooldown - serverElapsed;
+            localStartTime = now;  // Anchor to local clock for subsequent ticks
+
+            console.log(`📱 DETAIL: Using serverNow for calculation. serverElapsed=${serverElapsed}ms, initialRemaining=${initialRemaining}ms`);
+
+            // Clamp to valid range
+            if (initialRemaining <= 0) {
+                // Already expired according to server - hide and wait for server
+                console.log(`📱 DETAIL: Countdown already expired (serverElapsed=${serverElapsed}ms)`);
+                container.style.display = 'none';
+                return;
+            }
+            if (initialRemaining > cooldown) {
+                // Should not happen with server time, but cap just in case
+                console.log(`📱 DETAIL: initialRemaining=${initialRemaining}ms > cooldown=${cooldown}ms, capping`);
+                initialRemaining = cooldown;
+            }
+        } else {
+            // Fallback: no serverNow provided, use local clock (legacy behavior)
+            const serverElapsed = now - activatedAt;  // May have clock skew
+            initialRemaining = cooldown - serverElapsed;
+            localStartTime = now;
+
+            console.log(`📱 DETAIL: No serverNow, using local clock. serverElapsed=${serverElapsed}ms`);
+
+            // Clamp to valid range
+            if (initialRemaining <= 0) {
+                console.log(`📱 DETAIL: Countdown already expired (serverElapsed=${serverElapsed}ms)`);
+                container.style.display = 'none';
+                return;
+            }
+            if (initialRemaining > cooldown) {
+                // Clock skew: mobile is behind server. Cap to cooldown.
+                console.log(`📱 DETAIL: Clock skew detected, capping to cooldown`);
+                initialRemaining = cooldown;
+            }
+        }
+
+        state.activatedAt = activatedAt;
+        state.cooldownMs = cooldown;
+        state.lastUpdateTime = now;
+
+        // Clear old interval when updating with new times
+        if (state.intervalId) {
+            console.log(`📱 DETAIL: Clearing old countdown interval`);
+            clearInterval(state.intervalId);
+            state.intervalId = null;
+        }
+
+        // Store local anchor point for relative timing
+        state.localStartTime = localStartTime;
+        state.initialRemainingMs = initialRemaining;
+
+        console.log(`📱 DETAIL: Countdown starting with ${Math.ceil(initialRemaining / 1000)}s remaining`);
+
+        function tick() {
+            // Calculate remaining using LOCAL elapsed time since message receipt
+            // This is immune to clock skew after the initial calculation
+            const localElapsed = Date.now() - state.localStartTime;
+            let remainingMs = state.initialRemainingMs - localElapsed;
+            let remaining = Math.ceil(remainingMs / 1000);
+
+            // Clamp to valid range
+            remaining = Math.max(0, remaining);
+
+            if (remaining <= 0) {
+                console.log(`📱 DETAIL: Countdown finished`);
+                container.style.display = 'none';
+                if (state.intervalId) {
+                    clearInterval(state.intervalId);
+                    state.intervalId = null;
+                }
+                // Clear localStorage when countdown ends
+                try { localStorage.removeItem(storageKey); } catch(e) {}
+                return;
+            }
+
+            timerEl.textContent = formatCountdown(remaining);
+            container.style.display = 'block';
+        }
+
+        // Initial tick to display immediately
+        console.log(`📱 DETAIL: Initial tick`);
+        tick();
+
+        // Update every second
+        console.log(`📱 DETAIL: Starting countdown interval`);
+        state.intervalId = setInterval(tick, 1000);
+    } else {
+        console.log(`📱 DETAIL: Same timestamp, skipping update`);
+    }
+};
+
+// Update inline (desktop) siren countdown timer
+// Called by websocket-client.js when alarm state changes
+// FIX: Uses server time (serverNow) to calculate elapsed time - eliminates clock skew
+// FIX: Persists countdown state to localStorage so navigation to detail page continues accurately
+window.updateInlineSirenCountdown = function(acesId, source, isActive, activatedAt, cooldownMs, serverNow) {
+    if (typeof getInlineEl !== 'function') return;
+
+    const container = getInlineEl(acesId, 'sirenCountdownContainer');
+    const timerEl = getInlineEl(acesId, 'sirenCountdownTimer');
+
+    if (!container || !timerEl) return;
+
+    const now = Date.now();
+    const storageKey = `sirenCountdown_${acesId}`;  // Same key as detail page for cross-view sync
+    console.log(`🖥️ INLINE updateInlineSirenCountdown: activatedAt=${activatedAt}, now=${now}, serverNow=${serverNow}, diff=${activatedAt ? now - activatedAt : 'N/A'}ms`);
+
+    // Initialize or get countdown state for this device
+    if (!inlineSirenCountdownData.has(acesId)) {
+        inlineSirenCountdownData.set(acesId, {
+            activatedAt: null,
+            cooldownMs: null,
+            lastUpdateTime: null,
+            localStartTime: null,      // When we received the message (local clock)
+            initialRemainingMs: null   // How much time was remaining when we received it
+        });
+        console.log(`🖥️ INLINE: Created new state object for device ${acesId}`);
+    }
+    const state = inlineSirenCountdownData.get(acesId);
+
+    // Only show countdown for auto-activated sirens that are currently active with cooldown time
+    // When siren stops (isActive: false), countdown stops immediately to stay in sync with backend/ESP32
+    if (source !== 'auto' || !isActive || !activatedAt) {
+        console.log(`🖥️ INLINE: Hiding countdown (source=${source}, isActive=${isActive}, activatedAt=${activatedAt})`);
+        // Hide countdown
+        container.style.display = 'none';
+        // Clear the interval if one exists
+        if (inlineSirenCountdownIntervals.has(acesId)) {
+            console.log(`🖥️ INLINE: Clearing countdown interval`);
+            clearInterval(inlineSirenCountdownIntervals.get(acesId));
+            inlineSirenCountdownIntervals.delete(acesId);
+        }
+        state.activatedAt = null;
+        state.cooldownMs = null;
+        state.lastUpdateTime = null;
+        state.localStartTime = null;
+        state.initialRemainingMs = null;
+        // Clear localStorage when countdown ends
+        try { localStorage.removeItem(storageKey); } catch(e) {}
+        return;
+    }
+
+    // Additional safety: don't let older events override newer ones
+    // activatedAt from a more recent event should be >= previous one
+    if (state.lastUpdateTime && activatedAt < state.activatedAt) {
+        // Ignore older timestamps - don't override with stale data
+        console.log(`🖥️ INLINE: Ignoring stale timestamp ${activatedAt}, current is ${state.activatedAt}`);
+        return;
+    }
+
+    // Update state only if this is a fresh event (more recent activatedAt)
+    if (state.activatedAt !== activatedAt || state.cooldownMs !== cooldownMs) {
+        console.log(`🖥️ INLINE: Starting new countdown. Old: ${state.activatedAt}, New: ${activatedAt}`);
+
+        const cooldown = cooldownMs || 30000;
+        let initialRemaining;
+        let localStartTime;
+
+        // Calculate elapsed time using SERVER time (eliminates clock skew)
+        if (serverNow && activatedAt) {
+            const serverElapsed = serverNow - activatedAt;  // Both are server timestamps - no skew!
+            initialRemaining = cooldown - serverElapsed;
+            localStartTime = now;  // Anchor to local clock for subsequent ticks
+
+            console.log(`🖥️ INLINE: Using serverNow for calculation. serverElapsed=${serverElapsed}ms, initialRemaining=${initialRemaining}ms`);
+
+            // Clamp to valid range
+            if (initialRemaining <= 0) {
+                console.log(`🖥️ INLINE: Countdown already expired (serverElapsed=${serverElapsed}ms)`);
+                container.style.display = 'none';
+                return;
+            }
+            if (initialRemaining > cooldown) {
+                console.log(`🖥️ INLINE: initialRemaining=${initialRemaining}ms > cooldown=${cooldown}ms, capping`);
+                initialRemaining = cooldown;
+            }
+        } else {
+            // Fallback: no serverNow provided, use local clock (legacy behavior)
+            const serverElapsed = now - activatedAt;
+            initialRemaining = cooldown - serverElapsed;
+            localStartTime = now;
+
+            console.log(`🖥️ INLINE: No serverNow, using local clock. serverElapsed=${serverElapsed}ms`);
+
+            // Clamp to valid range
+            if (initialRemaining <= 0) {
+                console.log(`🖥️ INLINE: Countdown already expired (serverElapsed=${serverElapsed}ms)`);
+                container.style.display = 'none';
+                return;
+            }
+            if (initialRemaining > cooldown) {
+                console.log(`🖥️ INLINE: Clock skew detected, capping to cooldown`);
+                initialRemaining = cooldown;
+            }
+        }
+
+        state.activatedAt = activatedAt;
+        state.cooldownMs = cooldown;
+        state.lastUpdateTime = now;
+
+        // Clear old interval when updating with new times
+        if (inlineSirenCountdownIntervals.has(acesId)) {
+            console.log(`🖥️ INLINE: Clearing old countdown interval`);
+            clearInterval(inlineSirenCountdownIntervals.get(acesId));
+            inlineSirenCountdownIntervals.delete(acesId);
+        }
+
+        // Store local anchor point for relative timing
+        state.localStartTime = localStartTime;
+        state.initialRemainingMs = initialRemaining;
+
+        console.log(`🖥️ INLINE: Countdown starting with ${Math.ceil(initialRemaining / 1000)}s remaining`);
+
+        function tick() {
+            // Calculate remaining using LOCAL elapsed time since message receipt
+            // This is immune to clock skew after the initial calculation
+            const localElapsed = Date.now() - state.localStartTime;
+            let remainingMs = state.initialRemainingMs - localElapsed;
+            let remaining = Math.ceil(remainingMs / 1000);
+
+            // Clamp to valid range
+            remaining = Math.max(0, remaining);
+
+            if (remaining <= 0) {
+                console.log(`🖥️ INLINE: Countdown finished`);
+                container.style.display = 'none';
+                if (inlineSirenCountdownIntervals.has(acesId)) {
+                    clearInterval(inlineSirenCountdownIntervals.get(acesId));
+                    inlineSirenCountdownIntervals.delete(acesId);
+                }
+                // Clear localStorage when countdown ends
+                try { localStorage.removeItem(storageKey); } catch(e) {}
+                return;
+            }
+
+            timerEl.textContent = formatCountdown(remaining);
+            container.style.display = 'block';
+        }
+
+        // Initial tick to display immediately
+        console.log(`🖥️ INLINE: Initial tick`);
+        tick();
+
+        // Update every second
+        console.log(`🖥️ INLINE: Starting countdown interval`);
+        inlineSirenCountdownIntervals.set(acesId, setInterval(tick, 1000));
+    } else {
+        console.log(`🖥️ INLINE: Same timestamp, skipping update`);
+    }
+};
+
+// Initialize countdown from localStorage on page load (for page refreshes)
+// NOTE: This is DISABLED because localStorage timestamps become stale quickly
+// The websocket sync-siren-state will provide the authoritative current state
+function initSirenCountdownFromStorage(acesId) {
+    // DISABLED: Don't initialize from localStorage to avoid stale timestamps
+    // const activatedAt = localStorage.getItem(`sirenActivatedAt_${acesId}`);
+    // const cooldownMs = localStorage.getItem(`sirenCooldownMs_${acesId}`);
+    // const source = localStorage.getItem(`sirenSource_${acesId}`);
+    // const isActive = localStorage.getItem(`manualAlarm_${acesId}`) === 'true';
+    //
+    // if (activatedAt && cooldownMs && source === 'auto' && isActive) {
+    //     updateSirenCountdown(acesId, source, isActive, parseInt(activatedAt), parseInt(cooldownMs));
+    // }
+}
+
 // Helper function to get localStorage key for current device
 function getDeviceLogsKey() {
     return `deviceActivityLogs_${currentDeviceId}`;
@@ -536,7 +888,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Render saved logs from localStorage
         renderSavedActivityLogs();
-        
+
+        // DO NOT initialize siren countdown from localStorage
+        // Stale localStorage timestamps cause incorrect countdown starts
+        // Server's sync-siren-state (via WebSocket) will set the correct countdown within ~1s with current server timestamp
+        // const acesId = getDeviceIdFromName(activeDevice.name);
+        // initSirenCountdownFromStorage(acesId);
+
         // Sensor data now arrives via WebSocket 'sensor-data' event
         // Online/offline status arrives via WebSocket 'device-status-changed' event
         // No direct ESP32 polling needed
@@ -706,14 +1064,19 @@ window.toggleManualAlarm = function() {
           emitAlarmStateChanged(activeDevice.name, true, acesId, 'manual');
         }
     } else {
-        const logMsg = isOverride 
-          ? "USER OVERRIDE: Auto-siren deactivated by user." 
+        const logMsg = isOverride
+          ? "USER OVERRIDE: Auto-siren deactivated by user."
           : "Siren deactivated. Returning to monitoring mode.";
         addDeviceLog(logMsg, "info", true);
         if(alarmBtn) alarmBtn.classList.remove('is-active');
         if(alarmIconWrap) alarmIconWrap.innerHTML = ICONS.ALARM_OFF;
         if(alarmLabel) alarmLabel.textContent = 'ACTIVATE ALARM';
         localStorage.setItem(`sirenSource_${acesId}`, 'manual');
+        // Clear siren countdown data
+        localStorage.removeItem(`sirenActivatedAt_${acesId}`);
+        localStorage.removeItem(`sirenCooldownMs_${acesId}`);
+        // Hide countdown timer
+        updateSirenCountdown(acesId, 'manual', false, null, null);
         // Sync siren state to other devices + backend
         if (typeof emitAlarmStateChanged === 'function') {
           emitAlarmStateChanged(activeDevice.name, false, acesId, 'manual');
@@ -1301,6 +1664,11 @@ function toggleInlineManualAlarm(acesId) {
     if (alarmIcon) alarmIcon.innerHTML = ICONS.ALARM_OFF;
     if (alarmLabel) alarmLabel.textContent = 'ACTIVATE ALARM';
     localStorage.setItem(`sirenSource_${acesId}`, 'manual');
+    // Clear siren countdown data
+    localStorage.removeItem(`sirenActivatedAt_${acesId}`);
+    localStorage.removeItem(`sirenCooldownMs_${acesId}`);
+    // Hide countdown timer
+    updateInlineSirenCountdown(acesId, 'manual', false, null, null);
     if (typeof emitAlarmStateChanged === 'function') {
       emitAlarmStateChanged(device.name, false, acesId, 'manual');
     }

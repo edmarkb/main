@@ -307,6 +307,13 @@ function renderDevices() {
             <div data-role="statusBanner" class="status-banner banner-safe">
               <div data-role="bannerIcon"></div>
               <h2 data-role="bannerText">SYSTEM SAFE</h2>
+              <div data-role="sirenCountdownContainer" class="siren-countdown-container" style="display: none;">
+                <div class="siren-countdown-text">
+                  <span class="siren-countdown-label">Siren auto-off in:</span>
+                  <span data-role="sirenCountdownTimer" class="siren-countdown-timer">00:00</span>
+                </div>
+                <div class="siren-countdown-note">Tap Deactivate Alarm to turn off now</div>
+              </div>
             </div>
           </div>
 
