@@ -524,6 +524,95 @@ function showSettingsConfirm(title, message, confirmLabel = 'Confirm', type = 'p
 }
 
 // ================================================================
+// SETTINGS SUBMENU - ACTIVE SECTION HIGHLIGHTING & POP-OUT
+// ================================================================
+const settingsItems = document.querySelectorAll('.side-nav-settings-item');
+const settingsSections = document.querySelectorAll('.settings-section[id]');
+let lastClickedSectionId = null;
+let clickTimestamp = null;
+
+// Pop-out animation function
+function triggerPopOutAnimation(section) {
+  if (section) {
+    // Remove animation class if it exists
+    section.classList.remove('pop-out-animation');
+    // Trigger reflow to restart animation
+    void section.offsetWidth;
+    // Add animation class
+    section.classList.add('pop-out-animation');
+  }
+}
+
+// Smooth scroll to section when clicking items
+settingsItems.forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const sectionId = item.getAttribute('data-section');
+    const section = document.getElementById(sectionId);
+    
+    if (section) {
+      // Track the click to prevent scroll updates from overriding it
+      lastClickedSectionId = sectionId;
+      clickTimestamp = Date.now();
+      
+      // Update active state
+      settingsItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      
+      // Trigger pop-out animation
+      triggerPopOutAnimation(section);
+      
+      // Smooth scroll to center the section
+      section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+});
+
+// Update active item based on which section is most visible
+function updateActiveSectionByViewport() {
+  // Don't override active state for 1 second after a click
+  const timeSinceClick = Date.now() - (clickTimestamp || 0);
+  if (timeSinceClick < 1000) {
+    return;
+  }
+  
+  let closestSection = null;
+  let closestDistance = Infinity;
+  
+  settingsSections.forEach(section => {
+    const sectionTop = section.offsetTop;
+    const sectionHeight = section.offsetHeight;
+    const viewportMid = window.scrollY + window.innerHeight / 2;
+    
+    // Calculate distance from viewport center to section center
+    const sectionMid = sectionTop + sectionHeight / 2;
+    const distance = Math.abs(sectionMid - viewportMid);
+    
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestSection = section.id;
+    }
+  });
+  
+  if (closestSection) {
+    settingsItems.forEach(item => {
+      item.classList.remove('active');
+      if (item.getAttribute('data-section') === closestSection) {
+        item.classList.add('active');
+      }
+    });
+  }
+}
+
+window.addEventListener('scroll', () => {
+  updateActiveSectionByViewport();
+}, { passive: true });
+
+// Initial update
+updateActiveSectionByViewport();
+
+// ================================================================
 // INIT
 // ================================================================
 updateSettingsThemeIcon();

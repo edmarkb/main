@@ -45,6 +45,12 @@
       <span>Settings</span>
       <span class="settings-alert-dot" style="display:none;"></span>
     </a>
+    <div class="side-nav-settings-submenu" id="settingsSubmenu">
+      <a href="#system-configuration" class="side-nav-settings-item" data-section="system-configuration">System Configuration</a>
+      <a href="#sms-preview" class="side-nav-settings-item" data-section="sms-preview">SMS Preview</a>
+      <a href="#alert-contacts" class="side-nav-settings-item" data-section="alert-contacts">Alert Contacts</a>
+      <a href="#appearance" class="side-nav-settings-item" data-section="appearance">Appearance</a>
+    </div>
   </nav>
 
   <div class="side-nav-footer">
@@ -121,7 +127,7 @@
   </div>
 </header>
 
-<main class="settings-page">
+<main class="settings-page" style="padding-bottom: 400px;">
   <!-- Setup Required Banner (hidden when configured) -->
   <div class="settings-banner settings-banner-warning" id="setupBanner" style="display: none;">
     <svg viewBox="0 -960 960 960" fill="currentColor" width="24" height="24"><path d="m40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm302-40q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm-40-120h80v-200h-80v200Zm40-100Z"/></svg>
@@ -132,7 +138,7 @@
   </div>
 
   <!-- System Configuration Section -->
-  <section class="settings-section">
+  <section class="settings-section" id="system-configuration">
     <div class="settings-section-header" data-collapsible>
       <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-472Z"/></svg>
       <div>
@@ -173,7 +179,7 @@
   </section>
 
   <!-- SMS Preview Section -->
-  <section class="settings-section">
+  <section class="settings-section" id="sms-preview">
     <div class="settings-section-header" data-collapsible>
       <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280L160-640v400h640v-400L480-440Zm0-80 320-200H160l320 200ZM160-640v-80 480-400Z"/></svg>
       <div>
@@ -195,7 +201,7 @@
   </section>
 
   <!-- Alert Contacts Section -->
-  <section class="settings-section">
+  <section class="settings-section" id="alert-contacts">
     <div class="settings-section-header" data-collapsible>
       <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M200-246q54-53 125.5-83.5T480-360q83 0 154.5 30.5T760-246v-514H200v514Zm280-194q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm69-80h422q-44-39-99.5-59.5T480-280q-56 0-112.5 20.5T269-200Zm211-320q-25 0-42.5-17.5T420-580q0-25 17.5-42.5T480-640q25 0 42.5 17.5T540-580q0 25-17.5 42.5T480-520Zm0 17Z"/></svg>
       <div>
@@ -218,7 +224,7 @@
   </section>
 
   <!-- Appearance Section -->
-  <section class="settings-section">
+  <section class="settings-section" id="appearance">
     <div class="settings-section-header" data-collapsible>
       <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M480-28 346-160H160v-186L28-480l132-134v-186h186l134-132 134 132h186v186l132 134-132 134v186H614L480-28Zm0-112 100-100h140v-140l100-100-100-100v-140H580L480-820 380-720H240v140L140-480l100 100v140h140l100 100Zm0-100q42 0 71-29t29-71q0-42-29-71t-71-29q-42 0-71 29t-29 71q0 42 29 71t71 29Zm0-60q-17 0-28.5-11.5T440-340q0-17 11.5-28.5T480-380q17 0 28.5 11.5T520-340q0 17-11.5 28.5T480-300Zm0-140Z"/></svg>
       <div>
